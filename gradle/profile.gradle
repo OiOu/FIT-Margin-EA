@@ -1,0 +1,45 @@
+apply plugin: 'org.springframework.boot'
+
+/**
+ * PROFILES
+ */
+task checkProfile(){
+
+    if (project.hasProperty('env')) {
+        ext.profiles = env.split(",")
+        println "Profiles: $ext.profiles"
+    } else {
+        ext.profiles = "local"
+        println "Profiles can't be found. Default profile: $ext.profiles"
+        println "Profiles: $ext.profiles"
+    }
+
+    if (ext.profiles != null) {
+
+        if (ext.profiles.contains('local')) {
+            //apply from: 'gradle/profile_dev.gradle'
+        } else {
+            println "Can't find configs for such profile: $ext.profiles"
+        }
+
+        if (ext.profiles.contains('docker')) {
+            apply from: 'gradle/docker.gradle'
+        }
+
+        if (ext.profiles.contains('web')){
+        }
+    }
+}
+
+
+processResources {
+    filesMatching('**/application.yml') {
+        if (project.hasProperty('env'))
+            filter {
+                it.replace('#spring.profiles.active#', env)
+            }
+        filter {
+            it.replace('#project.version#', version)
+        }
+    }
+}

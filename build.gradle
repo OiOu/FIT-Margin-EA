@@ -1,12 +1,20 @@
 buildscript {
 	ext {
 		springBootVersion = '2.0.2.RELEASE'
+		nettyVersion = '4.1.25.Final'
+		jackson_version='2.9.5'
+		logstash_logback_encoder_version='5.0'
+		hibernate_version = '5.3.0.Final'
 	}
 	repositories {
+		mavenLocal()
 		mavenCentral()
 	}
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+	}
+	tasks.withType(JavaCompile) {
+		options.compilerArgs << "-Xlint:deprecation"
 	}
 }
 
@@ -14,21 +22,49 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
+apply from: 'gradle/profile.gradle'
 
 group = 'smartBot'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = 10
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
-repositories {
-	mavenCentral()
+defaultTasks 'bootRun'
+
+springBoot {
+	mainClassName = 'smartBot.SmartBotApplication'
+	buildInfo()
 }
 
-
+repositories {
+	mavenLocal()
+	mavenCentral()
+}
 dependencies {
-	compile('org.springframework.boot:spring-boot-starter-aop')
-	compile('org.springframework.boot:spring-boot-starter-data-jpa')
-	compile('org.flywaydb:flyway-core')
-	runtime('org.springframework.boot:spring-boot-devtools')
-	runtime('org.postgresql:postgresql')
+	// SPRING
+	compile("org.springframework.boot:spring-boot-starter")
+	compile("org.springframework.boot:spring-boot-starter-websocket")
+	compile "org.springframework.boot:spring-boot-starter-data-jpa"
+	// COMMONS
+	compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
+	compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.7'
+	compile group: 'joda-time', name: 'joda-time', version:'2.9.9'
+	compile group: 'org.modelmapper', name: 'modelmapper', version: '1.1.3'
+	// NETTY
+	compile group: 'io.netty', name: 'netty-all', version: nettyVersion
+	compile group: 'io.netty', name: 'netty-transport-native-epoll', version: nettyVersion, classifier:'linux-x86_64'
+	// JACKSON
+	compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: jackson_version
+	compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jackson_version
+	compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-joda', version: jackson_version
+	// DATABASE
+	compile group: 'org.postgresql', name: 'postgresql', version: '42.2.2'
+	compile group: 'org.hibernate', name: 'hibernate-core', version: hibernate_version
+	// TESTING
 	testCompile('org.springframework.boot:spring-boot-starter-test')
+	testCompile group: 'commons-collections', name: 'commons-collections', version: '3.2.2'
+	testCompile group: 'commons-codec', name: 'commons-codec', version: '1.11'
+}
+ext {
+	profile = 'local'
 }

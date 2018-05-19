@@ -1,0 +1,41 @@
+server:
+    port: 7979
+    address: 0.0.0.0
+    contextPath: /smartbot
+
+spring:
+    application:
+      name: smartbot
+    mvc:
+      favicon:
+        enabled: false
+    datasource:
+      url: jdbc:postgresql://localhost:5433/smartbot
+      name: smartbot
+      username: smartbot
+      password: root
+
+hibernate:
+  jdbc:
+    lob:
+      non_contextual_creation: true
+
+logging:
+    pattern:
+        console: '%d{MM-dd-yyyy HH:mm:ss} [%t] %c{1}[%p] - %m%n'
+    level:
+        org.hibernate.engine.jdbc.env.internal.LobCreatorBuilderImpl: ERROR
+
+netty:
+    niosocket:
+        port: 33333
+    compression:
+        enabled: true
+    ssl:
+        enabled: false
+
+
+
+
+
+

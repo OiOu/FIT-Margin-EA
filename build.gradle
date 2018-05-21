@@ -60,6 +60,9 @@ dependencies {
 	// DATABASE
 	compile group: 'org.postgresql', name: 'postgresql', version: '42.2.2'
 	compile group: 'org.hibernate', name: 'hibernate-core', version: hibernate_version
+	// QUARTZ
+	compile group: 'org.quartz-scheduler', name: 'quartz', version:'2.3.0'
+
 	// TESTING
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 	testCompile group: 'commons-collections', name: 'commons-collections', version: '3.2.2'

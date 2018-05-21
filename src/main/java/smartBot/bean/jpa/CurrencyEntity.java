@@ -1,7 +1,11 @@
 package smartBot.bean.jpa;
 
+import org.springframework.context.annotation.Lazy;
+import smartBot.bean.Currency;
+
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 @Entity
 @Table(name="currency", schema="public" )
@@ -17,10 +21,14 @@ public class CurrencyEntity implements Serializable {
     private Integer id;
 
     @Column(name="name", length=255)
-    private String name         ;
+    private String name;
 
     @Column(name="shortname", length=255)
-    private String shortName  ;
+    private String shortName;
+
+    @Lazy
+    @OneToMany(mappedBy="currency", targetEntity=CurrencyEntity.class)
+    private List<Currency> currency;
 
     //----------------------------------------------------------------------
     // CONSTRUCTOR(S)
@@ -54,5 +62,13 @@ public class CurrencyEntity implements Serializable {
 
     public void setShortName(String shortName) {
         this.shortName = shortName;
+    }
+
+    public List<Currency> getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(List<Currency> currency) {
+        this.currency = currency;
     }
 }

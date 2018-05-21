@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 
 import java.net.InetAddress;
@@ -15,37 +16,26 @@ public class SmartBotApplication {
 	private static final Logger log = LoggerFactory.getLogger(SmartBotApplication.class);
 
 	public static void main(String[] args) throws UnknownHostException {
-		SpringApplication app = new SpringApplication(SmartBotApplication.class);
+		ConfigurableApplicationContext context = SpringApplication.run(SmartBotApplication.class, args);
 
-		ConfigurableApplicationContext context = app.run(args);
-		Environment env = context.getEnvironment();
-		String http = checkHttp(env);
-
-		printArg("com.sun.management.jmxremote.port", env);
-		printArg("com.sun.management.jmxremote.rmi.port", env);
-		printArg("com.sun.management.jmxremote.local.only", env);
-		printArg("java.rmi.server.hostname", env);
-
-
-		log.info("\n----------------------------------------------------------\n\t" +
-						"Application '{}' is running! Access URLs:\n\t" +
-						"Local: \t\t{}://localhost:{}{}\n\t" +
-						"External: \t{}://{}:{}{}\n----------------------------------------------------------",
-				env.getProperty("spring.application.name"),
-				http,
-				env.getProperty("server.port"),
-				env.getProperty("server.contextPath"),
-				http,
-				InetAddress.getLocalHost().getHostAddress(),
-				env.getProperty("server.port"),
+		ConfigurableEnvironment env = context.getEnvironment();
+		String protocol = "http";
+		if (env.getProperty("server.ssl.key-store") != null) {
+			protocol = "https";
+		}
+		log.info("\n----------------------------------------------------------\n\t"
+						+ "Application '{}' is running! Access URLs:\n\t" + "Local: \t\t{}://localhost:{}{}\n\t"
+						+ "External: \t{}://{}:{}{}\n----------------------------------------------------------",
+				env.getProperty("spring.application.name"), protocol, env.getProperty("server.port"),
+				env.getProperty("server.contextPath"), protocol,
+				InetAddress.getLocalHost().getHostAddress(), env.getProperty("server.port"),
 				env.getProperty("server.contextPath"));
-
 		String configServerStatus = env.getProperty("configserver.status");
-		log.info("\n----------------------------------------------------------\n\t" +
-						"Config Server: \t{}\n----------------------------------------------------------",
-				configServerStatus == null ? "Not found or not setup for this application" : configServerStatus);
-
-		SpringApplication.run(SmartBotApplication.class, args);
+		log.info("\n----------------------------------------------------------\n\t"
+						+ "Config Server: \t{}\n----------------------------------------------------------",
+				configServerStatus == null ?
+						"Not found or not setup for this application" :
+						configServerStatus);
 	}
 
 	private static void printArg(String strArgumentName, Environment env){

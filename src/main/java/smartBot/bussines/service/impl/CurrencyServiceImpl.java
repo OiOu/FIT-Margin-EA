@@ -29,7 +29,7 @@ public class CurrencyServiceImpl implements CurrencyService{
         CurrencyEntity currencyEntity = currencyJpaRepository.getById(id);
         Currency currency = null;
         if (currencyEntity != null) {
-            currency = currencyServiceMapper.mapCurrencyEntityToCurrency(currencyEntity);
+            currency = currencyServiceMapper.mapEntityToBean(currencyEntity);
         }
         return currency;
     }
@@ -39,7 +39,7 @@ public class CurrencyServiceImpl implements CurrencyService{
         Iterable<CurrencyEntity> currencyEntities = currencyJpaRepository.findAll();
         List<Currency> beans = new ArrayList<Currency>();
         for (CurrencyEntity currencyEntity : currencyEntities) {
-            beans.add(currencyServiceMapper.mapCurrencyEntityToCurrency(currencyEntity));
+            beans.add(currencyServiceMapper.mapEntityToBean(currencyEntity));
         }
 
         return beans;
@@ -50,21 +50,31 @@ public class CurrencyServiceImpl implements CurrencyService{
         CurrencyEntity currencyEntity = currencyJpaRepository.findByShortName(shortName);
         Currency currency = null;
         if (currencyEntity != null) {
-            currency = currencyServiceMapper.mapCurrencyEntityToCurrency(currencyEntity);
+            currency = currencyServiceMapper.mapEntityToBean(currencyEntity);
         }
         return currency;
     }
 
     @Override
     public Currency save(Currency currency) {
+        if (currency == null) {
+            throw new IllegalStateException("ERROR: Save: Currency is NULL!");
+        }
+
         CurrencyEntity currencyEntity = currencyJpaRepository.getById(currency.getId());
-        currencyServiceMapper.mapCurrencyToCurrencyEntity(currency, currencyEntity);
+        if (currencyEntity == null) throw new IllegalArgumentException("ERROR: Save: Currency with ID: " + currency.getId() + " was not found!");
+
+        currencyServiceMapper.mapBeanToEntity(currency, currencyEntity);
         CurrencyEntity currencyEntitySaved = currencyJpaRepository.save(currencyEntity);
-        return currencyServiceMapper.mapCurrencyEntityToCurrency(currencyEntitySaved);
+        return currencyServiceMapper.mapEntityToBean(currencyEntitySaved);
     }
 
     @Override
     public Currency create(Currency currency) {
+        if (currency == null) {
+            throw new IllegalStateException("ERROR: Create: Currency is NULL!");
+        }
+
         Integer id = currency.getId();
         if (id == null) {
             id = new Integer(0);
@@ -72,26 +82,38 @@ public class CurrencyServiceImpl implements CurrencyService{
         CurrencyEntity currencyEntity = currencyJpaRepository.getById(id);
 
         if (currencyEntity != null) {
-            throw new IllegalStateException("already.exists");
+            throw new IllegalStateException("ERROR: Create: Currency with ID: " + currency.getId() + " already exists!");
         }
         currencyEntity = new CurrencyEntity();
-        currencyServiceMapper.mapCurrencyToCurrencyEntity(currency, currencyEntity);
+        currencyServiceMapper.mapBeanToEntity(currency, currencyEntity);
         CurrencyEntity currencyEntitySaved = currencyJpaRepository.save(currencyEntity);
-        return currencyServiceMapper.mapCurrencyEntityToCurrency(currencyEntitySaved);
+        return currencyServiceMapper.mapEntityToBean(currencyEntitySaved);
     }
 
     @Override
     public Currency update(Currency currency) {
-        CurrencyEntity assetEntity = currencyJpaRepository.getById(currency.getId());
-        currencyServiceMapper.mapCurrencyToCurrencyEntity(currency, assetEntity);
-        CurrencyEntity currencyEntitySaved = currencyJpaRepository.save(assetEntity);
+        if (currency == null) {
+            throw new IllegalStateException("ERROR: Update: Currency is NULL!");
+        }
 
-        return currencyServiceMapper.mapCurrencyEntityToCurrency(currencyEntitySaved);
+        CurrencyEntity currencyEntity = currencyJpaRepository.getById(currency.getId());
+        if (currencyEntity == null) throw new IllegalArgumentException("ERROR: Update: Currency with ID: " + currency.getId() + " was not found!");
+
+        currencyServiceMapper.mapBeanToEntity(currency, currencyEntity);
+        CurrencyEntity currencyEntitySaved = currencyJpaRepository.save(currencyEntity);
+
+        return currencyServiceMapper.mapEntityToBean(currencyEntitySaved);
     }
 
     @Override
     public void delete(Currency currency) {
+        if (currency == null) {
+            throw new IllegalStateException("ERROR: Delete: Currency is NULL!");
+        }
+
         CurrencyEntity currencyEntity = currencyJpaRepository.getById(currency.getId());
+        if (currencyEntity == null) throw new IllegalArgumentException("ERROR: Delete: Currency with ID: " + currency.getId() + " was not found!");
+
         currencyJpaRepository.delete(currencyEntity);
     }
 

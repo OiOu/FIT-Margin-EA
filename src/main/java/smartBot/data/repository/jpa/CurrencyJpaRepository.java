@@ -16,7 +16,7 @@ public interface CurrencyJpaRepository extends CrudRepository<CurrencyEntity, In
     @Query("SELECT ce " +
             " FROM CurrencyEntity ce " +
                 " WHERE " +
-                    " ce.id in (?1)")
+                    " ce.id = ?1")
     CurrencyEntity getById(Integer id);
 
     @Query("SELECT ce FROM CurrencyEntity ce")

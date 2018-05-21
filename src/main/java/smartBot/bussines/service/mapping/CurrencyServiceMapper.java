@@ -23,10 +23,10 @@ public class CurrencyServiceMapper extends AbstractServiceMapper {
     }
 
     /**
-     * Mapping from 'CurrencyEntity' to 'Currency'
+     * Mapping from '{@link CurrencyEntity}' to '{@link Currency}'
      * @param currencyEntity
      */
-    public Currency mapCurrencyEntityToCurrency(CurrencyEntity currencyEntity) {
+    public Currency mapEntityToBean(CurrencyEntity currencyEntity) {
         if(currencyEntity == null) {
             return null;
         }
@@ -36,11 +36,11 @@ public class CurrencyServiceMapper extends AbstractServiceMapper {
     }
 
     /**
-     * Mapping from 'Currency' to 'CurrencyEntity'
+     * Mapping from '{@link Currency}' to '{@link CurrencyEntity}'
      * @param currency
      * @param currencyEntity
      */
-    public void mapCurrencyToCurrencyEntity(Currency currency, CurrencyEntity currencyEntity) {
+    public void mapBeanToEntity(Currency currency, CurrencyEntity currencyEntity) {
         if(currency == null) {
             return;
         }

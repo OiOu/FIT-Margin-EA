@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Currency implements Serializable {
@@ -22,6 +23,10 @@ public class Currency implements Serializable {
     @Size( max = 255 )
     private String shortName; // currency code: EUR, USD, CAD
 
+    @Size( max = 255 )
+    private String clearingCode; // feature code
+
+    private List<CurrencyRates> rates;
 
     public Integer getId() {
         return id;
@@ -45,5 +50,21 @@ public class Currency implements Serializable {
 
     public void setShortName(String shortName) {
         this.shortName = shortName;
+    }
+
+    public String getClearingCode() {
+        return clearingCode;
+    }
+
+    public void setClearingCode(String clearingCode) {
+        this.clearingCode = clearingCode;
+    }
+
+    public List<CurrencyRates> getRates() {
+        return rates;
+    }
+
+    public void setRates(List<CurrencyRates> rates) {
+        this.rates = rates;
     }
 }

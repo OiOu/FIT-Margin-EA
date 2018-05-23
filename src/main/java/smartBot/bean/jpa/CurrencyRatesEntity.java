@@ -1,9 +1,13 @@
 package smartBot.bean.jpa;
 
-import org.joda.time.DateTime;
+import org.springframework.format.annotation.DateTimeFormat;
+import smartBot.defines.Strings;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Date;
+
+;
 
 @Entity
 @Table(name="currency_rates", schema="public" )
@@ -25,10 +29,11 @@ public class CurrencyRatesEntity implements Serializable {
     private Double ask;
 
     @Column(name="timestamp")
-    private DateTime timestamp;
+    @DateTimeFormat(pattern = Strings.DATE_FORMAT_YYYYMMDD_HHMISS)
+    private Date timestamp;
 
     @ManyToOne
-    @JoinColumn(name="currency", referencedColumnName="id")
+    @JoinColumn(name="currency_id", nullable=false)
     private CurrencyEntity currency;
 
     //----------------------------------------------------------------------
@@ -66,11 +71,11 @@ public class CurrencyRatesEntity implements Serializable {
         this.ask = ask;
     }
 
-    public DateTime getTimestamp() {
+    public Date getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(DateTime timestamp) {
+    public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
     }
 

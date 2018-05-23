@@ -15,8 +15,8 @@ public interface CurrencyRatesJpaRepository extends CrudRepository<CurrencyRates
     @Query("SELECT cre FROM CurrencyRatesEntity cre JOIN cre.currency c WHERE c.shortName = ?1")
     List<CurrencyRatesEntity> findAllByCurrencyShortName(String shortName);
 
-    @Query("SELECT cre FROM CurrencyRatesEntity cre JOIN cre.currency c WHERE cre.id = ?1 and c.id = ?2")
-    CurrencyRatesEntity getByIdAndCurrencyId(Integer id, Integer currencyId);
+    @Query("SELECT cre FROM CurrencyRatesEntity cre JOIN cre.currency c WHERE c.id = $1")
+    List<CurrencyRatesEntity> findAllByCurrencyId(Integer currencyId);
 
     @Query("SELECT cre FROM CurrencyRatesEntity cre WHERE cre.id = ?1 ")
     CurrencyRatesEntity getById(Integer id);
@@ -25,6 +25,6 @@ public interface CurrencyRatesJpaRepository extends CrudRepository<CurrencyRates
     List<CurrencyRatesEntity> getByIds(List<Integer> ids);
 
     @Modifying
-    @Query("DELETE cre FROM CurrencyRatesEntity cre, JOIN cre.currency c WHERE c.shortName = ?1")
-    void deleteByShortName(String shortName);
+    @Query("DELETE FROM CurrencyRatesEntity AS cre WHERE cre.currency.shortName = ?1")
+    void deleteAllByShortName(String shortName);
 }

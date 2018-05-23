@@ -1,11 +1,12 @@
 package smartBot.bean;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.joda.time.DateTime;
-import smartBot.bean.jpa.CurrencyEntity;
+import smartBot.defines.Strings;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.util.Date;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CurrencyRates implements Serializable {
@@ -21,10 +22,11 @@ public class CurrencyRates implements Serializable {
     private Double ask;
 
     @NotNull
-    private DateTime timestamp;
+    @JsonFormat(pattern = Strings.DATE_FORMAT_YYYYMMDD_HHMISS)
+    private Date timestamp;
 
     @NotNull
-    private CurrencyEntity currency;
+    private Integer currencyId;
 
     public void setId( Integer id ) {
         this.id = id ;
@@ -50,19 +52,19 @@ public class CurrencyRates implements Serializable {
         this.ask = ask;
     }
 
-    public DateTime getTimestamp() {
+    public Date getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(DateTime timestamp) {
+    public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
     }
 
-    public CurrencyEntity getCurrency() {
-        return currency;
+    public Integer getCurrencyId() {
+        return currencyId;
     }
 
-    public void setCurrency(CurrencyEntity currency) {
-        this.currency = currency;
+    public void setCurrencyId(Integer currencyId) {
+        this.currencyId = currencyId;
     }
 }

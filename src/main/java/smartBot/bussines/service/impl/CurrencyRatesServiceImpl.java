@@ -8,6 +8,7 @@ import smartBot.bean.jpa.CurrencyEntity;
 import smartBot.bean.jpa.CurrencyRatesEntity;
 import smartBot.bussines.service.CurrencyRatesService;
 import smartBot.bussines.service.mapping.CurrencyRatesServiceMapper;
+import smartBot.data.repository.jpa.CurrencyJpaRepository;
 import smartBot.data.repository.jpa.CurrencyRatesJpaRepository;
 
 import javax.annotation.Resource;
@@ -20,6 +21,9 @@ public class CurrencyRatesServiceImpl implements CurrencyRatesService {
 
     @Autowired
     private CurrencyRatesJpaRepository currencyRatesJpaRepository;
+
+    @Autowired
+    private CurrencyJpaRepository currencyJpaRepository;
 
     @Resource
     private CurrencyRatesServiceMapper currencyRatesServiceMapper;
@@ -51,22 +55,12 @@ public class CurrencyRatesServiceImpl implements CurrencyRatesService {
             throw new IllegalStateException("ERROR: Create: CurrencyRates is NULL!");
         }
 
-        Integer id = currencyRates.getId();
-        if (id == null) {
-            id = new Integer(0);
-        }
-        CurrencyEntity currencyEntity = currencyRates.getCurrency();
+        CurrencyEntity currencyEntity = currencyJpaRepository.getById(currencyRates.getCurrencyId());
         if (currencyEntity == null) {
-            throw new IllegalStateException("ERROR: Create: CurrencyEntity is NULL!");
+            throw new IllegalStateException("ERROR: Create: CurrencyRates: currencyEntity is NULL!");
         }
-
-        CurrencyRatesEntity currencyRatesEntity = currencyRatesJpaRepository.getByIdAndCurrencyId(id, currencyEntity.getId());
-
-        if (currencyRatesEntity != null) {
-            throw new IllegalStateException("ERROR: Create: CurrencyRatesEntity with ID: " + currencyRatesEntity.getId() + " already exists!");
-        }
-
-        currencyRatesEntity = new CurrencyRatesEntity();
+        CurrencyRatesEntity currencyRatesEntity = new CurrencyRatesEntity();
+        currencyRatesEntity.setCurrency(currencyEntity);
 
         currencyRatesServiceMapper.mapBeanToEntity(currencyRates, currencyRatesEntity);
         CurrencyRatesEntity currencyEntitySaved = currencyRatesJpaRepository.save(currencyRatesEntity);
@@ -88,6 +82,6 @@ public class CurrencyRatesServiceImpl implements CurrencyRatesService {
 
     @Override
     public void deleteByShortName(String shortName) {
-        currencyRatesJpaRepository.deleteByShortName(shortName);
+        currencyRatesJpaRepository.deleteAllByShortName(shortName);
     }
 }

@@ -8,7 +8,8 @@ CREATE SEQUENCE public.currency_id_seq
 CREATE TABLE public.currency (
 	id integer NOT NULL DEFAULT nextval('currency_id_seq'::regclass),
 	"name" varchar(255) NULL,
-	shortname varchar(255) NULL
+	shortname varchar(255) NULL,
+	clearingcode varchar(255) NULL
 )
 WITH (
 	OIDS=FALSE

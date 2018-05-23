@@ -1,6 +1,7 @@
 package smartBot.bussines.service.mapping;
 
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.stereotype.Component;
 import smartBot.bean.CurrencyRates;
 import smartBot.bean.jpa.CurrencyRatesEntity;
@@ -15,6 +16,11 @@ public class CurrencyRatesServiceMapper extends AbstractServiceMapper {
      * ModelMapper : bean to bean mapping library.
      */
     private ModelMapper modelMapper;
+
+    public CurrencyRatesServiceMapper() {
+        modelMapper = new ModelMapper();
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+    }
 
     /**
      * Mapping from '{@link CurrencyRatesEntity}' to '{@link CurrencyRates}'

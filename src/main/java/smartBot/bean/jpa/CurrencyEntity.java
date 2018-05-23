@@ -1,8 +1,5 @@
 package smartBot.bean.jpa;
 
-import org.springframework.context.annotation.Lazy;
-import smartBot.bean.Currency;
-
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
@@ -16,7 +13,6 @@ public class CurrencyEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
     private Integer id;
 
@@ -26,9 +22,11 @@ public class CurrencyEntity implements Serializable {
     @Column(name="shortname", length=255)
     private String shortName;
 
-    @Lazy
-    @OneToMany(mappedBy="currency", targetEntity=CurrencyEntity.class)
-    private List<Currency> currency;
+    @Column(name="clearingcode", length=255)
+    private String clearingCode;
+
+    @OneToMany(mappedBy="currency", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<CurrencyRatesEntity> rates;
 
     //----------------------------------------------------------------------
     // CONSTRUCTOR(S)
@@ -64,11 +62,19 @@ public class CurrencyEntity implements Serializable {
         this.shortName = shortName;
     }
 
-    public List<Currency> getCurrency() {
-        return currency;
+    public String getClearingCode() {
+        return clearingCode;
     }
 
-    public void setCurrency(List<Currency> currency) {
-        this.currency = currency;
+    public void setClearingCode(String clearingCode) {
+        this.clearingCode = clearingCode;
+    }
+
+    public List<CurrencyRatesEntity> getRates() {
+        return rates;
+    }
+
+    public void setRates(List<CurrencyRatesEntity> rates) {
+        this.rates = rates;
     }
 }

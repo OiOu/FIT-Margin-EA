@@ -1,7 +1,10 @@
 package smartBot.bean.jpa;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Date;
 
 @Entity
 @Table(name="margin_rates", schema="public" )
@@ -43,13 +46,18 @@ public class MarginRatesEntity implements Serializable {
     private String endPeriod;
 
     @Column(name="maintenancerate")
-    private String maintenanceRate;
+    private Double maintenanceRate;
 
     @Column(name="volscanmaintenancerate")
-    private String volScanMaintenanceRate;
+    private Double volScanMaintenanceRate;
 
-    @Column(name="currency")
-    private String currency;
+    @ManyToOne
+    @JoinColumn(name="currency_id", nullable=false)
+    private CurrencyEntity currency;
+
+    @Column(name="startdate")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date startDate;
 
     //----------------------------------------------------------------------
     // CONSTRUCTOR(S)
@@ -143,27 +151,35 @@ public class MarginRatesEntity implements Serializable {
         this.endPeriod = endPeriod;
     }
 
-    public String getMaintenanceRate() {
+    public Double getMaintenanceRate() {
         return maintenanceRate;
     }
 
-    public void setMaintenanceRate(String maintenanceRate) {
+    public void setMaintenanceRate(Double maintenanceRate) {
         this.maintenanceRate = maintenanceRate;
     }
 
-    public String getVolScanMaintenanceRate() {
+    public Double getVolScanMaintenanceRate() {
         return volScanMaintenanceRate;
     }
 
-    public void setVolScanMaintenanceRate(String volScanMaintenanceRate) {
+    public void setVolScanMaintenanceRate(Double volScanMaintenanceRate) {
         this.volScanMaintenanceRate = volScanMaintenanceRate;
     }
 
-    public String getCurrency() {
+    public CurrencyEntity getCurrency() {
         return currency;
     }
 
-    public void setCurrency(String currency) {
+    public void setCurrency(CurrencyEntity currency) {
         this.currency = currency;
+    }
+
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
     }
 }

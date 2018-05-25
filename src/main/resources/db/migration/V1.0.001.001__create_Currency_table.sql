@@ -1,20 +1,17 @@
-CREATE SEQUENCE public.currency_id_seq
-  INCREMENT 1
-  MINVALUE 1
-  MAXVALUE 9223372036854775807
-  START 1
-  CACHE 1;
-
 CREATE TABLE public.currency (
-	id integer NOT NULL DEFAULT nextval('currency_id_seq'::regclass),
+	id serial NOT NULL,
 	"name" varchar(255) NULL,
 	shortname varchar(255) NULL,
-	clearingcode varchar(255) NULL
+	clearingcode varchar(255) NULL,
+	pricepercontract float4 NULL,
+	isinverted bool NULL DEFAULT false,
+	CONSTRAINT currency_pk PRIMARY KEY (id)
 )
 WITH (
 	OIDS=FALSE
 ) ;
+CREATE UNIQUE INDEX currency_shortname_idx ON public.currency USING btree (shortname) ;
 
-CREATE UNIQUE INDEX currency_shortname_idx ON public.currency (shortname) ;
+-- Permissions
 
-ALTER TABLE public.currency ADD CONSTRAINT currency_pk PRIMARY KEY (id) ;
+ALTER TABLE public.currency OWNER TO smartbot;

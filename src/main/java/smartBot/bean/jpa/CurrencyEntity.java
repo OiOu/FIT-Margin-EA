@@ -25,8 +25,17 @@ public class CurrencyEntity implements Serializable {
     @Column(name="clearingcode", length=255)
     private String clearingCode;
 
+    @Column(name="pricepercontract")
+    private Double pricePerContract;
+
+    @Column(name="inverted")
+    private boolean inverted;
+
     @OneToMany(mappedBy="currency", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<CurrencyRatesEntity> rates;
+
+    @OneToMany(mappedBy="currency", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<MarginRatesEntity> margins;
 
     //----------------------------------------------------------------------
     // CONSTRUCTOR(S)
@@ -70,11 +79,35 @@ public class CurrencyEntity implements Serializable {
         this.clearingCode = clearingCode;
     }
 
+    public Double getPricePerContract() {
+        return pricePerContract;
+    }
+
+    public boolean getInverted() {
+        return inverted;
+    }
+
+    public void setInverted(boolean inverted) {
+        this.inverted = inverted;
+    }
+
+    public void setPricePerContract(Double pricePerContract) {
+        this.pricePerContract = pricePerContract;
+    }
+
     public List<CurrencyRatesEntity> getRates() {
         return rates;
     }
 
     public void setRates(List<CurrencyRatesEntity> rates) {
         this.rates = rates;
+    }
+
+    public List<MarginRatesEntity> getMargins() {
+        return margins;
+    }
+
+    public void setMargins(List<MarginRatesEntity> margins) {
+        this.margins = margins;
     }
 }

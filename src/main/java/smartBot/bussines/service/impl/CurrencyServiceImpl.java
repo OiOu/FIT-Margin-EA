@@ -55,20 +55,13 @@ public class CurrencyServiceImpl implements CurrencyService{
         return currency;
     }
 
+    @Transactional
     @Override
-    public Currency save(Currency currency) {
-        if (currency == null) {
-            throw new IllegalStateException("ERROR: Save: Currency is NULL!");
-        }
-
-        CurrencyEntity currencyEntity = currencyJpaRepository.getById(currency.getId());
-        if (currencyEntity == null) throw new IllegalArgumentException("ERROR: Save: Currency with ID: " + currency.getId() + " was not found!");
-
-        currencyServiceMapper.mapBeanToEntity(currency, currencyEntity);
-        CurrencyEntity currencyEntitySaved = currencyJpaRepository.save(currencyEntity);
-        return currencyServiceMapper.mapEntityToBean(currencyEntitySaved);
+    public void delete(String shortName) {
+        currencyJpaRepository.deleteAllByShortName(shortName);
     }
 
+    @Transactional
     @Override
     public Currency create(Currency currency) {
         if (currency == null) {
@@ -90,21 +83,7 @@ public class CurrencyServiceImpl implements CurrencyService{
         return currencyServiceMapper.mapEntityToBean(currencyEntitySaved);
     }
 
-    @Override
-    public Currency update(Currency currency) {
-        if (currency == null) {
-            throw new IllegalStateException("ERROR: Update: Currency is NULL!");
-        }
-
-        CurrencyEntity currencyEntity = currencyJpaRepository.getById(currency.getId());
-        if (currencyEntity == null) throw new IllegalArgumentException("ERROR: Update: Currency with ID: " + currency.getId() + " was not found!");
-
-        currencyServiceMapper.mapBeanToEntity(currency, currencyEntity);
-        CurrencyEntity currencyEntitySaved = currencyJpaRepository.save(currencyEntity);
-
-        return currencyServiceMapper.mapEntityToBean(currencyEntitySaved);
-    }
-
+    @Transactional
     @Override
     public void delete(Currency currency) {
         if (currency == null) {
@@ -117,6 +96,7 @@ public class CurrencyServiceImpl implements CurrencyService{
         currencyJpaRepository.delete(currencyEntity);
     }
 
+    @Transactional
     @Override
     public void delete(Integer id) {
         currencyJpaRepository.deleteById(id);

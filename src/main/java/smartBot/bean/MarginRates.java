@@ -2,9 +2,11 @@ package smartBot.bean;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.Date;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MarginRates implements Serializable {
@@ -38,11 +40,13 @@ public class MarginRates implements Serializable {
 
     private String endPeriod;
 
-    private String maintenanceRate;
+    private Double maintenanceRate;
 
-    private String volScanMaintenanceRate;
+    private Double volScanMaintenanceRate;
 
-    private String currency; // shortname
+    private Integer currencyId;
+
+    private Date startDate = new Date();
 
     public Integer getId() {
         return id;
@@ -124,27 +128,41 @@ public class MarginRates implements Serializable {
         this.endPeriod = endPeriod;
     }
 
-    public String getMaintenanceRate() {
+    public Double getMaintenanceRate() {
         return maintenanceRate;
     }
 
     public void setMaintenanceRate(String maintenanceRate) {
-        this.maintenanceRate = maintenanceRate;
+        if (StringUtils.isNotEmpty(maintenanceRate) && maintenanceRate.contains(" ")) {
+            maintenanceRate = maintenanceRate.substring(0, maintenanceRate.indexOf(" "));
+        }
+        if (StringUtils.isNotEmpty(maintenanceRate)) {
+            maintenanceRate = maintenanceRate.replace(",", "");
+        }
+        this.maintenanceRate = Double.valueOf(maintenanceRate);
     }
 
-    public String getVolScanMaintenanceRate() {
+    public Double getVolScanMaintenanceRate() {
         return volScanMaintenanceRate;
     }
 
     public void setVolScanMaintenanceRate(String volScanMaintenanceRate) {
-        this.volScanMaintenanceRate = volScanMaintenanceRate;
+        this.volScanMaintenanceRate = Double.valueOf(volScanMaintenanceRate);
     }
 
-    public String getCurrency() {
-        return currency;
+    public Integer getCurrencyId() {
+        return currencyId;
     }
 
-    public void setCurrency(String currency) {
-        this.currency = currency;
+    public void setCurrencyId(Integer currencyId) {
+        this.currencyId = currencyId;
+    }
+
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
     }
 }

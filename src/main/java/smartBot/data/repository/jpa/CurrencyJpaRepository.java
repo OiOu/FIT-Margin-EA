@@ -1,5 +1,6 @@
 package smartBot.data.repository.jpa;
 
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import smartBot.bean.jpa.CurrencyEntity;
@@ -19,9 +20,6 @@ public interface CurrencyJpaRepository extends CrudRepository<CurrencyEntity, In
                     " ce.id = ?1")
     CurrencyEntity getById(Integer id);
 
-    @Query("SELECT ce FROM CurrencyEntity ce")
-    List<CurrencyEntity> findAll();
-
     @Query("SELECT ce " +
                 " FROM CurrencyEntity ce " +
                     " WHERE " +
@@ -34,5 +32,9 @@ public interface CurrencyJpaRepository extends CrudRepository<CurrencyEntity, In
                     " WHERE " +
                         " ce.shortName = ?1")
     CurrencyEntity findByShortName(String shortName);
+
+    @Modifying
+    @Query("DELETE FROM CurrencyEntity AS ce WHERE ce.shortName = ?1")
+    void deleteAllByShortName(String shortName);
 
 }

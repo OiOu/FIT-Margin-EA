@@ -9,9 +9,6 @@ import java.util.List;
 
 public interface CurrencyRatesJpaRepository extends CrudRepository<CurrencyRatesEntity, Integer> {
 
-    @Query("SELECT cre FROM CurrencyRatesEntity cre")
-    List<CurrencyRatesEntity> findAll();
-
     @Query("SELECT cre FROM CurrencyRatesEntity cre JOIN cre.currency c WHERE c.shortName = ?1")
     List<CurrencyRatesEntity> findAllByCurrencyShortName(String shortName);
 
@@ -25,6 +22,6 @@ public interface CurrencyRatesJpaRepository extends CrudRepository<CurrencyRates
     List<CurrencyRatesEntity> getByIds(List<Integer> ids);
 
     @Modifying
-    @Query("DELETE FROM CurrencyRatesEntity AS cre WHERE cre.currency.shortName = ?1")
+    @Query("DELETE FROM CurrencyRatesEntity AS cre WHERE cre.currency IN (SELECT ce FROM CurrencyEntity AS ce WHERE ce.shortName = ?1)")
     void deleteAllByShortName(String shortName);
 }

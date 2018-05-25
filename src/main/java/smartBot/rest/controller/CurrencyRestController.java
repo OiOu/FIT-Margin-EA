@@ -40,15 +40,6 @@ public class CurrencyRestController {
         return currencyService.create(currency);
     }
 
-    @RequestMapping(value = "/currency", method = RequestMethod.PUT,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
-    @Transactional
-    public Currency update(@RequestBody Currency currency) {
-        return currencyService.save(currency);
-    }
-
     @RequestMapping(value = "/currency/{id}", method = RequestMethod.DELETE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)

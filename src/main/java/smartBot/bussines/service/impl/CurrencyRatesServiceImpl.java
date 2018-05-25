@@ -29,6 +29,16 @@ public class CurrencyRatesServiceImpl implements CurrencyRatesService {
     private CurrencyRatesServiceMapper currencyRatesServiceMapper;
 
     @Override
+    public CurrencyRates findById(Integer id) {
+        CurrencyRatesEntity currencyRatesEntity = currencyRatesJpaRepository.getById(id);
+        CurrencyRates currencyRates = null;
+        if (currencyRatesEntity != null) {
+            currencyRates = currencyRatesServiceMapper.mapEntityToBean(currencyRatesEntity);
+        }
+        return currencyRates;
+    }
+
+    @Override
     public List<CurrencyRates> findAll() {
         Iterable<CurrencyRatesEntity> currencyRateEntities = currencyRatesJpaRepository.findAll();
         List<CurrencyRates> beans = new ArrayList<CurrencyRates>();
@@ -49,6 +59,13 @@ public class CurrencyRatesServiceImpl implements CurrencyRatesService {
         return currencyRates;
     }
 
+    @Transactional
+    @Override
+    public void delete(String shortName) {
+        currencyRatesJpaRepository.deleteAllByShortName(shortName);
+    }
+
+    @Transactional
     @Override
     public CurrencyRates create(CurrencyRates currencyRates) {
         if (currencyRates == null) {
@@ -67,6 +84,7 @@ public class CurrencyRatesServiceImpl implements CurrencyRatesService {
         return currencyRatesServiceMapper.mapEntityToBean(currencyEntitySaved);
     }
 
+    @Transactional
     @Override
     public void delete(CurrencyRates currencyRates) {
         CurrencyRatesEntity currencyEntity = currencyRatesJpaRepository.getById(currencyRates.getId());
@@ -75,13 +93,10 @@ public class CurrencyRatesServiceImpl implements CurrencyRatesService {
         currencyRatesJpaRepository.delete(currencyEntity);
     }
 
+    @Transactional
     @Override
-    public void deleteById(Integer id) {
+    public void delete(Integer id) {
         currencyRatesJpaRepository.deleteById(id);
     }
 
-    @Override
-    public void deleteByShortName(String shortName) {
-        currencyRatesJpaRepository.deleteAllByShortName(shortName);
-    }
 }

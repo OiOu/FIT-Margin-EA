@@ -27,6 +27,9 @@ public class Currency implements Serializable {
     @Size( max = 255 )
     private String clearingCode; // feature code
 
+    @Size( max = 255 )
+    private String futuresCode;
+
     @NotNull
     private Double pricePerContract;
 
@@ -65,6 +68,14 @@ public class Currency implements Serializable {
 
     public void setClearingCode(String clearingCode) {
         this.clearingCode = clearingCode;
+    }
+
+    public String getFuturesCode() {
+        return futuresCode;
+    }
+
+    public void setFuturesCode(String futuresCode) {
+        this.futuresCode = futuresCode;
     }
 
     public List<CurrencyRates> getRates() {

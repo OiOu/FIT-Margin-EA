@@ -1,5 +1,8 @@
 package smartBot.bussines.service.impl;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,11 +16,14 @@ import smartBot.data.repository.jpa.MarginRatesJpaRepository;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Component
 @Transactional
 public class MarginRatesServiceImpl implements MarginRatesService {
+
+    private static final Log logger = LogFactory.getLog(MarginRatesServiceImpl.class);
 
     @Autowired
     private MarginRatesJpaRepository marginRatesJpaRepository;
@@ -58,22 +64,66 @@ public class MarginRatesServiceImpl implements MarginRatesService {
         return currencyRates;
     }
 
+    @Override
+    public MarginRates getByShortNameAndDate(String shortName, DateTime onDate) {
+        MarginRatesEntity currencyRatesEntity = marginRatesJpaRepository.getByShortNameAndDate(shortName, onDate) ;
+        MarginRates currencyRates = null;
+        if (currencyRatesEntity != null) {
+            currencyRates = marginRatesServiceMapper.mapEntityToBean(currencyRatesEntity);
+        }
+        return currencyRates;
+    }
+
     @Transactional
     @Override
     public void delete(String shortName) {
         marginRatesJpaRepository.deleteAllByShortName(shortName);
     }
 
-    @Transactional
+    public void createAll(List<MarginRates> marginRatesList) {
+        if (marginRatesList == null) {
+            throw new IllegalStateException("ERROR: Create: MarginRates list is NULL!");
+        }
+
+        List<MarginRatesEntity> marginRatesEntityList = new ArrayList<MarginRatesEntity>();
+        List<MarginRatesEntity> marginRatesEntityListForSave = new ArrayList<MarginRatesEntity>();
+
+        marginRatesEntityList =  marginRatesServiceMapper.mapBeansToEntities(marginRatesList);
+
+        marginRatesEntityList.stream().forEach(value -> {
+            CurrencyEntity currencyEntity = currencyJpaRepository.findByClearingCode(value.getClearingCode());
+            if (currencyEntity == null) {
+                logger.error("ERROR: Create: CurrencyRates: currencyEntity for clearing code "+value.getClearingCode()+" is NULL!");
+            } else {
+                MarginRatesEntity lastMarginRatesEntity = marginRatesJpaRepository.getLastByClearingCode(value.getClearingCode(), value.getStartPeriod(), value.getEndPeriod());
+                value.setCurrency(currencyEntity);
+
+                if (lastMarginRatesEntity == null) {
+                    marginRatesEntityListForSave.add(value);
+                } else if (lastMarginRatesEntity.getId() != value.getId() && // check if not the same entity
+                            lastMarginRatesEntity.getMaintenanceRate().doubleValue() != value.getMaintenanceRate().doubleValue()) {
+                    lastMarginRatesEntity.setEndDate(new Date());
+                    marginRatesEntityListForSave.add(lastMarginRatesEntity);
+                    marginRatesEntityListForSave.add(value);
+                }
+            }
+        });
+
+        marginRatesJpaRepository.saveAll(marginRatesEntityListForSave);
+
+        return;
+    }
+
     @Override
     public MarginRates create(MarginRates marginRates) {
         if (marginRates == null) {
             throw new IllegalStateException("ERROR: Create: MarginRates is NULL!");
         }
 
-        CurrencyEntity currencyEntity = currencyJpaRepository.getById(marginRates.getCurrencyId());
+        CurrencyEntity currencyEntity = currencyJpaRepository.findByClearingCode(marginRates.getClearingCode());
         if (currencyEntity == null) {
-            throw new IllegalStateException("ERROR: Create: CurrencyRates: currencyEntity is NULL!");
+            logger.error("ERROR: Create: CurrencyRates: currencyEntity is NULL!");
+            return null;
         }
         MarginRatesEntity marginRatesEntity = new MarginRatesEntity();
         marginRatesEntity.setCurrency(currencyEntity);
@@ -83,16 +133,11 @@ public class MarginRatesServiceImpl implements MarginRatesService {
         return marginRatesServiceMapper.mapEntityToBean(marginEntitySaved);
     }
 
-    @Transactional
     @Override
     public void delete(MarginRates marginRates) {
-        MarginRatesEntity marginEntity = marginRatesJpaRepository.getById(marginRates.getId());
-        if (marginEntity == null) throw new IllegalArgumentException("ERROR: Delete: MarginRates with ID: " + marginRates.getId() + " was not found!");
-
-        marginRatesJpaRepository.delete(marginEntity);
+        // delete should not be possible at all
     }
 
-    @Transactional
     @Override
     public void delete(Integer id) {
         marginRatesJpaRepository.deleteById(id);

@@ -42,11 +42,11 @@ public class MarginRates implements Serializable {
 
     private Double maintenanceRate;
 
-    private Double volScanMaintenanceRate;
-
-    private Integer currencyId;
+    private String volScanMaintenanceRate;
 
     private Date startDate = new Date();
+
+    private Date endDate;
 
     public Integer getId() {
         return id;
@@ -133,29 +133,27 @@ public class MarginRates implements Serializable {
     }
 
     public void setMaintenanceRate(String maintenanceRate) {
-        if (StringUtils.isNotEmpty(maintenanceRate) && maintenanceRate.contains(" ")) {
-            maintenanceRate = maintenanceRate.substring(0, maintenanceRate.indexOf(" "));
+        if (maintenanceRate == null || maintenanceRate.contains("%")) {
+            this.maintenanceRate = Double.valueOf(-1);
+        } else {
+            if (StringUtils.isNotEmpty(maintenanceRate) && maintenanceRate.contains(" ")) {
+                maintenanceRate = maintenanceRate.substring(0, maintenanceRate.indexOf(" "));
+            }
+            if (StringUtils.isNotEmpty(maintenanceRate)) {
+                maintenanceRate = maintenanceRate.replace(",", "");
+                this.maintenanceRate = Double.valueOf(maintenanceRate);
+            } else {
+                this.maintenanceRate = Double.valueOf(-1);
+            }
         }
-        if (StringUtils.isNotEmpty(maintenanceRate)) {
-            maintenanceRate = maintenanceRate.replace(",", "");
-        }
-        this.maintenanceRate = Double.valueOf(maintenanceRate);
     }
 
-    public Double getVolScanMaintenanceRate() {
+    public String getVolScanMaintenanceRate() {
         return volScanMaintenanceRate;
     }
 
     public void setVolScanMaintenanceRate(String volScanMaintenanceRate) {
-        this.volScanMaintenanceRate = Double.valueOf(volScanMaintenanceRate);
-    }
-
-    public Integer getCurrencyId() {
-        return currencyId;
-    }
-
-    public void setCurrencyId(Integer currencyId) {
-        this.currencyId = currencyId;
+        this.volScanMaintenanceRate = volScanMaintenanceRate;
     }
 
     public Date getStartDate() {
@@ -164,5 +162,13 @@ public class MarginRates implements Serializable {
 
     public void setStartDate(Date startDate) {
         this.startDate = startDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
     }
 }

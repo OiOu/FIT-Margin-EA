@@ -49,6 +49,14 @@ public class MarginRatesServiceMapper extends AbstractServiceMapper {
         map(marginRates, marginRatesEntity);
     }
 
+    public  List<MarginRatesEntity> mapBeansToEntities(List<MarginRates> marginRatesList) {
+        if(marginRatesList == null) {
+            return null;
+        }
+
+        //--- Generic mapping
+        return map(marginRatesList, MarginRatesEntity.class);
+    }
     /**
      * Mapping from '{@link List}<{@link MarginRates}'> to '{@link List}<{@link MarginRatesEntity}>'
      * @param marginRatesEntities
@@ -78,6 +86,5 @@ public class MarginRatesServiceMapper extends AbstractServiceMapper {
     protected void setModelMapper(ModelMapper modelMapper) {
         this.modelMapper = modelMapper;
     }
-
 
 }

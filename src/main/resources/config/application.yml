@@ -35,7 +35,7 @@ netty:
     niosocket:
         port: 33333
     compression:
-        enabled: true
+        enabled: false
     ssl:
         enabled: false
 

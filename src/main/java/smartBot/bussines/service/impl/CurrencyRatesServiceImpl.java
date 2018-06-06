@@ -1,5 +1,7 @@
 package smartBot.bussines.service.impl;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +20,8 @@ import java.util.List;
 @Component
 @Transactional
 public class CurrencyRatesServiceImpl implements CurrencyRatesService {
+
+    private static final Log logger = LogFactory.getLog(CurrencyRatesServiceImpl.class);
 
     @Autowired
     private CurrencyRatesJpaRepository currencyRatesJpaRepository;
@@ -59,13 +63,21 @@ public class CurrencyRatesServiceImpl implements CurrencyRatesService {
         return currencyRates;
     }
 
-    @Transactional
     @Override
     public void delete(String shortName) {
         currencyRatesJpaRepository.deleteAllByShortName(shortName);
     }
 
-    @Transactional
+    public void create(List<CurrencyRates> listCurrencyRates) {
+        if (listCurrencyRates == null) {
+            throw new IllegalStateException("ERROR: Create: CurrencyRates list is NULL!");
+        }
+
+        for (CurrencyRates currencyRates: listCurrencyRates) {
+            create(currencyRates);
+        }
+    }
+
     @Override
     public CurrencyRates create(CurrencyRates currencyRates) {
         if (currencyRates == null) {
@@ -74,7 +86,8 @@ public class CurrencyRatesServiceImpl implements CurrencyRatesService {
 
         CurrencyEntity currencyEntity = currencyJpaRepository.getById(currencyRates.getCurrencyId());
         if (currencyEntity == null) {
-            throw new IllegalStateException("ERROR: Create: CurrencyRates: currencyEntity is NULL!");
+            logger.error("ERROR: Create: CurrencyRates: currencyEntity is NULL!");
+            return null;
         }
         CurrencyRatesEntity currencyRatesEntity = new CurrencyRatesEntity();
         currencyRatesEntity.setCurrency(currencyEntity);
@@ -84,7 +97,6 @@ public class CurrencyRatesServiceImpl implements CurrencyRatesService {
         return currencyRatesServiceMapper.mapEntityToBean(currencyEntitySaved);
     }
 
-    @Transactional
     @Override
     public void delete(CurrencyRates currencyRates) {
         CurrencyRatesEntity currencyEntity = currencyRatesJpaRepository.getById(currencyRates.getId());
@@ -93,7 +105,6 @@ public class CurrencyRatesServiceImpl implements CurrencyRatesService {
         currencyRatesJpaRepository.delete(currencyEntity);
     }
 
-    @Transactional
     @Override
     public void delete(Integer id) {
         currencyRatesJpaRepository.deleteById(id);

@@ -1,5 +1,6 @@
 package smartBot.data.repository.jpa;
 
+import org.joda.time.DateTime;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -21,5 +22,11 @@ public interface MarginRatesJpaRepository extends CrudRepository<MarginRatesEnti
     @Modifying
     @Query("DELETE FROM MarginRatesEntity AS mre WHERE mre.currency IN (SELECT ce FROM CurrencyEntity AS ce WHERE ce.shortName = ?1)")
     void deleteAllByShortName(String shortName);
+
+    @Query("SELECT mre FROM MarginRatesEntity AS mre JOIN mre.currency c WHERE c.shortName IN (?1) AND ?2 between mre.startDate and mre.endDate")
+    MarginRatesEntity getByShortNameAndDate(String shortName, DateTime onDate);
+
+    @Query("SELECT mre FROM MarginRatesEntity AS mre WHERE mre.clearingCode = ?1 AND mre.startPeriod = ?2 AND mre.endPeriod = ?3 AND mre.endDate IS NULL ORDER BY mre.startDate DESC")
+    MarginRatesEntity getLastByClearingCode(String clearingCode, String startPeriod, String endPeriod);
 
 }

@@ -19,13 +19,16 @@ public class CurrencyEntity implements Serializable {
     @Column(name="name", length=255)
     private String name;
 
-    @Column(name="shortname", length=255)
+    @Column(name="short_name", length=255)
     private String shortName;
 
-    @Column(name="clearingcode", length=255)
+    @Column(name="clearing_code", length=255)
     private String clearingCode;
 
-    @Column(name="pricepercontract")
+    @Column(name="futures_code", length=255)
+    private String futuresCode;
+
+    @Column(name="price_per_contract")
     private Double pricePerContract;
 
     @Column(name="inverted")
@@ -77,6 +80,14 @@ public class CurrencyEntity implements Serializable {
 
     public void setClearingCode(String clearingCode) {
         this.clearingCode = clearingCode;
+    }
+
+    public String getFuturesCode() {
+        return futuresCode;
+    }
+
+    public void setFuturesCode(String futuresCode) {
+        this.futuresCode = futuresCode;
     }
 
     public Double getPricePerContract() {

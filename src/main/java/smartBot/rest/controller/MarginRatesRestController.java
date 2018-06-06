@@ -1,5 +1,7 @@
 package smartBot.rest.controller;
 
+import org.joda.time.DateTime;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +24,16 @@ public class MarginRatesRestController {
     @ResponseBody
     public List<MarginRates> findAllByShortName(@PathVariable("shortname") String shortName) {
         return marginRatesService.findAllByShortName(shortName);
+    }
+
+    @RequestMapping(value = "/currency/margin/{shortname}", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    @Transactional
+    public void getMarginOnDateByShortName(@PathVariable("shortname") String shortName,
+                                           @RequestParam(value = "ondate") @DateTimeFormat(pattern = "YYYY-MM-DD") DateTime onDate) {
+        marginRatesService.getByShortNameAndDate(shortName, onDate);
     }
 
     @RequestMapping(value = "/currency/margins", method = RequestMethod.POST,

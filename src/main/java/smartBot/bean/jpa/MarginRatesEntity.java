@@ -15,6 +15,7 @@ public class MarginRatesEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
     private Integer id;
 
@@ -27,38 +28,42 @@ public class MarginRatesEntity implements Serializable {
     @Column(name="name")
     private String name;
 
-    @Column(name="filepath")
+    @Column(name="file_path")
     private String filePath;
 
-    @Column(name="clearingcode")
+    @Column(name="clearing_code", nullable=false)
     private String clearingCode;
 
-    @Column(name="clearingorg")
+    @Column(name="clearing_org")
     private String clearingOrg;
 
-    @Column(name="productfamily")
+    @Column(name="product_family")
     private String productFamily;
 
-    @Column(name="startperiod")
+    @Column(name="start_period")
     private String startPeriod;
 
-    @Column(name="endperiod")
+    @Column(name="end_period")
     private String endPeriod;
 
-    @Column(name="maintenancerate")
+    @Column(name="maintenance_rate")
     private Double maintenanceRate;
 
-    @Column(name="volscanmaintenancerate")
-    private Double volScanMaintenanceRate;
+    @Column(name="vol_scan_maintenance_rate")
+    private String volScanMaintenanceRate;
 
     @ManyToOne
     @JoinColumn(name="currency_id", nullable=false)
     private CurrencyEntity currency;
 
-    @Column(name="startdate")
+    @Column(name="start_date")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date startDate;
 
+
+    @Column(name="end_date")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date endDate;
     //----------------------------------------------------------------------
     // CONSTRUCTOR(S)
     //----------------------------------------------------------------------
@@ -159,11 +164,11 @@ public class MarginRatesEntity implements Serializable {
         this.maintenanceRate = maintenanceRate;
     }
 
-    public Double getVolScanMaintenanceRate() {
+    public String getVolScanMaintenanceRate() {
         return volScanMaintenanceRate;
     }
 
-    public void setVolScanMaintenanceRate(Double volScanMaintenanceRate) {
+    public void setVolScanMaintenanceRate(String volScanMaintenanceRate) {
         this.volScanMaintenanceRate = volScanMaintenanceRate;
     }
 
@@ -181,5 +186,13 @@ public class MarginRatesEntity implements Serializable {
 
     public void setStartDate(Date startDate) {
         this.startDate = startDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
     }
 }

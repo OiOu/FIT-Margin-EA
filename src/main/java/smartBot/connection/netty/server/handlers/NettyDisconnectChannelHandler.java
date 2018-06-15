@@ -1,23 +1,15 @@
-package smartBot.connection.netty.nio_v1.handlers;
+package smartBot.connection.netty.server.handlers;
 
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import smartBot.bussines.service.CurrencyService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ChannelHandler.Sharable
 public class NettyDisconnectChannelHandler extends ChannelInboundHandlerAdapter {
 
-    private static Log logger = LogFactory.getLog(NettyDisconnectChannelHandler.class);
-
-    private CurrencyService currencyService;
-
-    public NettyDisconnectChannelHandler(
-            CurrencyService currencyService) {
-        this.currencyService = currencyService;
-    }
+    private static Logger logger = LoggerFactory.getLogger(NettyDisconnectChannelHandler.class);
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
@@ -26,7 +18,6 @@ public class NettyDisconnectChannelHandler extends ChannelInboundHandlerAdapter 
         strLocalAddress = strLocalAddress.replace("/", "" );
 
         logger.info("Channel closed: id=" + strLocalAddress + " for currency: " /* asset.getFactoryId()*/);
-
 
         super.channelInactive(ctx);
     }

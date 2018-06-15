@@ -1,13 +1,13 @@
-package smartBot.connection.netty.nio_v1.handlers;
+package smartBot.connection.netty.server.handlers;
 
 import io.netty.channel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import smartBot.connection.netty.nio_v1.common.HostPort;
-import smartBot.connection.netty.nio_v1.common.NettyMessage;
-import smartBot.connection.netty.nio_v1.exceptions.MessageException;
-import smartBot.connection.netty.nio_v1.gateway.AbstractNettyMessageGateway;
-import smartBot.connection.netty.nio_v1.parser.MessageParser;
+import smartBot.connection.netty.server.common.HostPort;
+import smartBot.connection.netty.server.common.NettyMessage;
+import smartBot.connection.netty.server.exceptions.MessageException;
+import smartBot.connection.netty.server.gateway.AbstractNettyMessageGateway;
+import smartBot.connection.netty.server.parser.MessageParser;
 
 import java.net.InetSocketAddress;
 import java.util.Collections;
@@ -39,6 +39,12 @@ public class NettyChannelHandler extends SimpleChannelInboundHandler<String> {
     public void channelRead0(ChannelHandlerContext ctx, final String msg) throws Exception {
 
         final HostPort hostPort = createHostPort(ctx);
+
+        logger.info("channels: [");
+        for (Channel channel : sessions.values()) {
+            logger.info("channel: " + channel.remoteAddress().toString() + " is open: " + channel.isOpen() + " is active: " + channel.isActive() + " is registered: " + channel.isRegistered() );
+        }
+        logger.info("]");
 
         Runnable runnable = new Runnable() {
 
@@ -89,7 +95,7 @@ public class NettyChannelHandler extends SimpleChannelInboundHandler<String> {
      */
     public void broadcastMessage(String message) {
         for (Channel channel : sessions.values()) {
-            sendMessage(message, null, channel);
+           sendMessage(message, null, channel);
         }
     }
 
@@ -162,11 +168,14 @@ public class NettyChannelHandler extends SimpleChannelInboundHandler<String> {
      *          the msg
      */
     protected void asyncProcessing(HostPort hostPort, String msg) {
-        NettyMessage<?> sm = null;
+        NettyMessage<?> sm = null ;
         try {
+            logger.info(msg);
             sm = getParser().parseMessage(msg);
 
             getGateway().notifyMessageListeners(sm, hostPort);
+
+            //broadcastMessage(msg);
         } catch (MessageException e) {
             logger.error(e.getMessage(), e.getStompMessage());
         }

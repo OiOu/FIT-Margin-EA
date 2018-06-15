@@ -1,4 +1,4 @@
-package smartBot.connection.netty.nio_v1.common;
+package smartBot.connection.netty.server.common;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;

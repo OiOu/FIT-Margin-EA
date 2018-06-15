@@ -1,22 +1,22 @@
 package smartBot.config;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import smartBot.bussines.service.CurrencyService;
-import smartBot.connection.netty.nio_v1.gateway.NettyBuildingServerMessageGateway;
-import smartBot.connection.netty.nio_v1.handlers.NettyChannelHandler;
-import smartBot.connection.netty.nio_v1.handlers.NettyDisconnectChannelHandler;
-import smartBot.connection.netty.nio_v1.listeners.NettyBuildingServerMessageListener;
+import smartBot.connection.netty.server.gateway.NettyBuildingMessageGateway;
+import smartBot.connection.netty.server.handlers.NettyChannelHandler;
+import smartBot.connection.netty.server.handlers.NettyDisconnectChannelHandler;
+import smartBot.connection.netty.server.listeners.NettyBuildingMessageListener;
 
 import javax.annotation.Resource;
 
 @Configuration
 public class NettyServerNioV1Config {
 
-    private static Log logger = LogFactory.getLog(NettyServerNioV1Config.class);
+    private static Logger logger = LoggerFactory.getLogger(NettyServerNioV1Config.class);
 
     private @Value("${netty.niosocket.port}") int nioSocketPort;
     private @Value("${netty.compression.enabled}") boolean isCompressionEnabled;
@@ -25,10 +25,10 @@ public class NettyServerNioV1Config {
     private CurrencyService currencyService;
 
     @Bean
-    public NettyBuildingServerMessageGateway smartBotBuildingServerNettyMessageGateway() throws Exception {
+    public NettyBuildingMessageGateway smartBotBuildingServerNettyMessageGateway() throws Exception {
 
         // init message gateway
-        NettyBuildingServerMessageGateway gateway = new NettyBuildingServerMessageGateway();
+        NettyBuildingMessageGateway gateway = new NettyBuildingMessageGateway();
         gateway.setPort(nioSocketPort);
         gateway.setAutoShutdown(true);
 
@@ -40,10 +40,10 @@ public class NettyServerNioV1Config {
         channelHandler.setGateway(gateway);
 
         gateway.setHandler(channelHandler);
-        gateway.addHandler(new NettyDisconnectChannelHandler(currencyService));
+        gateway.addHandler(new NettyDisconnectChannelHandler());
 
         // init message listener
-        NettyBuildingServerMessageListener listener = getBuildingServerNettyMessageListener();
+        NettyBuildingMessageListener listener = getBuildingServerNettyMessageListener();
         listener.setGateway(gateway);
         gateway.addMessageListener(listener);
 
@@ -54,8 +54,8 @@ public class NettyServerNioV1Config {
     }
 
     @Bean
-    public NettyBuildingServerMessageListener getBuildingServerNettyMessageListener() {
-        return new NettyBuildingServerMessageListener();
+    public NettyBuildingMessageListener getBuildingServerNettyMessageListener() {
+        return new NettyBuildingMessageListener();
     }
 
 }

@@ -1,16 +1,33 @@
-package smartBot.connection.netty.nio_v1.messages;
+package smartBot.connection.netty.server.messages;
 
-import smartBot.connection.netty.nio_v1.common.AbstractMessageHeader;
+import smartBot.connection.netty.server.common.AbstractMessageHeader;
 
 public class MessageHeader extends AbstractMessageHeader {
 
     private static final long serialVersionUID = -1715758376656092863L;
+
+    /** The Constant COMMAND. */
+    public static final String COMMAND = "command";
 
     /** The Constant DESTINATION. */
     public static final String DESTINATION = "destination";
 
     /** The Constant TIMESTAMP. */
     public static final String TIMESTAMP = "timestamp";
+
+    /**
+     * Sets the command.
+     *
+     * @param command
+     *          the new command
+     */
+    public void setCommand(String command) {
+        addHeader(COMMAND, command);
+    }
+
+    public String getCommand() {
+        return getHeaderValue(COMMAND);
+    }
 
     /**
      * Sets the destination.

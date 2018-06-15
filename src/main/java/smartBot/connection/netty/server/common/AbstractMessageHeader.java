@@ -1,4 +1,4 @@
-package smartBot.connection.netty.nio_v1.common;
+package smartBot.connection.netty.server.common;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -64,7 +64,7 @@ public class AbstractMessageHeader implements NettyMessageHeader {
      * (non-Javadoc)
      *
      * @see
-     * smartcore.connectors.netty.message.common.SmartmapMessageHeader#removeHeader(java.lang.String
+     * smartcore.connectors.netty.client.message.common.SmartmapMessageHeader#removeHeader(java.lang.String
      * )
      */
     @Override
@@ -76,7 +76,7 @@ public class AbstractMessageHeader implements NettyMessageHeader {
      * (non-Javadoc)
      *
      * @see
-     * smartcore.connectors.netty.message.common.SmartmapMessageHeader#getHeaderValue(java.lang
+     * smartcore.connectors.netty.client.message.common.SmartmapMessageHeader#getHeaderValue(java.lang
      * .String)
      */
     @Override
@@ -88,7 +88,7 @@ public class AbstractMessageHeader implements NettyMessageHeader {
      * (non-Javadoc)
      *
      * @see
-     * smartcore.connectors.netty.message.common.SmartmapMessageHeader#hasHeader(java.lang.String)
+     * smartcore.connectors.netty.client.message.common.SmartmapMessageHeader#hasHeader(java.lang.String)
      */
     @Override
     public boolean hasHeader(String key) {
@@ -98,7 +98,7 @@ public class AbstractMessageHeader implements NettyMessageHeader {
     /*
      * (non-Javadoc)
      *
-     * @see smartcore.connectors.netty.message.common.SmartmapMessageHeader#toMessageHeader()
+     * @see smartcore.connectors.netty.client.message.common.SmartmapMessageHeader#toMessageHeader()
      */
     @Override
     public final String toMessageHeader() {
@@ -121,7 +121,7 @@ public class AbstractMessageHeader implements NettyMessageHeader {
     /*
      * (non-Javadoc)
      *
-     * @see smartcore.connectors.netty.message.common.SmartmapMessageHeader#getHeaders()
+     * @see smartcore.connectors.netty.client.message.common.SmartmapMessageHeader#getHeaders()
      */
     @Override
     public Map<String, String> getHeaders() {

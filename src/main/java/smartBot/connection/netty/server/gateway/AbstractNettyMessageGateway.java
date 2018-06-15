@@ -1,14 +1,14 @@
-package smartBot.connection.netty.nio_v1.gateway;
+package smartBot.connection.netty.server.gateway;
 
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import smartBot.connection.netty.nio_v1.common.HostPort;
-import smartBot.connection.netty.nio_v1.common.NettyMessage;
-import smartBot.connection.netty.nio_v1.exceptions.MessageException;
-import smartBot.connection.netty.nio_v1.handlers.NettyChannelHandler;
-import smartBot.connection.netty.nio_v1.listeners.NettyMessageListener;
+import smartBot.connection.netty.server.common.HostPort;
+import smartBot.connection.netty.server.common.NettyMessage;
+import smartBot.connection.netty.server.exceptions.MessageException;
+import smartBot.connection.netty.server.handlers.NettyChannelHandler;
+import smartBot.connection.netty.server.listeners.NettyMessageListener;
 
 import java.util.*;
 
@@ -168,10 +168,8 @@ public abstract class AbstractNettyMessageGateway {
      */
     public void notifyMessageListeners(NettyMessage<?> msg, HostPort hostPort) {
         for (NettyMessageListener listener : listeners) {
-//            if (isForType(listener.getMessageTypes(), sm.getMessageType()) && listener.isForMessage(sm)) {
-                log.trace("Evaluating message {} with listener {}", msg, listener);
-                listener.messageReceived(msg, hostPort);
-//            }
+            log.trace("Evaluating message {} with listener {}", msg, listener);
+            listener.messageReceived(msg, hostPort);
         }
     }
 

@@ -1,16 +1,17 @@
-package smartBot.connection.netty.nio_v1.parser;
+package smartBot.connection.netty.server.parser;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import smartBot.connection.netty.nio_v1.common.AbstractMessageHeader;
-import smartBot.connection.netty.nio_v1.common.NettyMessage;
-import smartBot.connection.netty.nio_v1.exceptions.MessageException;
-import smartBot.connection.netty.nio_v1.messages.AbstractMessage;
-import smartBot.connection.netty.nio_v1.messages.Message;
-import smartBot.connection.netty.nio_v1.messages.PingMessage;
-import smartBot.connection.netty.nio_v1.messages.PongMessage;
+import smartBot.connection.netty.server.common.AbstractMessageHeader;
+import smartBot.connection.netty.server.common.NettyMessage;
+import smartBot.connection.netty.server.exceptions.MessageException;
+import smartBot.connection.netty.server.messages.AbstractMessage;
+import smartBot.connection.netty.server.messages.Message;
+import smartBot.connection.netty.server.messages.PingMessage;
+import smartBot.connection.netty.server.messages.PongMessage;
+import smartBot.defines.Constants;
 import smartBot.utils.SerializationUtils;
 
 import java.io.BufferedReader;
@@ -23,9 +24,6 @@ import java.util.StringTokenizer;
 
 public class MessageParser {
     private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
-    /** The Constant EOM. */
-    public static final String EOM = "\000";
 
     /**
      * Parses the message.
@@ -54,15 +52,15 @@ public class MessageParser {
             List<String> headers = new ArrayList<>();
             String hdr = reader.readLine();
 
-            while (StringUtils.isNotEmpty(hdr)) {
+            while (StringUtils.isNotEmpty(hdr)) { // read until 1st empty row
                 headers.add(hdr);
                 hdr = reader.readLine();
             }
 
             String body = reader.readLine();
-            body = body == null || body.equals(EOM) ? null : fillBody(body, reader);
+            body = body == null || body.equals(Constants.EOM) ? null : fillBody(body, reader);
 
-            MSG msg = createSmartmapMessage(/*type,*/ headers);
+            MSG msg = createMessage(/*type,*/ headers);
 
             if (!StringUtils.isEmpty(body) && msg instanceof AbstractMessage<?>) {
                 AbstractMessage<?> abm = (AbstractMessage<?>) msg;
@@ -133,8 +131,8 @@ public class MessageParser {
      *
      * @param <MSG>
      *          the generic type
-//     * @param type
-//     *          the type
+    //     * @param type
+    //     *          the type
      * @param headers
      *          the headers
      * @return the msg
@@ -142,7 +140,7 @@ public class MessageParser {
      *           the unparseable exception
      */
     @SuppressWarnings("unchecked")
-    protected <MSG extends NettyMessage<?>> MSG createSmartmapMessage(/*StompMessageType type, */List<String> headers)
+    protected <MSG extends NettyMessage<?>> MSG createMessage(/*StompMessageType type, */List<String> headers)
             throws MessageException {
 
         MSG message = null;
@@ -165,8 +163,8 @@ public class MessageParser {
                 throw new MessageException("Cannot parse STOMP header " + header);
             }
 
-            String key = st.nextToken();
-            String value = header.substring(key.length() + 1);
+            String key = st.nextToken().trim();
+            String value = header.substring(key.length() + 1).trim();
 
             message.getHeader().addHeader(key, value);
         }
@@ -205,8 +203,8 @@ public class MessageParser {
      */
     protected String trimEOM(String s) {
         String trimmed = s;
-        if (s.contains(EOM)) {
-            int idx = s.indexOf(EOM);
+        if (s.contains(Constants.EOM)) {
+            int idx = s.indexOf(Constants.EOM);
             trimmed = s.substring(0, idx);
         }
 

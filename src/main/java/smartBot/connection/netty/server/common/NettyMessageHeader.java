@@ -1,4 +1,4 @@
-package smartBot.connection.netty.nio_v1.common;
+package smartBot.connection.netty.server.common;
 
 import java.io.Serializable;
 import java.util.Map;

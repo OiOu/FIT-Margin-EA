@@ -1,7 +1,7 @@
-package smartBot.connection.netty.nio_v1.messages;
+package smartBot.connection.netty.server.messages;
 
 import org.apache.commons.lang.StringUtils;
-import smartBot.connection.netty.nio_v1.exceptions.MessageException;
+import smartBot.connection.netty.server.exceptions.MessageException;
 
 public class Message extends AbstractMessage<MessageHeader> {
 

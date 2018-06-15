@@ -1,4 +1,4 @@
-package smartBot.connection.netty.nio_v1.messages;
+package smartBot.connection.netty.server.messages;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
@@ -7,10 +7,10 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import smartBot.connection.netty.nio_v1.common.AbstractMessageHeader;
-import smartBot.connection.netty.nio_v1.common.NettyMessage;
-import smartBot.connection.netty.nio_v1.exceptions.MessageException;
-import smartBot.connection.netty.nio_v1.parser.MessageParser;
+import smartBot.connection.netty.server.common.AbstractMessageHeader;
+import smartBot.connection.netty.server.common.NettyMessage;
+import smartBot.connection.netty.server.exceptions.MessageException;
+import smartBot.defines.Constants;
 import smartBot.utils.SerializationUtils;
 
 import java.io.IOException;
@@ -51,10 +51,10 @@ public abstract class AbstractMessage<HDR extends AbstractMessageHeader> impleme
         if (StringUtils.isNotEmpty(header)) {
             builder.append(header);
         }
-        builder.append("\n\n");
+        builder.append("\n" + Constants.BOM + "\n");
         builder.append(body);
 
-        builder.append(MessageParser.EOM);
+        builder.append(Constants.EOM);
 
         return builder.toString();
     }

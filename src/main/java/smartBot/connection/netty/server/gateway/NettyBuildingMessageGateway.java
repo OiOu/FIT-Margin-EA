@@ -1,4 +1,4 @@
-package smartBot.connection.netty.nio_v1.gateway;
+package smartBot.connection.netty.server.gateway;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
@@ -15,15 +15,14 @@ import io.netty.handler.logging.LoggingHandler;
 import org.apache.commons.lang.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import smartBot.connection.netty.nio_v1.common.HostPort;
-import smartBot.connection.netty.nio_v1.exceptions.MessageException;
-import smartBot.connection.netty.nio_v1.messages.Message;
-import smartBot.connection.netty.nio_v1.parser.MessageParser;
+import smartBot.connection.netty.server.common.HostPort;
+import smartBot.connection.netty.server.exceptions.MessageException;
+import smartBot.connection.netty.server.messages.Message;
 import smartBot.defines.Constants;
 
 
-public class NettyBuildingServerMessageGateway extends AbstractNettyMessageGateway {
-    private static final Logger log = LoggerFactory.getLogger(NettyBuildingServerMessageGateway.class);
+public class NettyBuildingMessageGateway extends AbstractNettyMessageGateway {
+    private static final Logger log = LoggerFactory.getLogger(NettyBuildingMessageGateway.class);
 
     private Channel server;
     private EventLoopGroup bossGroup;
@@ -112,7 +111,7 @@ public class NettyBuildingServerMessageGateway extends AbstractNettyMessageGatew
     }
 
     public void sendPongMessage(HostPort hostPort) {
-        sendMessage(Message.PONG + MessageParser.EOM, hostPort);
+        sendMessage(Constants.BOM + Message.PONG + Constants.EOM, hostPort);
     }
 
     /*

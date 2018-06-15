@@ -1,0 +1,227 @@
+/*
+###################################################################
+
+Socket Main Client.
+
+###################################################################
+*/
+
+#property strict
+
+// --------------------------------------------------------------------
+// Include socket library
+// --------------------------------------------------------------------
+
+#include <socket-library-mt4-mt5.mqh>
+
+string SymbolsRequired[];
+string Symbols[];
+string Message[];
+string Headers[];
+int    SymbolCount = 0;
+string sVolumeSerialNumber="";
+string sep_body_begin = ">";
+string sep_body_end = "<";
+ushort u_sep_body_begin = StringGetCharacter(sep_body_begin,0);
+ushort u_sep_body_end = StringGetCharacter(sep_body_end,0);
+ushort u_sep_body_elems = StringGetCharacter(",",0);
+ushort u_sep_header = StringGetCharacter(":",0);
+
+// --------------------------------------------------------------------
+// EA user inputs
+// --------------------------------------------------------------------
+
+input string   Hostname = "localhost";    // Server hostname or IP address
+input ushort   ServerPort = 33333;        // Server port
+input int      MessageDelayMils = 300;    // Delay between sending/reading message to/from server
+
+input string   Currencies = "XAUUSD";     // List for specified currencies (if empty then all)
+
+#import "Kernel32.dll"
+   bool GetVolumeInformationW(string RootPathName,
+       string VolumeNameBuffer, int VolumeNameSize,
+       int& VolumeSerialNumber[], int MaximumComponentLength,
+       int FileSystemFlags, string FileSystemNameBuffer,
+       int FileSystemNameSize);
+#import "stdlib.ex4"
+   string IntegerToHexString(int integer_number);
+#import
+
+string SystemDriveSerialNumber(string sDrive) {
+  int    iVolumeSerialNumber[1]={0};
+
+  if(GetVolumeInformationW(sDrive+":\\", "                ", 15, iVolumeSerialNumber, 0, 0, "                ", 15))
+  {
+    sVolumeSerialNumber=IntegerToHexString(iVolumeSerialNumber[0]);
+    sVolumeSerialNumber=StringConcatenate(StringSubstr(sVolumeSerialNumber,0,4), "-", StringSubstr(sVolumeSerialNumber,4));
+  }
+  return(sVolumeSerialNumber);
+}
+
+// --------------------------------------------------------------------
+// Global variables and constants
+// --------------------------------------------------------------------
+
+ClientSocket * glbClientSocket = NULL;
+
+// --------------------------------------------------------------------
+// Initialisation (no action required)
+// --------------------------------------------------------------------
+
+void OnInit() {
+   if (!glbClientSocket) {
+      glbClientSocket = new ClientSocket(Hostname, ServerPort);
+      if (glbClientSocket.IsSocketConnected()) {
+         Print("Client connection succeeded");
+      } else {
+         Print("Client connection failed");
+      }
+   }
+
+   StringSplit(Currencies, u_sep_body_elems, SymbolsRequired);
+
+   string sNumber=SystemDriveSerialNumber("C");
+   Print(sNumber);
+   string strMsg = "command:SEND\n" +
+      "destination:currencies.getAll\n"
+      "content-type:application/json\r\n";
+
+   glbClientSocket.Send(strMsg);
+}
+
+
+// --------------------------------------------------------------------
+// Termination - free the client socket, if created
+// --------------------------------------------------------------------
+
+void OnDeinit(const int reason)
+{
+   EventKillTimer();
+
+   if (glbClientSocket) {
+      delete glbClientSocket;
+      glbClientSocket = NULL;
+      Print("Client closed connection");
+   }
+
+}
+
+
+// --------------------------------------------------------------------
+// Tick handling - set up a connection, if none already active,
+// and send the current price quote
+// --------------------------------------------------------------------
+
+void OnTick(){
+   EventSetMillisecondTimer(MessageDelayMils);
+}
+
+void OnTimer() {
+
+   // Reconnect if connection was lost
+   if (!glbClientSocket) {
+      glbClientSocket = new ClientSocket(Hostname, ServerPort);
+
+      if (glbClientSocket.IsSocketConnected()) {
+         Print("Client connection succeeded");
+      } else {
+         Print("Client connection failed. Will try to reconnect...");
+      }
+   }
+
+   // Read message from socket channel
+   if (glbClientSocket.IsSocketConnected()) {
+
+      // Try to receive new message
+      string strMessage = glbClientSocket.Receive();
+
+      if (strMessage != "") {
+         Print("Message received: " + strMessage);
+
+         // Get body from message
+         StringSplit(strMessage, u_sep_body_begin, Message);
+         if (ArraySize(Message) > 1) {
+
+            StringReplace(Message[1], sep_body_begin, "");
+            StringReplace(Message[1], sep_body_end, "");
+
+            Print("Header received: " + Message[0]);
+            Print("Body received: " + Message[1]);
+
+            // TODO: make parse message via handler
+            StringSplit(StringTrimRight(StringTrimLeft(Message[0])), u_sep_header, Headers);
+
+            if (ArraySize(Headers) > 0) {
+               // Process the messages
+
+               if (StringCompare(StringTrimRight(StringTrimLeft(Headers[0])), "destination", false) == 0) {// destination
+
+                  if (StringCompare(StringTrimRight(StringTrimLeft(Headers[1])), "currencies.getAll", false) == 0) {// process destination
+                     SymbolCount = StringSplit(Message[1], u_sep_body_elems, Symbols);
+                  }
+               }
+            }
+         }
+      }
+   }
+
+   // Send message with currencies date
+   if (glbClientSocket.IsSocketConnected() && SymbolCount > 0) {
+      string strMsg = "command:SEND\n" +
+         "destination:currencies.rates \n"
+         "content-type:application/json\n\n" +
+         sep_body_begin;
+
+      string strMsgBody = "";
+      for(int i = 0; i < SymbolCount; i++) {
+         string symbol = Symbols[i];
+         symbol = StringTrimRight(StringTrimLeft(symbol));
+
+         bool exists = false;
+         for(int j = 0; j < ArraySize(SymbolsRequired); j++) {
+
+            if(StringFind(SymbolsRequired[j],symbol) != -1 && !exists) {
+               exists = true;
+               break;
+            }
+         }
+
+         if ((StringLen(Currencies) > 0 && exists) || StringLen(Currencies) == 0 ) {
+
+            if (iTime(symbol, PERIOD_CURRENT, 0) != 0) { // for non supported currencies we do not send data
+
+               if (StringLen(strMsgBody) > 0) strMsgBody += ",\n";
+
+               strMsgBody +=
+                  "{"+
+                      "currency:" + symbol + ", " +
+                      "timestamp:" + IntegerToString(iTime(symbol, PERIOD_CURRENT, 0)) + ", " +
+                      "high:" + DoubleToStr(iHigh(symbol, PERIOD_CURRENT, 0)) + ", " +
+                      "low:" + DoubleToStr(iLow(symbol, PERIOD_CURRENT, 0)) + ", " +
+                      "open:" + DoubleToStr(iOpen(symbol, PERIOD_CURRENT, 0)) + ", " +
+                      "close:" + DoubleToStr(iClose(symbol, PERIOD_CURRENT, 0)) + ", " +
+                      "bid:" + DoubleToStr(MarketInfo(symbol,MODE_BID)) + ", " +
+                      "ask:" + DoubleToStr(MarketInfo(symbol,MODE_ASK)) + ", " +
+                      "volume:" + IntegerToString(iVolume(symbol, PERIOD_CURRENT, 0)) +
+                  "}";
+            }
+         }
+      }
+
+      strMsg += strMsgBody + sep_body_end + "\r\n";
+      glbClientSocket.Send(strMsg);
+   }
+
+   // If the socket is closed, destroy it, and attempt a new connection
+   // on the next call to OnTimer()
+   if (!glbClientSocket.IsSocketConnected()) {
+
+      // Destroy the server socket. A new connection
+      // will be attempted on the next tick
+      Print("Client was disconnected. Will retry...");
+      delete glbClientSocket;
+
+      glbClientSocket = NULL;
+   }
+
+}

@@ -1,4 +1,4 @@
-package smartBot.connection.netty.nio_v1.exceptions;
+package smartBot.connection.netty.server.exceptions;
 
 public class MessageException extends Exception {
     private static final long serialVersionUID = -5077635019985663697L;

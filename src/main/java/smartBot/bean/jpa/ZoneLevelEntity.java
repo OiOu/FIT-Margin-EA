@@ -23,8 +23,11 @@ public class ZoneLevelEntity implements Serializable {
     @Column(name="name")
     private String name;
 
+    @Column(name="height")
+    private Integer height;
+
     @OneToMany(mappedBy="level", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<ZoneInfoEntity> zonesInfo;
+    private List<ZoneEntity> zonesInfo;
 
     @Column(name="local_priority")
     private Boolean localPriority;
@@ -67,11 +70,19 @@ public class ZoneLevelEntity implements Serializable {
         this.name = name;
     }
 
-    public List<ZoneInfoEntity> getZonesInfo() {
+    public Integer getHeight() {
+        return height;
+    }
+
+    public void setHeight(Integer height) {
+        this.height = height;
+    }
+
+    public List<ZoneEntity> getZonesInfo() {
         return zonesInfo;
     }
 
-    public void setZonesInfo(List<ZoneInfoEntity> zonesInfo) {
+    public void setZonesInfo(List<ZoneEntity> zonesInfo) {
         this.zonesInfo = zonesInfo;
     }
 

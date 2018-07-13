@@ -6,11 +6,11 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
-@Table(name="zone_info", schema="public" )
+@Table(name="zone", schema="public" )
 @NamedQueries({
-    @NamedQuery(name="ZoneInfoEntity.countAll", query="SELECT COUNT(x) FROM ZoneInfoEntity x")
+    @NamedQuery(name="ZoneEntity.countAll", query="SELECT COUNT(x) FROM ZoneEntity x")
 })
-public class ZoneInfoEntity implements Serializable {
+public class ZoneEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
@@ -20,14 +20,6 @@ public class ZoneInfoEntity implements Serializable {
 
     @Column(name="name")
     private String name;
-
-    @ManyToOne
-    @JoinColumn(name="scope_id", nullable=false)
-    private ScopeZonesEntity scope;
-
-    @ManyToOne
-    @JoinColumn(name="level_id", nullable=false)
-    private ZoneLevelEntity level;
 
     @Column(name="price")
     private Double price;
@@ -47,10 +39,18 @@ public class ZoneInfoEntity implements Serializable {
     @Column(name="activated")
     private Boolean activated;
 
+    @ManyToOne
+    @JoinColumn(name="scope_id", nullable=false)
+    private ScopeEntity scope;
+
+    @ManyToOne
+    @JoinColumn(name="level_id", nullable=false)
+    private ZoneLevelEntity level;
+
     //----------------------------------------------------------------------
     // CONSTRUCTOR(S)
     //----------------------------------------------------------------------
-    public ZoneInfoEntity() {
+    public ZoneEntity() {
         super();
     }
 
@@ -74,11 +74,11 @@ public class ZoneInfoEntity implements Serializable {
         this.name = name;
     }
 
-    public ScopeZonesEntity getScope() {
+    public ScopeEntity getScope() {
         return scope;
     }
 
-    public void setScope(ScopeZonesEntity scope) {
+    public void setScope(ScopeEntity scope) {
         this.scope = scope;
     }
 

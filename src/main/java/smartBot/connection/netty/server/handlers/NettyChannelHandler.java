@@ -42,7 +42,7 @@ public class NettyChannelHandler extends SimpleChannelInboundHandler<String> {
 
         logger.info("channels: [");
         for (Channel channel : sessions.values()) {
-            logger.info("channel: " + channel.remoteAddress().toString() + " is open: " + channel.isOpen() + " is active: " + channel.isActive() + " is registered: " + channel.isRegistered() );
+            logger.info("channel: " + channel.remoteAddress().toString() + " open: " + channel.isOpen() + " active: " + channel.isActive() + " registered: " + channel.isRegistered() );
         }
         logger.info("]");
 

@@ -60,10 +60,12 @@ public class MarginRatesEntity implements Serializable {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date startDate;
 
+    @Column(name="price_per_contract")
+    private Double pricePerContract;
 
-    @Column(name="end_date")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date endDate;
+    @Column(name="future_point")
+    private Double futurePoint;
+
     //----------------------------------------------------------------------
     // CONSTRUCTOR(S)
     //----------------------------------------------------------------------
@@ -74,8 +76,6 @@ public class MarginRatesEntity implements Serializable {
     //----------------------------------------------------------------------
     // GETTER & SETTER FOR THE FIELD
     //----------------------------------------------------------------------
-
-
     public Integer getId() {
         return id;
     }
@@ -188,11 +188,19 @@ public class MarginRatesEntity implements Serializable {
         this.startDate = startDate;
     }
 
-    public Date getEndDate() {
-        return endDate;
+    public Double getPricePerContract() {
+        return pricePerContract;
     }
 
-    public void setEndDate(Date endDate) {
-        this.endDate = endDate;
+    public void setPricePerContract(Double pricePerContract) {
+        this.pricePerContract = pricePerContract;
+    }
+
+    public Double getFuturePoint() {
+        return futurePoint;
+    }
+
+    public void setFuturePoint(Double futurePoint) {
+        this.futurePoint = futurePoint;
     }
 }

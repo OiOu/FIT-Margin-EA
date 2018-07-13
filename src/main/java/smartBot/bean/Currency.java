@@ -31,9 +31,6 @@ public class Currency implements Serializable {
     private String futuresCode;
 
     @NotNull
-    private Double pricePerContract;
-
-    @NotNull
     private boolean inverted;
 
     private List<CurrencyRates> rates;
@@ -84,14 +81,6 @@ public class Currency implements Serializable {
 
     public void setRates(List<CurrencyRates> rates) {
         this.rates = rates;
-    }
-
-    public Double getPricePerContract() {
-        return pricePerContract;
-    }
-
-    public void setPricePerContract(Double pricePerContract) {
-        this.pricePerContract = pricePerContract;
     }
 
     public boolean getInverted() {

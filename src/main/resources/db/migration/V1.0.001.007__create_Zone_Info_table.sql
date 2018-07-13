@@ -1,4 +1,4 @@
-CREATE TABLE public.zone_info (
+CREATE TABLE public.zone (
 	id serial NOT NULL,
 	"name" varchar(255) NULL,
 	scope_id integer NOT NULL,
@@ -16,4 +16,4 @@ WITH (
 ) ;
 
 -- Permissions
-ALTER TABLE public.zone_info OWNER TO smartbot;
+ALTER TABLE public.zone OWNER TO smartbot;

@@ -28,9 +28,6 @@ public class CurrencyEntity implements Serializable {
     @Column(name="futures_code", length=255)
     private String futuresCode;
 
-    @Column(name="price_per_contract")
-    private Double pricePerContract;
-
     @Column(name="inverted")
     private boolean inverted;
 
@@ -40,6 +37,11 @@ public class CurrencyEntity implements Serializable {
     @OneToMany(mappedBy="currency", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<MarginRatesEntity> margins;
 
+    @OneToMany(mappedBy="currency", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<ScopeEntity> scopes;
+
+    /*@OneToMany(mappedBy="currency", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<CurrencyRateCacheEntity> cache;*/
     //----------------------------------------------------------------------
     // CONSTRUCTOR(S)
     //----------------------------------------------------------------------
@@ -90,20 +92,12 @@ public class CurrencyEntity implements Serializable {
         this.futuresCode = futuresCode;
     }
 
-    public Double getPricePerContract() {
-        return pricePerContract;
-    }
-
     public boolean getInverted() {
         return inverted;
     }
 
     public void setInverted(boolean inverted) {
         this.inverted = inverted;
-    }
-
-    public void setPricePerContract(Double pricePerContract) {
-        this.pricePerContract = pricePerContract;
     }
 
     public List<CurrencyRatesEntity> getRates() {
@@ -121,4 +115,20 @@ public class CurrencyEntity implements Serializable {
     public void setMargins(List<MarginRatesEntity> margins) {
         this.margins = margins;
     }
+
+    public List<ScopeEntity> getScopes() {
+        return scopes;
+    }
+
+    public void setScopes(List<ScopeEntity> scopes) {
+        this.scopes = scopes;
+    }
+
+    /*public List<CurrencyRateCacheEntity> getCache() {
+        return cache;
+    }
+
+    public void setCache(List<CurrencyRateCacheEntity> cache) {
+        this.cache = cache;
+    }*/
 }

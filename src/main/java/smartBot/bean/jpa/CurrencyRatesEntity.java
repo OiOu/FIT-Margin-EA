@@ -6,6 +6,7 @@ import smartBot.defines.Strings;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name="currency_rates", schema="public" )
@@ -20,11 +21,23 @@ public class CurrencyRatesEntity implements Serializable {
     @Column(name="id", nullable=false)
     private Integer id;
 
-    @Column(name="bid")
-    private Double bid;
+    @Column(name="period")
+    private Integer period;
 
-    @Column(name="ask")
-    private Double ask;
+    @Column(name="high")
+    private Double high;
+
+    @Column(name="low")
+    private Double low;
+
+    @Column(name="open")
+    private Double open;
+
+    @Column(name="close")
+    private Double close;
+
+    @Column(name="volume")
+    private Integer volume;
 
     @Column(name="timestamp")
     @DateTimeFormat(pattern = Strings.DATE_FORMAT_YYYYMMDD_HHMISS)
@@ -34,6 +47,8 @@ public class CurrencyRatesEntity implements Serializable {
     @JoinColumn(name="currency_id", nullable=false)
     private CurrencyEntity currency;
 
+    @OneToMany(mappedBy="currencyRates", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<CurrencyRateCacheEntity> cache;
     //----------------------------------------------------------------------
     // CONSTRUCTOR(S)
     //----------------------------------------------------------------------
@@ -53,20 +68,52 @@ public class CurrencyRatesEntity implements Serializable {
         return this.id;
     }
 
-    public Double getBid() {
-        return bid;
+    public Integer getPeriod() {
+        return period;
     }
 
-    public void setBid(Double bid) {
-        this.bid = bid;
+    public void setPeriod(Integer period) {
+        this.period = period;
     }
 
-    public Double getAsk() {
-        return ask;
+    public Double getHigh() {
+        return high;
     }
 
-    public void setAsk(Double ask) {
-        this.ask = ask;
+    public void setHigh(Double high) {
+        this.high = high;
+    }
+
+    public Double getLow() {
+        return low;
+    }
+
+    public void setLow(Double low) {
+        this.low = low;
+    }
+
+    public Double getOpen() {
+        return open;
+    }
+
+    public void setOpen(Double open) {
+        this.open = open;
+    }
+
+    public Double getClose() {
+        return close;
+    }
+
+    public void setClose(Double close) {
+        this.close = close;
+    }
+
+    public Integer getVolume() {
+        return volume;
+    }
+
+    public void setVolume(Integer volume) {
+        this.volume = volume;
     }
 
     public Date getTimestamp() {
@@ -83,5 +130,13 @@ public class CurrencyRatesEntity implements Serializable {
 
     public void setCurrency(CurrencyEntity currency) {
         this.currency = currency;
+    }
+
+    public List<CurrencyRateCacheEntity> getCache() {
+        return cache;
+    }
+
+    public void setCache(List<CurrencyRateCacheEntity> cache) {
+        this.cache = cache;
     }
 }

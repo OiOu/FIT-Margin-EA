@@ -4,50 +4,33 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import smartBot.defines.Strings;
 
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CurrencyRates implements Serializable {
+public class CurrencyRatesJson implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @NotNull
-    private Integer id;
-
-    @NotNull
     private Integer period;
 
-    @NotNull
+    private Integer priority;
+
     private Double high;
 
-    @NotNull
     private Double low;
 
-    @NotNull
     private Double open;
 
     private Double close;
 
-    @NotNull
     private Integer volume;
 
-    private Double pips;
-
-    @NotNull
     @JsonFormat(pattern = Strings.DATE_FORMAT_YYYYMMDD_HHMISS)
     private Date timestamp;
 
-    @NotNull
-    private Integer currencyId;
+    private String currency;
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
+    private Double pips;
 
     public Integer getPeriod() {
         return period;
@@ -55,6 +38,14 @@ public class CurrencyRates implements Serializable {
 
     public void setPeriod(Integer period) {
         this.period = period;
+    }
+
+    public Integer getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Integer priority) {
+        this.priority = priority;
     }
 
     public Double getHigh() {
@@ -105,12 +96,12 @@ public class CurrencyRates implements Serializable {
         this.timestamp = timestamp;
     }
 
-    public Integer getCurrencyId() {
-        return currencyId;
+    public String getCurrency() {
+        return currency;
     }
 
-    public void setCurrencyId(Integer currencyId) {
-        this.currencyId = currencyId;
+    public void setCurrency(String currency) {
+        this.currency = currency;
     }
 
     public Double getPips() {

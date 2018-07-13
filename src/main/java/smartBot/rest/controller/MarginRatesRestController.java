@@ -31,9 +31,9 @@ public class MarginRatesRestController {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     @Transactional
-    public void getMarginOnDateByShortName(@PathVariable("shortname") String shortName,
+    public void findMarginOnDateByShortName(@PathVariable("shortname") String shortName,
                                            @RequestParam(value = "ondate") @DateTimeFormat(pattern = "YYYY-MM-DD") DateTime onDate) {
-        marginRatesService.getByShortNameAndDate(shortName, onDate);
+        marginRatesService.findByShortNameAndDate(shortName, onDate.toDate());
     }
 
     @RequestMapping(value = "/currency/margins", method = RequestMethod.POST,

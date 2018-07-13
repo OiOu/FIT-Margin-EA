@@ -9,7 +9,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class MarginRates implements Serializable {
+public class MarginRates implements Serializable, Comparable {
 
     private static final long serialVersionUID = 1L;
 
@@ -46,7 +46,9 @@ public class MarginRates implements Serializable {
 
     private Date startDate = new Date();
 
-    private Date endDate;
+    private Double pricePerContract;
+
+    private Double futurePoint;
 
     public Integer getId() {
         return id;
@@ -164,11 +166,25 @@ public class MarginRates implements Serializable {
         this.startDate = startDate;
     }
 
-    public Date getEndDate() {
-        return endDate;
+    public Double getPricePerContract() {
+        return pricePerContract;
     }
 
-    public void setEndDate(Date endDate) {
-        this.endDate = endDate;
+    public void setPricePerContract(Double pricePerContract) {
+        this.pricePerContract = pricePerContract;
+    }
+
+    public Double getFuturePoint() {
+        return futurePoint;
+    }
+
+    public void setFuturePoint(Double futurePoint) {
+        this.futurePoint = futurePoint;
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        /* For Desc order*/
+        return ((MarginRates)o).getStartDate().compareTo(this.startDate);
     }
 }

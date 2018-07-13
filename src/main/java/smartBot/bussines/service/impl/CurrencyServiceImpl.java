@@ -1,11 +1,14 @@
 package smartBot.bussines.service.impl;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import smartBot.bean.Currency;
 import smartBot.bean.jpa.CurrencyEntity;
 import smartBot.bussines.service.CurrencyService;
+import smartBot.bussines.service.cache.ServerCache;
 import smartBot.bussines.service.mapping.CurrencyServiceMapper;
 import smartBot.data.repository.jpa.CurrencyJpaRepository;
 
@@ -16,6 +19,7 @@ import java.util.List;
 @Component
 @Transactional
 public class CurrencyServiceImpl implements CurrencyService{
+    private static final Log logger = LogFactory.getLog(CurrencyServiceImpl.class);
 
     @Autowired
     private CurrencyJpaRepository currencyJpaRepository;
@@ -23,13 +27,24 @@ public class CurrencyServiceImpl implements CurrencyService{
     @Resource
     private CurrencyServiceMapper currencyServiceMapper;
 
+    @Autowired
+    private ServerCache serverCache;
+
     @Override
     public Currency findById(Integer id) {
 
-        CurrencyEntity currencyEntity = currencyJpaRepository.getById(id);
-        Currency currency = null;
-        if (currencyEntity != null) {
-            currency = currencyServiceMapper.mapEntityToBean(currencyEntity);
+        // Try to get currency from cache to avoid additional DB query
+        Currency currency = serverCache.getCurrencyFromCache( id );
+
+        if (currency == null) {
+            CurrencyEntity currencyEntity = currencyJpaRepository.getById(id);
+            if (currencyEntity != null) {
+                currency = currencyServiceMapper.mapEntityToBean(currencyEntity);
+                serverCache.setCurrencyToCache(currency);
+            } else {
+                logger.warn("Currency:" + id + " was not found");
+            }
+
         }
         return currency;
     }
@@ -47,10 +62,32 @@ public class CurrencyServiceImpl implements CurrencyService{
 
     @Override
     public Currency findByShortName(String shortName) {
-        CurrencyEntity currencyEntity = currencyJpaRepository.findByShortName(shortName);
-        Currency currency = null;
-        if (currencyEntity != null) {
-            currency = currencyServiceMapper.mapEntityToBean(currencyEntity);
+        Currency currency = serverCache.getCurrencyFromCache( shortName );
+
+        if (currency == null) {
+            CurrencyEntity currencyEntity = currencyJpaRepository.findByShortName(shortName);
+            if (currencyEntity != null) {
+                currency = currencyServiceMapper.mapEntityToBean(currencyEntity);
+                serverCache.setCurrencyToCache(currency);
+            } else {
+                logger.warn("Currency:" + shortName + " was not found");
+            }
+        }
+        return currency;
+    }
+
+    @Override
+    public Currency findByClearingCode(String clearingCode) {
+        Currency currency = serverCache.getCurrencyFromCache( clearingCode);
+
+        if (currency == null) {
+            CurrencyEntity currencyEntity = currencyJpaRepository.findByClearingCode(clearingCode);
+            if (currencyEntity != null) {
+                currency = currencyServiceMapper.mapEntityToBean(currencyEntity);
+                serverCache.setCurrencyToCache(currency);
+            } else {
+                logger.warn("Currency with clearing code:" + clearingCode + " was not found");
+            }
         }
         return currency;
     }

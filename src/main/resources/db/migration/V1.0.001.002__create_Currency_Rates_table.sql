@@ -1,7 +1,12 @@
 CREATE TABLE public.currency_rates (
 	id serial NOT NULL,
-	bid float4 NOT NULL,
-	ask float4 NOT NULL,
+	period int4 NOT NULL,
+	priority int4 NOT NULL,
+	high float4 NOT NULL,
+	low float4 NOT NULL,
+	"open" float4 NOT NULL,
+	"close" float4 NOT NULL,
+	volume int4 NOT NULL,
 	"timestamp" timestamptz NOT NULL,
 	currency_id integer NOT NULL,
 	CONSTRAINT currency_rates_currency_fk FOREIGN KEY (currency_id) REFERENCES currency(id)

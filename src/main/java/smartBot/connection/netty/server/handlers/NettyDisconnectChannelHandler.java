@@ -21,4 +21,10 @@ public class NettyDisconnectChannelHandler extends ChannelInboundHandlerAdapter 
 
         super.channelInactive(ctx);
     }
+
+    @Override
+    public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {
+        // cause.printStackTrace(); THIS WAS SHOWING THE EXCEPTION
+        ctx.close();
+    }
 }

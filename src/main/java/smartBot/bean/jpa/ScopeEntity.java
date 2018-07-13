@@ -1,15 +1,19 @@
 package smartBot.bean.jpa;
 
+import org.springframework.format.annotation.DateTimeFormat;
+import smartBot.defines.Strings;
+
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 @Entity
-@Table(name="scope_zone", schema="public" )
+@Table(name="scope", schema="public" )
 @NamedQueries({
-    @NamedQuery(name="ScopeZonesEntity.countAll", query="SELECT COUNT(x) FROM ScopeZonesEntity x")
+    @NamedQuery(name="ScopeEntity.countAll", query="SELECT COUNT(x) FROM ScopeEntity x")
 })
-public class ScopeZonesEntity implements Serializable {
+public class ScopeEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
@@ -20,20 +24,28 @@ public class ScopeZonesEntity implements Serializable {
     @Column(name="name")
     private String name;
 
+    @Column(name="timestamp_from")
+    @DateTimeFormat(pattern = Strings.DATE_FORMAT_YYYYMMDD_HHMISS)
+    private Date timestampFrom;
+
+    @Column(name="timestamp_to")
+    @DateTimeFormat(pattern = Strings.DATE_FORMAT_YYYYMMDD_HHMISS)
+    private Date timestampTo;
+
+    @Column(name="type")
+    private Integer type;
+
     @ManyToOne
     @JoinColumn(name="currency_id", nullable=false)
     private CurrencyEntity currency;
 
     @OneToMany(mappedBy="scope", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<ZoneInfoEntity> zonesData;
-
-    @Column(name="status")
-    private Integer status; // indicates what status has the scope: 1 - actual (by priority), 2 - inverse (inverse priority); 3 - closed (actual became close after priority change)
+    private List<ZoneEntity> zones;
 
     //----------------------------------------------------------------------
     // CONSTRUCTOR(S)
     //----------------------------------------------------------------------
-    public ScopeZonesEntity() {
+    public ScopeEntity() {
         super();
     }
 
@@ -57,6 +69,22 @@ public class ScopeZonesEntity implements Serializable {
         this.name = name;
     }
 
+    public Date getTimestampFrom() {
+        return timestampFrom;
+    }
+
+    public void setTimestampFrom(Date timestampFrom) {
+        this.timestampFrom = timestampFrom;
+    }
+
+    public Date getTimestampTo() {
+        return timestampTo;
+    }
+
+    public void setTimestampTo(Date timestampTo) {
+        this.timestampTo = timestampTo;
+    }
+
     public CurrencyEntity getCurrency() {
         return currency;
     }
@@ -65,19 +93,19 @@ public class ScopeZonesEntity implements Serializable {
         this.currency = currency;
     }
 
-    public List<ZoneInfoEntity> getZonesData() {
-        return zonesData;
+    public List<ZoneEntity> getZones() {
+        return zones;
     }
 
-    public void setZonesData(List<ZoneInfoEntity> zonesData) {
-        this.zonesData = zonesData;
+    public void setZones(List<ZoneEntity> zones) {
+        this.zones = zones;
     }
 
-    public Integer getStatus() {
-        return status;
+    public Integer getType() {
+        return type;
     }
 
-    public void setStatus(Integer status) {
-        this.status = status;
+    public void setType(Integer type) {
+        this.type = type;
     }
 }

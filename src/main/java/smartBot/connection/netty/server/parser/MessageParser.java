@@ -12,6 +12,7 @@ import smartBot.connection.netty.server.messages.Message;
 import smartBot.connection.netty.server.messages.PingMessage;
 import smartBot.connection.netty.server.messages.PongMessage;
 import smartBot.defines.Constants;
+import smartBot.utils.Json;
 import smartBot.utils.SerializationUtils;
 
 import java.io.BufferedReader;
@@ -64,7 +65,7 @@ public class MessageParser {
 
             if (!StringUtils.isEmpty(body) && msg instanceof AbstractMessage<?>) {
                 AbstractMessage<?> abm = (AbstractMessage<?>) msg;
-                abm.setBody(isText(headers) ? body : convertToObject(body, abm.getHeader().getContentType()));
+                abm.setBody(body);
             }
             return msg;
         } catch (Exception e) {
@@ -96,12 +97,24 @@ public class MessageParser {
      */
     protected Object convertToObject(String body, String contentType) throws /*IllegalObjectException,*/
             ClassNotFoundException, IOException {
+        Object o = null;
         if (!AbstractMessage.JAVA_BASE64_MIME_TYPE.equals(contentType)) {
             throw new NotImplementedException(
                     "Subclass this class and override convertToObject to enable conversion using mime type " + contentType);
         }
+        o = SerializationUtils.deserializeBase64(body);
 
-        Object o = SerializationUtils.deserializeBase64(body);
+        return o;
+    }
+
+    protected Object convertToObject(String body, String contentType, Class clazz) throws /*IllegalObjectException,*/
+            ClassNotFoundException, IOException {
+        Object o = null;
+        if (!AbstractMessage.JAVA_JSON_TYPE.equals(contentType)) {
+            throw new NotImplementedException(
+                    "Subclass this class and override convertToObject to enable conversion using mime type " + contentType);
+        }
+        o = Json.readObjectFromString (body, clazz);
 
         return o;
     }
@@ -182,7 +195,7 @@ public class MessageParser {
      *           Signals that an I/O exception has occurred.
      */
     protected String fillBody(String body, BufferedReader reader) throws IOException {
-        StringBuilder builder = new StringBuilder(trimEOM(body));
+        StringBuilder builder = new StringBuilder(trimEOM(trimBOM(body)));
 
         String s = reader.readLine();
 
@@ -192,6 +205,23 @@ public class MessageParser {
         }
 
         return builder.toString();
+    }
+
+    /**
+     * Trims the terminating byte.
+     *
+     * @param s
+     *          the s
+     * @return the string
+     */
+    protected String trimBOM(String s) {
+        String trimmed = s;
+        if (s.contains(Constants.BOM)) {
+            int idx = s.indexOf(Constants.BOM);
+            trimmed = s.substring(idx+1, trimmed.length());
+        }
+
+        return trimmed;
     }
 
     /**

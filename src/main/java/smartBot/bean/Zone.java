@@ -8,7 +8,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ZoneInfo implements Serializable {
+public class Zone implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

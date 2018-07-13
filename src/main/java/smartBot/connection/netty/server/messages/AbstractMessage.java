@@ -26,6 +26,7 @@ public abstract class AbstractMessage<HDR extends AbstractMessageHeader> impleme
 
     /** The Constant JAVA_BASE64_MIME_TYPE. */
     public static final String JAVA_BASE64_MIME_TYPE = "java/base64";
+    public static final String JAVA_JSON_TYPE = "application/json";
 
     private String bodyEncoding = JAVA_BASE64_MIME_TYPE;
 
@@ -54,7 +55,7 @@ public abstract class AbstractMessage<HDR extends AbstractMessageHeader> impleme
         builder.append("\n" + Constants.BOM + "\n");
         builder.append(body);
 
-        builder.append(Constants.EOM);
+        //builder.append(Constants.EOM);
 
         return builder.toString();
     }

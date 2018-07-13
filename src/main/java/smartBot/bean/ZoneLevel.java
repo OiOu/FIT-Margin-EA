@@ -17,6 +17,9 @@ public class ZoneLevel implements Serializable {
     @NotNull
     private Double k;
 
+    @NotNull
+    private Integer height;
+
     @Size( max = 255 )
     private String name;
 
@@ -38,6 +41,14 @@ public class ZoneLevel implements Serializable {
 
     public void setK(Double k) {
         this.k = k;
+    }
+
+    public Integer getHeight() {
+        return height;
+    }
+
+    public void setHeight(Integer height) {
+        this.height = height;
     }
 
     public String getName() {

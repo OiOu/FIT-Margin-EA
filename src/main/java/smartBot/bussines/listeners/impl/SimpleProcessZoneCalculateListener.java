@@ -1,19 +1,23 @@
-package smartBot.bussines.listeners;
+package smartBot.bussines.listeners.impl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import smartBot.bean.CurrencyRates;
 import smartBot.bean.Scope;
 import smartBot.bean.Zone;
-import smartBot.bussines.service.ZoneService;
+import smartBot.bussines.listeners.ZoneListener;
+import smartBot.bussines.process.SimpleProcess;
 
+import javax.annotation.Resource;
+
+@Component
 public class SimpleProcessZoneCalculateListener implements ZoneListener {
 
     private static final Log logger = LogFactory.getLog(SimpleProcessZoneCalculateListener.class);
 
-    @Autowired
-    private ZoneService zoneService;
+    @Resource
+    private SimpleProcess simpleProcess;
 
     @Override
     public void onZoneAdd(Scope scope, Zone zone) {
@@ -26,21 +30,17 @@ public class SimpleProcessZoneCalculateListener implements ZoneListener {
     }
 
     @Override
-    public void calculate(Scope scope, CurrencyRates currencyRate) {
-        logger.info("Calculation process was started...");
-
-        zoneService.calculate(scope, currencyRate);
-
-        logger.info("Calculation process was finished");
+    public void onZoneTouch(CurrencyRates currencyRate) {
         return;
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    public ZoneService getZoneService() {
-        return zoneService;
-    }
+    @Override
+    public void calculate(Scope scope, CurrencyRates currencyRate) {
+        logger.info("Calculation process was started...");
 
-    public void setZoneService(ZoneService zoneService) {
-        this.zoneService = zoneService;
+        simpleProcess.calculate(scope, currencyRate);
+
+        logger.info("Calculation process was finished");
+        return;
     }
 }

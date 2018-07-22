@@ -1,8 +1,6 @@
 package smartBot.bean;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import smartBot.defines.Strings;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -14,9 +12,6 @@ public class CurrencyRates implements Serializable {
 
     @NotNull
     private Integer id;
-
-    @NotNull
-    private Integer period;
 
     @NotNull
     private Double high;
@@ -32,14 +27,18 @@ public class CurrencyRates implements Serializable {
     @NotNull
     private Integer volume;
 
-    private Double pips;
+    private Double pointPips;
+
+    private Double pointPrice;
 
     @NotNull
-    @JsonFormat(pattern = Strings.DATE_FORMAT_YYYYMMDD_HHMISS)
     private Date timestamp;
 
     @NotNull
-    private Integer currencyId;
+    private Currency currency;
+
+    @NotNull
+    private Scope scope;
 
     public Integer getId() {
         return id;
@@ -47,14 +46,6 @@ public class CurrencyRates implements Serializable {
 
     public void setId(Integer id) {
         this.id = id;
-    }
-
-    public Integer getPeriod() {
-        return period;
-    }
-
-    public void setPeriod(Integer period) {
-        this.period = period;
     }
 
     public Double getHigh() {
@@ -105,19 +96,27 @@ public class CurrencyRates implements Serializable {
         this.timestamp = timestamp;
     }
 
-    public Integer getCurrencyId() {
-        return currencyId;
+    public Currency getCurrency() {
+        return currency;
     }
 
-    public void setCurrencyId(Integer currencyId) {
-        this.currencyId = currencyId;
+    public void setCurrency(Currency currency) {
+        this.currency = currency;
     }
 
-    public Double getPips() {
-        return pips;
+    public Double getPointPips() {
+        return pointPips;
     }
 
-    public void setPips(Double pips) {
-        this.pips = pips;
+    public void setPointPips(Double pointPips) {
+        this.pointPips = pointPips;
+    }
+
+    public Double getPointPrice() {
+        return pointPrice;
+    }
+
+    public void setPointPrice(Double pointPrice) {
+        this.pointPrice = pointPrice;
     }
 }

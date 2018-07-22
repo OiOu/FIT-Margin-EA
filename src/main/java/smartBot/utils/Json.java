@@ -11,6 +11,7 @@ import org.apache.commons.logging.LogFactory;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 
 public class Json {
 
@@ -98,9 +99,10 @@ public class Json {
     }
 
     private static ObjectMapper getObjectMapper() {
-        if(objectMapper==null) {
+        if(objectMapper == null) {
             objectMapper = new ObjectMapper();
             SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
+            sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
             objectMapper.setDateFormat(sdf);
             objectMapper.registerModule(new JodaModule());
         }

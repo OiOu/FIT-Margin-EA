@@ -13,7 +13,7 @@ CREATE TABLE public.margin_rates (
 	vol_scan_maintenance_rate varchar(255) NULL,
 	currency_id int4 NOT NULL,
 	start_date date NOT NULL DEFAULT date(now()),
-	future_point int4 NULL,
+	future_point float4 NULL,
 	price_per_contract float4 NULL,
 	CONSTRAINT margin_rates_pk PRIMARY KEY (id)
 )
@@ -25,3 +25,4 @@ CREATE INDEX margin_rates_currency_id_idx ON public.margin_rates USING btree (cu
 
 -- Permissions
 ALTER TABLE public.margin_rates OWNER TO smartbot;
+ALTER TABLE public.margin_rates ADD CONSTRAINT margin_rates_currency_fk FOREIGN KEY (currency_id) REFERENCES public.currency(id) ;

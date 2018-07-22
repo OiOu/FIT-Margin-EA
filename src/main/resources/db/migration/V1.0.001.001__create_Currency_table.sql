@@ -5,6 +5,9 @@ CREATE TABLE public.currency (
 	clearing_code varchar(255) NULL,
 	futures_code varchar(255) NULL,
 	inverted bool NULL DEFAULT false,
+    future_point float4 NULL,
+	price_per_contract float4 NULL,
+	k int4 NULL,
 	CONSTRAINT currency_pk PRIMARY KEY (id)
 )
 WITH (

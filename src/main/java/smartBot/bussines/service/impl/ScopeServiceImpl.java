@@ -64,31 +64,28 @@ public class ScopeServiceImpl implements ScopeService {
     @Override
     public Scope create(CurrencyRates currencyRate, Integer type) {
 
-        Scope scope = new Scope();
-        scope.setCurrencyId(currencyRate.getCurrencyId());
-        scope.setType(type);
-        scope.setTimestampFrom(new Date());
-        scope.setName(scope.toString());
+        Currency currency = currencyService.findById(currencyRate.getCurrency().getId());
 
         ScopeEntity scopeEntity = new ScopeEntity();
+        Scope scope = new Scope();
         CurrencyEntity currencyEntity = new CurrencyEntity();
 
-        Currency currency = currencyService.findById(scope.getCurrencyId());
-        if (currency == null) {
-            currencyEntity = currencyJpaRepository.getById(scope.getCurrencyId());
-            if (currencyEntity == null) {
-                logger.error("ERROR: Create: Scope: currencyEntity is NULL!");
-                return null;
-            }
-        } else {
-             currencyServiceMapper.mapBeanToEntity(currency, currencyEntity);
+        if (currency != null) {
+            scope.setCurrency(currency);
+            scope.setType(type);
+            scope.setTimestampFrom(currencyRate.getTimestamp());
+            scope.setName(scope.toString());
+
+            currencyServiceMapper.mapBeanToEntity(currency, currencyEntity);
+
+            scopeEntity.setCurrency(currencyEntity);
+
+            scopeServiceMapper.mapBeanToEntity(scope, scopeEntity);
+            scopeEntity = scopeJpaRepository.save(scopeEntity);
+            scope = scopeServiceMapper.mapEntityToBean(scopeEntity);
         }
 
-        scopeEntity.setCurrency(currencyEntity);
 
-        scopeServiceMapper.mapBeanToEntity(scope, scopeEntity);
-        scopeEntity = scopeJpaRepository.save(scopeEntity);
-        scope = scopeServiceMapper.mapEntityToBean(scopeEntity);
 
         return scope;
     }
@@ -99,9 +96,9 @@ public class ScopeServiceImpl implements ScopeService {
         ScopeEntity scopeEntity = new ScopeEntity();
         CurrencyEntity currencyEntity = new CurrencyEntity();
 
-        Currency currency = currencyService.findById(scope.getCurrencyId());
+        Currency currency = currencyService.findById(scope.getCurrency().getId());
         if (currency == null) {
-            currencyEntity = currencyJpaRepository.getById(scope.getCurrencyId());
+            currencyEntity = currencyJpaRepository.getById(scope.getCurrency().getId());
             if (currencyEntity == null) {
                 logger.error("ERROR: Create: Scope: currencyEntity is NULL!");
                 return;

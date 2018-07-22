@@ -9,7 +9,11 @@ import smartBot.bean.Currency;
 import smartBot.bean.CurrencyRates;
 import smartBot.bean.CurrencyRatesJson;
 import smartBot.bean.Scope;
+import smartBot.bussines.listeners.impl.SimpleProcessScopeAddedListener;
+import smartBot.bussines.listeners.impl.SimpleProcessScopeCalculateListener;
+import smartBot.bussines.listeners.impl.SimpleProcessScopeRemoveListener;
 import smartBot.bussines.process.SimpleScopeProcess;
+import smartBot.bussines.process.SimpleZoneProcess;
 import smartBot.bussines.service.CurrencyService;
 import smartBot.bussines.service.ScopeService;
 import smartBot.bussines.service.ZoneService;
@@ -22,6 +26,7 @@ import smartBot.connection.netty.server.messages.Message;
 import smartBot.connection.netty.server.messages.MessageHeader;
 import smartBot.connection.netty.server.messages.PingMessage;
 import smartBot.defines.RequestsSocket;
+import smartBot.defines.Strings;
 import smartBot.utils.Json;
 
 import java.util.List;
@@ -48,8 +53,20 @@ public class NettyBuildingMessageListener implements NettyMessageListener {
     @Autowired
     private ServerCache serverCache;
 
-    // Create the simple process instance to store scope
-    private SimpleScopeProcess simpleScopeProcess = new SimpleScopeProcess();
+    @Autowired
+    private SimpleScopeProcess simpleScopeProcess;
+
+    @Autowired
+    private SimpleZoneProcess simpleZoneProcess;
+
+    @Autowired
+    private SimpleProcessScopeAddedListener simpleProcessScopeAddedListener;
+
+    @Autowired
+    private SimpleProcessScopeRemoveListener simpleProcessScopeRemoveListener;
+
+    @Autowired
+    private SimpleProcessScopeCalculateListener simpleProcessScopeCalculateListener;
 
     @Override
     public void messageReceived(NettyMessage<?> msg, HostPort hostPort) {
@@ -66,7 +83,7 @@ public class NettyBuildingMessageListener implements NettyMessageListener {
                         (new DateTime(msg.getHeader().getHeaderValue(MessageHeader.TIMESTAMP)).getMillis()));
         }
 
-        // TODO: ALL WORK SHOULD BE DONE` HERE
+        // TODO: ALL WORK SHOULD BE DONE HERE
 
         if (message instanceof PingMessage) {
             gateway.sendPongMessage(hostPort);
@@ -104,38 +121,62 @@ public class NettyBuildingMessageListener implements NettyMessageListener {
                     boolean isNewCalculationFromLowNeeded = serverCache.isNewCalculationNeededOrSkip(currentCurrencyRate, Scope.BUILD_FROM_LOW);
 
                     // Determine type of scope
-                    Integer scopeType = (isNewCalculationFromHighNeeded ? Scope.BUILD_FROM_HIGH : (isNewCalculationFromLowNeeded ? Scope.BUILD_FROM_LOW : /*TODO TMP*/1));
-                    if (scopeType != null) {
-                        // Get last scope for currency. if not exists - create it
-                        Scope scope = scopeService.findByCurrencyIdAndScopeTypeAndOnDate(currentCurrencyRate.getCurrencyId(), scopeType, currentCurrencyRate.getTimestamp());
+                    while (isNewCalculationFromLowNeeded || isNewCalculationFromHighNeeded) {
+                        Integer scopeType = (isNewCalculationFromHighNeeded ? Scope.BUILD_FROM_HIGH : (isNewCalculationFromLowNeeded ? Scope.BUILD_FROM_LOW : null));
 
-                        // Create a new scope if it's needed
-                        if (scope == null) {
-                            scope = scopeService.create(currentCurrencyRate, scopeType);
-                            serverCache.setScopeCache(scope);
+                        if (scopeType != null) {
+                            // reset flags to avoid additional loops
+                            if (isNewCalculationFromHighNeeded) isNewCalculationFromHighNeeded = false;
+                            else
+                            if (isNewCalculationFromLowNeeded) isNewCalculationFromLowNeeded = false;
+
+                            // Get last scope for currency. if not exists - create it
+                            Scope scope = scopeService.findByCurrencyIdAndScopeTypeAndOnDate(currentCurrencyRate.getCurrency().getId(), scopeType, currentCurrencyRate.getTimestamp());
+
+                            // Create a new scope if it's needed and calculate new zones
+                            if (scope == null) {
+                                scope = scopeService.create(currentCurrencyRate, scopeType);
+
+                                if (simpleScopeProcess.getListeners().isEmpty()) {
+                                    simpleScopeProcess.registerScopeListener(simpleProcessScopeAddedListener);
+                                    simpleScopeProcess.registerScopeListener(simpleProcessScopeCalculateListener);
+                                    simpleScopeProcess.registerScopeListener(simpleProcessScopeRemoveListener);
+                                }
+
+                                //serverCache.setScopeCache(scope);
+                                simpleScopeProcess.addScope(scope);
+                                // Calculate zones for each scope
+                            }
+
+                            simpleScopeProcess.process(scope, currentCurrencyRate);
+
+                            messageToClient = prepareZonesMessageResponse(scope);
+
+                            // Send response to client
+                            if (StringUtils.isNotEmpty(messageToClient)) {
+                                gateway.sendMessage(
+                                        RequestsSocket.CURRENCIES_RATES_LIST,
+                                        messageToClient,
+                                        hostPort
+                                );
+                            }
                         }
-
-                        // Add an scope notify the registered listeners
-                        simpleScopeProcess.addScope(scope);
-
-                        // Calculate zones for each scope
-                        simpleScopeProcess.process(scope, currentCurrencyRate);
-
-                     } else {
-                        messageToClient = "";
-                    }
-
-                    // Send response to client
-                    if (StringUtils.isNotEmpty(messageToClient)) {
-                        gateway.sendMessage(
-                                RequestsSocket.CURRENCIES_RATES_LIST,
-                                messageToClient,
-                                hostPort
-                        );
                     }
                 }
             }
         }
+    }
+
+    private String prepareZonesMessageResponse(Scope scope) {
+        StringBuilder sb = new StringBuilder();
+
+        scope.getZones().stream().forEach(zone -> sb.append(scope.getType()).append(Strings.COMMA)
+                .append(zone.getTimestamp()).append(Strings.COMMA)
+                .append(zone.getPrice()).append(Strings.COMMA)
+                .append(zone.getPriceCalc()).append(Strings.COMMA)
+                .append(zone.getPriceCalcShift()));
+        logger.info("> message size: " + sb.toString().length());
+        return sb.toString();
     }
 
     public void setGateway(NettyBuildingMessageGateway gateway) {

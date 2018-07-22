@@ -101,15 +101,15 @@ public class CurrencyRatesServiceMapper extends AbstractServiceMapper {
 
         if (currency == null) return null;
 
-        currencyRates.setCurrencyId(currency.getId());
+        currencyRates.setCurrency(currency);
         currencyRates.setHigh(currencyRatesJson.getHigh());
         currencyRates.setLow(currencyRatesJson.getLow());
         currencyRates.setOpen(currencyRatesJson.getOpen());
         currencyRates.setClose(currencyRatesJson.getClose());
-        currencyRates.setPeriod(currencyRatesJson.getPeriod());
         currencyRates.setTimestamp(currencyRatesJson.getTimestamp());
         currencyRates.setVolume(currencyRatesJson.getVolume());
-        currencyRates.setPips(currencyRatesJson.getPips());
+        currencyRates.setPointPips(currencyRatesJson.getPointPips());
+        currencyRates.setPointPrice(currencyRatesJson.getPointPrice());
 
         return currencyRates;
     }

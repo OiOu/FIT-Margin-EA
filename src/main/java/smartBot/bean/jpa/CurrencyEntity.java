@@ -31,6 +31,15 @@ public class CurrencyEntity implements Serializable {
     @Column(name="inverted")
     private boolean inverted;
 
+    @Column(name="price_per_contract")
+    private Double pricePerContract;
+
+    @Column(name="future_point")
+    private Double futurePoint;
+
+    @Column(name="k")
+    private Integer k;
+
     @OneToMany(mappedBy="currency", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<CurrencyRatesEntity> rates;
 
@@ -122,6 +131,30 @@ public class CurrencyEntity implements Serializable {
 
     public void setScopes(List<ScopeEntity> scopes) {
         this.scopes = scopes;
+    }
+
+    public Double getPricePerContract() {
+        return pricePerContract;
+    }
+
+    public void setPricePerContract(Double pricePerContract) {
+        this.pricePerContract = pricePerContract;
+    }
+
+    public Double getFuturePoint() {
+        return futurePoint;
+    }
+
+    public void setFuturePoint(Double futurePoint) {
+        this.futurePoint = futurePoint;
+    }
+
+    public Integer getK() {
+        return k;
+    }
+
+    public void setK(Integer k) {
+        this.k = k;
     }
 
     /*public List<CurrencyRateCacheEntity> getCache() {

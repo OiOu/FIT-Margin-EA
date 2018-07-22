@@ -28,10 +28,6 @@ public class ScopeEntity implements Serializable {
     @DateTimeFormat(pattern = Strings.DATE_FORMAT_YYYYMMDD_HHMISS)
     private Date timestampFrom;
 
-    @Column(name="timestamp_to")
-    @DateTimeFormat(pattern = Strings.DATE_FORMAT_YYYYMMDD_HHMISS)
-    private Date timestampTo;
-
     @Column(name="type")
     private Integer type;
 
@@ -41,6 +37,9 @@ public class ScopeEntity implements Serializable {
 
     @OneToMany(mappedBy="scope", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ZoneEntity> zones;
+
+    @OneToMany(mappedBy="scope", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<CurrencyRatesEntity> currencyRates;
 
     //----------------------------------------------------------------------
     // CONSTRUCTOR(S)
@@ -77,14 +76,6 @@ public class ScopeEntity implements Serializable {
         this.timestampFrom = timestampFrom;
     }
 
-    public Date getTimestampTo() {
-        return timestampTo;
-    }
-
-    public void setTimestampTo(Date timestampTo) {
-        this.timestampTo = timestampTo;
-    }
-
     public CurrencyEntity getCurrency() {
         return currency;
     }
@@ -107,5 +98,13 @@ public class ScopeEntity implements Serializable {
 
     public void setType(Integer type) {
         this.type = type;
+    }
+
+    public List<CurrencyRatesEntity> getCurrencyRates() {
+        return currencyRates;
+    }
+
+    public void setCurrencyRates(List<CurrencyRatesEntity> currencyRates) {
+        this.currencyRates = currencyRates;
     }
 }

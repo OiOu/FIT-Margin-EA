@@ -1,12 +1,20 @@
-package smartBot.bussines.listeners;
+package smartBot.bussines.listeners.impl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import smartBot.bean.CurrencyRates;
 import smartBot.bean.Scope;
+import smartBot.bussines.listeners.ScopeListener;
+import smartBot.bussines.service.cache.ServerCache;
 
+@Component
 public class SimpleProcessScopeRemoveListener implements ScopeListener {
     private static final Log logger = LogFactory.getLog(SimpleProcessScopeRemoveListener.class);
+
+    @Autowired
+    private ServerCache serverCache;
 
     @Override
     public void onScopeAdd(Scope scope) {
@@ -15,7 +23,8 @@ public class SimpleProcessScopeRemoveListener implements ScopeListener {
 
     @Override
     public void onScopeRemove(Scope scope) {
-        // Print the name of the newly added animal
+        serverCache.removeScopeFromCache(scope);
+
         logger.info("Removed Scope with name '" + scope.getName() + "'");
     }
 

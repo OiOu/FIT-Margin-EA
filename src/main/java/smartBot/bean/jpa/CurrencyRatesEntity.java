@@ -6,7 +6,6 @@ import smartBot.defines.Strings;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
 @Entity
 @Table(name="currency_rates", schema="public" )
@@ -20,9 +19,6 @@ public class CurrencyRatesEntity implements Serializable {
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
     private Integer id;
-
-    @Column(name="period")
-    private Integer period;
 
     @Column(name="high")
     private Double high;
@@ -47,8 +43,9 @@ public class CurrencyRatesEntity implements Serializable {
     @JoinColumn(name="currency_id", nullable=false)
     private CurrencyEntity currency;
 
-    @OneToMany(mappedBy="currencyRates", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<CurrencyRateCacheEntity> cache;
+    @ManyToOne
+    @JoinColumn(name="scope_id", nullable=false)
+    private ScopeEntity scope;
     //----------------------------------------------------------------------
     // CONSTRUCTOR(S)
     //----------------------------------------------------------------------
@@ -66,14 +63,6 @@ public class CurrencyRatesEntity implements Serializable {
 
     public Integer getId() {
         return this.id;
-    }
-
-    public Integer getPeriod() {
-        return period;
-    }
-
-    public void setPeriod(Integer period) {
-        this.period = period;
     }
 
     public Double getHigh() {
@@ -132,11 +121,11 @@ public class CurrencyRatesEntity implements Serializable {
         this.currency = currency;
     }
 
-    public List<CurrencyRateCacheEntity> getCache() {
-        return cache;
+    public ScopeEntity getScope() {
+        return scope;
     }
 
-    public void setCache(List<CurrencyRateCacheEntity> cache) {
-        this.cache = cache;
+    public void setScope(ScopeEntity scope) {
+        this.scope = scope;
     }
 }

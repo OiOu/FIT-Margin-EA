@@ -7,41 +7,33 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import smartBot.bean.MarginRates;
-import smartBot.bussines.service.MarginRatesService;
 import smartBot.utils.HttpDownloader;
 
-import javax.annotation.Resource;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.List;
 
 @Service
-public class MarginRatesJSONPlanner implements Job {
+public class PriorityPlanner implements Job {
 
-    private static final Log logger = LogFactory.getLog(MarginRatesJSONPlanner.class);
+    private static final Log logger = LogFactory.getLog(PriorityPlanner.class);
 
     @Autowired
     private HttpDownloader httpDownloader;
 
-    @Resource
-    private MarginRatesService marginRatesService;
+//    @Resource
+//    private PriorityService priorityService;
 
     public void execute(JobExecutionContext context) throws JobExecutionException {
         long startTime = System.currentTimeMillis();
         logInstanceIp();
 
-        List<MarginRates> marginRatesList = httpDownloader.getMarginRatesFXJSONFile().getMarginRates();
-        marginRatesService.createAll(marginRatesList);
-
-        marginRatesList = httpDownloader.getMarginRatesMetalJSONFile().getMarginRates();
-        marginRatesService.createAll(marginRatesList);
+//        priorityService.determine();
 
         logInstanceStop(startTime);
     }
 
     private void logInstanceIp() {
-        logger.info("MarginRatesJSONPlanner...");
+        logger.info("PriorityPlanner...");
         try {
             logger.debug("Started on ip" + InetAddress.getLocalHost().getHostAddress());
         } catch (UnknownHostException e) {
@@ -52,7 +44,7 @@ public class MarginRatesJSONPlanner implements Job {
 
     private void logInstanceStop(long startTime) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Margin rates JSON planer execution finished:  " + (System.currentTimeMillis() - startTime));
+            logger.debug("PriorityPlanner execution finished:  " + (System.currentTimeMillis() - startTime));
         }
     }
 

@@ -2,15 +2,18 @@ package smartBot.bussines.service.impl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import smartBot.bean.*;
+import smartBot.bean.jpa.ZoneEntity;
 import smartBot.bussines.service.*;
 import smartBot.bussines.service.cache.ServerCache;
+import smartBot.bussines.service.mapping.ZoneServiceMapper;
 import smartBot.data.repository.jpa.ZoneJpaRepository;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -27,67 +30,87 @@ public class ZoneServiceImpl implements ZoneService {
     @Resource
     private ScopeService scopeService;
 
-    @Autowired
+    @Resource
     private MarginRatesService marginRateService;
 
     @Resource
     private ZoneJpaRepository zoneJpaRepository;
 
     @Resource
+    private ZoneServiceMapper zoneServiceMapper;
+
+    @Resource
     private ZoneLevelService zoneLevelService;
 
-    @Autowired
+    @Resource
     private ServerCache serverCache;
 
     /*
     * Main procedure for calculate scope of zone info
     */
-    public List<Zone> calculate(Scope scope, CurrencyRates currencyRate) {
+    public synchronized List<Zone> calculate(Scope scope, CurrencyRates currencyRate) {
 
-        Currency currency = currencyService.findById(currencyRate.getCurrencyId());
-        MarginRates marginRate = marginRateService.findByCurrencyIdAndDate( currencyRate.getCurrencyId(),  currencyRate.getTimestamp());
+        Currency currency = currencyService.findById(currencyRate.getCurrency().getId());
+        MarginRates marginRate = marginRateService.findByCurrencyIdAndDate( currencyRate.getCurrency().getId(),  currencyRate.getTimestamp());
+        List<ZoneLevel> zoneLevels = zoneLevelService.findAll();
+        Collections.sort(zoneLevels);
 
         List<Zone> zones = scope.getZones();
 
         if (zones == null || zones.isEmpty()) {
-            for (int level = 1; level < 10; level++) {
+            for (ZoneLevel level : zoneLevels){
                 Zone zone = new Zone();
-                zone.setLevelId(level);
+                zone.setLevel(level);
                 if (scope.getType() == Scope.BUILD_FROM_HIGH) {
                     zone.setPrice(currencyRate.getHigh());
                 } else {
                     zone.setPrice(currencyRate.getLow());
                 }
                 zone.setActivated(false);
-                zone.setScopeId(scope.getId());
+                zone.setScope(scope);
                 zone.setTimestamp(currencyRate.getTimestamp());
                 zone.setName(zone.toString());
                 zones.add(zone);
+
             }
         }
 
-        for (int level = 0; level < zones.size(); level++){
-            Zone zone = calculate(scope, zones.get(level), currency, currencyRate, marginRate, level);
-            if (zone != null) {
-                zones.add(zone);
+        // if scope has zones then recalculate it. for new list calculate too
+        List<Zone> newZones = new ArrayList<>();
+        for (int i = 0; i < zones.size(); i++) {
+            Zone zone = zones.get(i);
+            if (scope.getType() == Scope.BUILD_FROM_HIGH) {
+                zone.setPrice(currencyRate.getHigh());
+            } else {
+                zone.setPrice(currencyRate.getLow());
             }
+            zone.setTimestamp(currencyRate.getTimestamp());
+            newZones.add(calculate(scope, zone, currency, currencyRate, marginRate));
         }
+
+        Iterable<ZoneEntity> zoneListEntities = zoneServiceMapper.mapBeansToEntities(newZones);
+        zoneListEntities = zoneJpaRepository.saveAll(zoneListEntities);
+        zones = zoneServiceMapper.mapEntitiesToBeans((List<ZoneEntity>) zoneListEntities);
+
+        scope.setZones(zones);
+
         return zones;
     }
 
-    private Zone calculate(Scope scope, Zone zone, Currency currency, CurrencyRates currencyRate, MarginRates marginRate, Integer level) {
+    private Zone calculate(Scope scope, Zone zone, Currency currency, CurrencyRates currencyRate, MarginRates marginRate) {
 
-        ZoneLevel zoneLevel = zoneLevelService.findById(level);
+        Double futurePoint = marginRate.getFuturePoint();
+        if (futurePoint == null) futurePoint = currencyRate.getPointPips() *currencyRate.getPointPrice();
 
-        //Double marginRateForCalculation = marginRate.getMaintenanceRate() * 1.1 / marginRate.getPricePerContract() * 1;
+        Double marginRateForCalculation = marginRate.getMaintenanceRate() * 1.1 / marginRate.getPricePerContract() * futurePoint;
+        Integer heightK = (currency.getK() != null? currency.getK() : 1);
 
         if (currency.getInverted()) {
-            zone.setPriceCalc(1 / (1 / zone.getPrice() + marginRate.getMaintenanceRate() * zoneLevel.getK() * scope.getType()));
-            zone.setPriceCalcShift(zone.getPriceCalc() + zoneLevel.getHeight() * currencyRate.getPips() * scope.getType());
+            zone.setPriceCalc(1 / (1 / zone.getPrice() + marginRateForCalculation * currencyRate.getPointPips() * zone.getLevel().getK() * scope.getType()));
         } else {
-            zone.setPriceCalc(zone.getPrice().doubleValue() - marginRate.getMaintenanceRate().doubleValue() * zoneLevel.getK().doubleValue() * scope.getType().intValue());
-            zone.setPriceCalcShift(zone.getPriceCalc() + zoneLevel.getHeight() * currencyRate.getPips() * scope.getType());
+            zone.setPriceCalc(zone.getPrice() - marginRateForCalculation * zone.getLevel().getK() * scope.getType());
         }
+        zone.setPriceCalcShift(zone.getPriceCalc() + zone.getLevel().getHeight() * heightK * currencyRate.getPointPips() * currencyRate.getPointPrice() * scope.getType());
 
         return zone;
     }

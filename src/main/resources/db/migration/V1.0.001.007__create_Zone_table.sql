@@ -1,4 +1,4 @@
-CREATE TABLE public.zone (
+CREATE TABLE public."zone" (
 	id serial NOT NULL,
 	"name" varchar(255) NULL,
 	scope_id integer NOT NULL,
@@ -17,3 +17,5 @@ WITH (
 
 -- Permissions
 ALTER TABLE public.zone OWNER TO smartbot;
+ALTER TABLE public."zone" ADD CONSTRAINT zone_scope_fk FOREIGN KEY (scope_id) REFERENCES public."scope"(id) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE public."zone" ADD CONSTRAINT zone_zone_level_fk FOREIGN KEY (level_id) REFERENCES public.zone_level(id) ON DELETE CASCADE ON UPDATE CASCADE;

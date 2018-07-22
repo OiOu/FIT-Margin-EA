@@ -7,7 +7,7 @@ import javax.validation.constraints.Size;
 import java.io.Serializable;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ZoneLevel implements Serializable {
+public class ZoneLevel implements Serializable, Comparable {
 
     private static final long serialVersionUID = 1L;
 
@@ -73,5 +73,11 @@ public class ZoneLevel implements Serializable {
 
     public void setGlobalPriority(Boolean globalPriority) {
         this.globalPriority = globalPriority;
+    }
+
+    @Override
+    public int compareTo(Object o) {
+         /* For Asc order*/
+        return this.k.compareTo(((ZoneLevel)o).getK());
     }
 }

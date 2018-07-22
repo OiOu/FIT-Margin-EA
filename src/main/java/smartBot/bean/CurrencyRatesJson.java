@@ -2,6 +2,8 @@ package smartBot.bean;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import smartBot.defines.Strings;
 
 import java.io.Serializable;
@@ -30,7 +32,9 @@ public class CurrencyRatesJson implements Serializable {
 
     private String currency;
 
-    private Double pips;
+    private Double pointPrice;
+
+    private Double pointPips;
 
     public Integer getPeriod() {
         return period;
@@ -93,7 +97,8 @@ public class CurrencyRatesJson implements Serializable {
     }
 
     public void setTimestamp(Date timestamp) {
-        this.timestamp = timestamp;
+        DateTime dt = new DateTime(timestamp.getTime()).toDateTime(DateTimeZone.UTC);
+        this.timestamp = dt.toLocalDateTime().toDate();
     }
 
     public String getCurrency() {
@@ -104,11 +109,19 @@ public class CurrencyRatesJson implements Serializable {
         this.currency = currency;
     }
 
-    public Double getPips() {
-        return pips;
+    public Double getPointPips() {
+        return pointPips;
     }
 
-    public void setPips(Double pips) {
-        this.pips = pips;
+    public void setPointPips(Double pointPips) {
+        this.pointPips = pointPips;
+    }
+
+    public Double getPointPrice() {
+        return pointPrice;
+    }
+
+    public void setPointPrice(Double pointPrice) {
+        this.pointPrice = pointPrice;
     }
 }

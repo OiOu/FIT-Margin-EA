@@ -8,19 +8,19 @@ import java.io.Serializable;
 import java.util.Date;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Zone implements Serializable {
+public class Zone implements Serializable, Comparable {
 
     private static final long serialVersionUID = 1L;
 
     @NotNull
     private Integer id;
 
-    @Size( max = 255 )
+    @Size(max = 255)
     private String name;
 
-    private Integer scopeId;
+    private Scope scope;
 
-    private Integer levelId;
+    private ZoneLevel level;
 
     private Double price;
 
@@ -50,20 +50,20 @@ public class Zone implements Serializable {
         this.name = name;
     }
 
-    public Integer getScopeId() {
-        return scopeId;
+    public Scope getScope() {
+        return scope;
     }
 
-    public void setScopeId(Integer scopeId) {
-        this.scopeId = scopeId;
+    public void setScope(Scope scope) {
+        this.scope = scope;
     }
 
-    public Integer getLevelId() {
-        return levelId;
+    public ZoneLevel getLevel() {
+        return level;
     }
 
-    public void setLevelId(Integer levelId) {
-        this.levelId = levelId;
+    public void setLevel(ZoneLevel level) {
+        this.level = level;
     }
 
     public Double getPrice() {
@@ -112,5 +112,26 @@ public class Zone implements Serializable {
 
     public void setActivated(Boolean activated) {
         this.activated = activated;
+    }
+
+    @Override
+    public String toString() {
+        return "Zone{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", scopeId=" + scope +
+                ", level=" + level +
+                ", price=" + price +
+                ", timestamp=" + timestamp +
+                ", priceCalc=" + priceCalc +
+                ", priceCalcShift=" + priceCalcShift +
+                ", tradeCount=" + tradeCount +
+                ", activated=" + activated +
+                '}';
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        return this.level.getK().compareTo(((Zone)o).getLevel().getK());
     }
 }

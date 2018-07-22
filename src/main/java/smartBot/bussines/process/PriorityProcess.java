@@ -1,55 +1,36 @@
+/*
 package smartBot.bussines.process;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import smartBot.bean.CurrencyRates;
-import smartBot.bean.Scope;
 import smartBot.bean.Zone;
 import smartBot.bussines.listeners.ZoneListener;
+import smartBot.bussines.listeners.impl.SimpleProcessZoneTouchListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
 @Transactional
-public class SimpleZoneProcess {
+public class PriorityProcess {
+    private static final Log logger = LogFactory.getLog(PriorityProcess.class);
 
-    private Scope scope;
     private CurrencyRates currencyRates;
 
     //private List<Zone> zones = new ArrayList<>();
     private List<ZoneListener> listeners = new ArrayList<>();
 
-    public void addZones(List<Zone> zones) {
-        // Add the zone to the list of zones
-        if (zones != null && zones.size() > 0) {
-            for (Zone zone: zones) {
-                this.addZone(zone);
-            }
-        }
+    public PriorityProcess() {
+        // Register a listener to be notified when an zone is added
+        this.registerZoneListener(new SimpleProcessZoneTouchListener());
     }
 
-    public void addZone(Zone zone) {
-        // Add the zone to the list of zones
-        if (!this.scope.getZones().contains(zone)) {
-            this.scope.getZones().add(zone);
-        } else {
-
-            // Notify the list of registered listeners
-            this.notifyZoneAddListeners(zone);
-        }
-    }
-
-    public void removeZone(Zone zone) {
-        // Add the zone to the list of zones
-        this.scope.getZones().remove(zone);
-
+    public void touchZone(Zone zone) {
         // Notify the list of registered listeners
-        this.notifyZoneRemoveListeners(zone);
-    }
-
-    public List<ZoneListener> getListeners() {
-        return this.listeners;
+        this.notifyZoneTouchListeners(zone);
     }
 
     public void registerZoneListener(ZoneListener listener) {
@@ -62,21 +43,9 @@ public class SimpleZoneProcess {
         this.listeners.remove(listener);
     }
 
-    protected void notifyZoneAddListeners(Zone zone) {
+    protected void notifyZoneTouchListeners(Zone zone) {
         // Notify each of the listeners in the list of registered listeners
         this.listeners.forEach(listener -> listener.onZoneAdd(this.scope, zone));
-    }
-
-    protected void notifyZoneRemoveListeners(Zone zone) {
-        // Notify each of the listeners in the list of registered listeners
-        this.listeners.forEach(listener -> listener.onZoneRemove(this.scope, zone));
-    }
-
-    protected void notifyZoneListeners(Scope scope, CurrencyRates currencyRate) {
-        // Notify each of the listeners in the list of registered listeners
-        for (ZoneListener listener : this.listeners) {
-            listener.calculate(scope, currencyRate);
-        }
     }
 
     public void process() {
@@ -88,14 +57,6 @@ public class SimpleZoneProcess {
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
-    public Scope getScope() {
-        return scope;
-    }
-
-    public void setScope(Scope scope) {
-        this.scope = scope;
-    }
-
     public CurrencyRates getCurrencyRates() {
         return currencyRates;
     }
@@ -103,4 +64,6 @@ public class SimpleZoneProcess {
     public void setCurrencyRates(CurrencyRates currencyRates) {
         this.currencyRates = currencyRates;
     }
+
 }
+*/

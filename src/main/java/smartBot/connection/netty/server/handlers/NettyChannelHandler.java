@@ -40,11 +40,11 @@ public class NettyChannelHandler extends SimpleChannelInboundHandler<String> {
 
         final HostPort hostPort = createHostPort(ctx);
 
-        logger.info("channels: [");
+        /*logger.info("channels: [");
         for (Channel channel : sessions.values()) {
             logger.info("channel: " + channel.remoteAddress().toString() + " open: " + channel.isOpen() + " active: " + channel.isActive() + " registered: " + channel.isRegistered() );
         }
-        logger.info("]");
+        logger.info("]");*/
 
         Runnable runnable = new Runnable() {
 
@@ -218,6 +218,8 @@ public class NettyChannelHandler extends SimpleChannelInboundHandler<String> {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         HostPort hostPort = createHostPort(ctx);
+        sessions.remove(hostPort);
+        executors.remove(hostPort);
         logger.error("Unexpected Netty exception for " + hostPort, cause);
         cause.printStackTrace();
         ctx.close();

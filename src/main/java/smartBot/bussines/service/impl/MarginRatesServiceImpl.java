@@ -138,15 +138,13 @@ public class MarginRatesServiceImpl implements MarginRatesService {
 
                     List<MarginRates> marginRateAllList = marginRatesServiceMapper.mapEntitiesToBeans(marginRateEntityAllList);
                     if (marginRateAllList != null && !marginRateAllList.isEmpty()) {
-                        MarginRates lastMarginRate = marginRateAllList.get(0);
                         Collections.sort(marginRateAllList);
+                        MarginRates lastMarginRate = marginRateAllList.get(0);
 
-                        if (lastMarginRate.getId() != value.getId() && // check if not the same entity
-                                lastMarginRate.getMaintenanceRate().doubleValue() != value.getMaintenanceRate().doubleValue()) {
-                            // get values from last row
-                            // if will be needed to update -> do it in DB OR in input parameter from main client
-                            value.setFuturePoint(lastMarginRate.getFuturePoint());
-                            value.setPricePerContract(lastMarginRate.getPricePerContract());
+                        if (lastMarginRate.getMaintenanceRate().doubleValue() != value.getMaintenanceRate().doubleValue()) {
+                            // get values from currency because we should save history of changing next values
+                            value.setFuturePoint(currency.getFuturePoint());
+                            value.setPricePerContract(currency.getPricePerContract());
 
                             marginRateEntityListForSave.add(value);
                         }

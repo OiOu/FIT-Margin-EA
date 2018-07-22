@@ -15,9 +15,7 @@ import smartBot.planner.MarginRatesJSONPlanner;
 import java.io.IOException;
 import java.util.Properties;
 
-
 @Configuration
-//@Profile("quartz")
 public class QuartzConfig {
 
     @Bean
@@ -35,11 +33,10 @@ public class QuartzConfig {
         return propertiesFactoryBean.getObject();
     }
 
-
     @Bean
     public SimpleTriggerFactoryBean marginRatesPlannerTriggerFactory() {
         SimpleTriggerFactoryBean stFactory = new SimpleTriggerFactoryBean();
-        stFactory.setJobDetail(hazelcastMarginRatesPlannerFactory().getObject());
+        stFactory.setJobDetail(marginRatesPlannerFactory().getObject());
         stFactory.setStartDelay(1000);
         stFactory.setRepeatInterval(14400000); // each hour
         stFactory.setMisfireInstruction(
@@ -48,7 +45,7 @@ public class QuartzConfig {
     }
 
     @Bean
-    public JobDetailFactoryBean hazelcastMarginRatesPlannerFactory() {
+    public JobDetailFactoryBean marginRatesPlannerFactory() {
         JobDetailFactoryBean factory = new JobDetailFactoryBean();
         factory.setJobClass(MarginRatesJSONPlanner.class);
         factory.setDurability(true);

@@ -1,11 +1,14 @@
-package smartBot.bussines.listeners;
+package smartBot.bussines.listeners.impl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.stereotype.Component;
 import smartBot.bean.CurrencyRates;
 import smartBot.bean.Scope;
 import smartBot.bean.Zone;
+import smartBot.bussines.listeners.ZoneListener;
 
+@Component
 public class SimpleProcessZoneAddedListener implements ZoneListener {
     private static final Log logger = LogFactory.getLog(SimpleProcessZoneAddedListener.class);
 
@@ -17,6 +20,11 @@ public class SimpleProcessZoneAddedListener implements ZoneListener {
 
     @Override
     public void onZoneRemove(Scope scope, Zone zone) {
+        return;
+    }
+
+    @Override
+    public void onZoneTouch(CurrencyRates currencyRate) {
         return;
     }
 

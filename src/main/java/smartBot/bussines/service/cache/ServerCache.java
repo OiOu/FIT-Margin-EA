@@ -5,14 +5,16 @@ import smartBot.bean.Currency;
 import smartBot.bean.*;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Component
 public class ServerCache {
 
-    private static Map<Integer, Map<Integer, CurrencyRates>> currencyRateLastMinMaxCache = new HashMap<>();
-    private static Map<Integer, Currency> currencyCache = new HashMap<>();
-    private static Map<Integer, List<MarginRates>> marginRateCache = new HashMap<>();
-    private static Map<Integer, List<Scope>> scopeCache = new HashMap<>();
+    private static Map<Integer, Map<Integer, CurrencyRates>> currencyRateLastMinMaxCache = new ConcurrentHashMap<>();
+    private static Map<Integer, Currency> currencyCache = new ConcurrentHashMap<>();
+    private static Map<Integer, List<MarginRates>> marginRateCache = new ConcurrentHashMap<>();
+    private static Map<Integer, List<Scope>> scopeCache = new ConcurrentHashMap<>();
     private static List<ZoneLevel> zoneLevelCache = new ArrayList<>();
 
     // Map<CurrencyId, Map<Type, Rate>>
@@ -24,13 +26,13 @@ public class ServerCache {
         return currencyCache.get(currencyId);
     }
 
-    public void setCurrencyToCache(Currency currency) {
-        if (currency == null ) return;
+    public synchronized void setCurrencyToCache(Currency currency) {
+        if (currency == null) return;
         currencyCache.put(currency.getId(), currency);
     }
 
     public Currency getCurrencyFromCache(String s) {
-        for (Map.Entry<Integer, Currency> entry :currencyCache.entrySet()) {
+        for (Map.Entry<Integer, Currency> entry : currencyCache.entrySet()) {
             if (entry.getValue().getShortName().equalsIgnoreCase(s) ||
                     entry.getValue().getClearingCode().equalsIgnoreCase(s)) {
                 return entry.getValue();
@@ -39,10 +41,10 @@ public class ServerCache {
         return null;
     }
 
-    public void setCurrencyToCache(String shortName, Currency currency) {
+    public synchronized void setCurrencyToCache(String shortName, Currency currency) {
         if (currency == null) return;
 
-        for (Map.Entry<Integer, Currency> entry :currencyCache.entrySet()) {
+        for (Map.Entry<Integer, Currency> entry : currencyCache.entrySet()) {
             if (entry.getValue().getShortName().equalsIgnoreCase(shortName)) {
                 currencyCache.put(entry.getValue().getId(), currency);
                 break;
@@ -51,34 +53,30 @@ public class ServerCache {
 
     }
 
-    public boolean isNewCalculationNeededOrSkip(CurrencyRates currencyRates, Integer type) {
+    public synchronized boolean isNewCalculationNeededOrSkip(CurrencyRates currencyRate, Integer type) {
 
-        Map<Integer, CurrencyRates> tmpCurrencyRateMap = currencyRateLastMinMaxCache.get(currencyRates.getCurrencyId());
+        Map<Integer, CurrencyRates> tmpCurrencyRateMap = currencyRateLastMinMaxCache.get(currencyRate.getCurrency().getId());
 
         // init
         if (tmpCurrencyRateMap == null) {
             tmpCurrencyRateMap = new HashMap<>();
-            tmpCurrencyRateMap.put(Scope.BUILD_FROM_HIGH, currencyRates);
-            tmpCurrencyRateMap.put(Scope.BUILD_FROM_LOW, currencyRates);
-            currencyRateLastMinMaxCache.put(currencyRates.getCurrencyId(), tmpCurrencyRateMap);
+            currencyRateLastMinMaxCache.put(currencyRate.getCurrency().getId(), tmpCurrencyRateMap);
+        }
+
+        // check
+        CurrencyRates tmpCurrencyRates = tmpCurrencyRateMap.get(type);
+
+        if (tmpCurrencyRates == null || type.intValue() == Scope.BUILD_FROM_HIGH && tmpCurrencyRates.getHigh() < currencyRate.getHigh()) {
+            tmpCurrencyRateMap.remove(tmpCurrencyRates);
+            tmpCurrencyRateMap.put(type, currencyRate);
 
             return true;
-        } else {
-            // check
-            CurrencyRates tmpCurrencyRates = tmpCurrencyRateMap.get(type);
+        }
+        if (tmpCurrencyRates == null || type.intValue() == Scope.BUILD_FROM_LOW && tmpCurrencyRates.getLow() > currencyRate.getLow()) {
+            tmpCurrencyRateMap.remove(tmpCurrencyRates);
+            tmpCurrencyRateMap.put(type, currencyRate);
 
-            if (type.intValue() == Scope.BUILD_FROM_HIGH && tmpCurrencyRates.getHigh() < currencyRates.getHigh()) {
-                tmpCurrencyRateMap.remove(tmpCurrencyRates);
-                tmpCurrencyRateMap.put(type, currencyRates);
-
-                return true;
-            }
-            if (type.intValue() == Scope.BUILD_FROM_LOW && tmpCurrencyRates.getLow() > currencyRates.getLow()) {
-                tmpCurrencyRateMap.remove(tmpCurrencyRates);
-                tmpCurrencyRateMap.put(type, currencyRates);
-
-                return true;
-            }
+            return true;
         }
         return false;
     }
@@ -92,15 +90,15 @@ public class ServerCache {
         }
 
         Collections.sort(marginRateList);
-        for (MarginRates marginRate: marginRateList) {
-           if (marginRate.getStartDate().before(onDate)) {
+        for (MarginRates marginRate : marginRateList) {
+            if (marginRate.getStartDate().before(onDate)) {
                 return marginRate;
-           }
+            }
         }
         return null;
     }
 
-    public void setMarginRateToCache(Integer currencyId, MarginRates marginRate) {
+    public synchronized void setMarginRateToCache(Integer currencyId, MarginRates marginRate) {
 
         List<MarginRates> marginRateList = marginRateCache.get(currencyId);
         if (marginRateList == null) {
@@ -111,34 +109,39 @@ public class ServerCache {
         marginRateCache.put(currencyId, marginRateList);
     }
 
-    public Scope getScopeFromCache(Integer currencyId, Integer type, Date onDate) {
+    public synchronized Scope getScopeFromCache(Integer currencyId, Integer type, Date onDate) {
         List<Scope> scopeList = scopeCache.get(currencyId);
         if (scopeList == null) {
             scopeList = new ArrayList<>();
         }
 
+        List<Scope> scopeListTmp = null;
+        scopeListTmp = scopeList
+                .stream()
+                .filter(scope ->
+                            scope.getTimestampFrom().before(onDate)
+                                    && scope.getCurrency().getId() == currencyId
+                                    && scope.getType() == type)
+                .collect(Collectors.toList());
+
+        Collections.sort(scopeListTmp);
         Scope scopeTmp = null;
-        for (Scope scope: scopeList) {
-            if (scope.getType() == type
-                    && scope.getTimestampFrom().before(onDate)
-                    && scope.getTimestampTo() == null
-                    || scope.getTimestampTo() != null && scope.getTimestampTo().after(onDate)) {
-                return scope;
-            }
+        if (!scopeListTmp.isEmpty()) {
+            scopeTmp = scopeListTmp.get(0);
         }
 
         return scopeTmp;
     }
 
-    public void setScopeCache(Scope scope) {
-        List<Scope> scopeList = scopeCache.get(scope.getCurrencyId());
+    public synchronized void setScopeCache(Scope scope) {
+        List<Scope> scopeList = scopeCache.get(scope.getCurrency().getId());
         if (scopeList == null) {
             scopeList = new ArrayList<>();
         }
 
         boolean exists = false;
         for (Scope s : scopeList) {
-            if (s.getCurrencyId().intValue() == scope.getCurrencyId().intValue()
+            if (s.getCurrency().getId().intValue() == scope.getCurrency().getId().intValue()
                     && s.getType().intValue() == scope.getType().intValue()
                     && s.getTimestampFrom() == scope.getTimestampFrom()) {
                 exists = true;
@@ -148,12 +151,18 @@ public class ServerCache {
 
         if (!exists) {
             scopeList.add(scope);
-            scopeCache.put(scope.getCurrencyId(), scopeList);
+            scopeCache.put(scope.getCurrency().getId(), scopeList);
         }
     }
 
-    public ZoneLevel getZoneLevelFromCache(Integer id) {
-        for (ZoneLevel zoneLevel: zoneLevelCache) {
+    public synchronized void removeScopeFromCache(Scope scope) {
+        if (scopeCache != null && scopeCache.containsValue(scope)) {
+            scopeCache.remove(scope.getCurrency().getId());
+        }
+    }
+
+    public synchronized ZoneLevel getZoneLevelFromCache(Integer id) {
+        for (ZoneLevel zoneLevel : zoneLevelCache) {
             if (zoneLevel.getId().intValue() == id) {
                 return zoneLevel;
             }
@@ -162,7 +171,18 @@ public class ServerCache {
         return null;
     }
 
-    public static void setZoneLevelToCache(ZoneLevel zoneLevel) {
-        zoneLevelCache.add(zoneLevel);
+    public synchronized List<ZoneLevel> getZoneLevelFromCache() {
+        return zoneLevelCache;
+    }
+
+    public synchronized static void setZoneLevelToCache(List<ZoneLevel> zoneLevels) {
+        zoneLevelCache.clear();
+        zoneLevelCache.addAll(zoneLevels);
+    }
+
+    public synchronized static void setZoneLevelToCache(ZoneLevel zoneLevel) {
+        if (!zoneLevelCache.contains(zoneLevel)) {
+            zoneLevelCache.add(zoneLevel);
+        }
     }
 }

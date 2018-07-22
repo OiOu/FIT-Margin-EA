@@ -45,7 +45,15 @@ public class ZoneLevelServiceImpl implements ZoneLevelService {
 
     @Override
     public List<ZoneLevel> findAll() {
-        return null;
+        List<ZoneLevel> zoneLevel = serverCache.getZoneLevelFromCache();
+        if (zoneLevel == null || zoneLevel.isEmpty()) {
+            List<ZoneLevelEntity> zoneLevelEntities = (List<ZoneLevelEntity>) zoneLevelJpaRepository.findAll();
+            if (zoneLevelEntities != null) {
+                zoneLevel = zoneLevelServiceMapper.mapEntitiesToBeans(zoneLevelEntities);
+                serverCache.setZoneLevelToCache(zoneLevel);
+            }
+        }
+        return zoneLevel;
     }
 
     @Override

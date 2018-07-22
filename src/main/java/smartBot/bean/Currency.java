@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
-import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Currency implements Serializable {
@@ -33,7 +32,11 @@ public class Currency implements Serializable {
     @NotNull
     private boolean inverted;
 
-    private List<CurrencyRates> rates;
+    private Double pricePerContract;
+
+    private Double futurePoint;
+
+    private Integer k;
 
     public Integer getId() {
         return id;
@@ -75,19 +78,35 @@ public class Currency implements Serializable {
         this.futuresCode = futuresCode;
     }
 
-    public List<CurrencyRates> getRates() {
-        return rates;
-    }
-
-    public void setRates(List<CurrencyRates> rates) {
-        this.rates = rates;
-    }
-
     public boolean getInverted() {
         return inverted;
     }
 
     public void setInverted(boolean inverted) {
         this.inverted = inverted;
+    }
+
+    public Double getPricePerContract() {
+        return pricePerContract;
+    }
+
+    public void setPricePerContract(Double pricePerContract) {
+        this.pricePerContract = pricePerContract;
+    }
+
+    public Double getFuturePoint() {
+        return futurePoint;
+    }
+
+    public void setFuturePoint(Double futurePoint) {
+        this.futurePoint = futurePoint;
+    }
+
+    public Integer getK() {
+        return k;
+    }
+
+    public void setK(Integer k) {
+        this.k = k;
     }
 }

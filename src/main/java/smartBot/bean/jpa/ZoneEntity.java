@@ -1,9 +1,8 @@
 package smartBot.bean.jpa;
 
-import org.joda.time.DateTime;
-
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Date;
 
 @Entity
 @Table(name="zone", schema="public" )
@@ -25,7 +24,7 @@ public class ZoneEntity implements Serializable {
     private Double price;
 
     @Column(name="timestamp")
-    private DateTime timestamp;
+    private Date timestamp;
 
     @Column(name="price_calc")
     private Double priceCalc;
@@ -98,11 +97,11 @@ public class ZoneEntity implements Serializable {
         this.price = price;
     }
 
-    public DateTime getTimestamp() {
+    public Date getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(DateTime timestamp) {
+    public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
     }
 

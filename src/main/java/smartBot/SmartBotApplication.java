@@ -5,12 +5,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+@ComponentScan({"smartBot"})
 @SpringBootApplication
 public class SmartBotApplication {
 	private static final Logger log = LoggerFactory.getLogger(SmartBotApplication.class);

@@ -1,6 +1,6 @@
 buildscript {
 	ext {
-		springBootVersion = '2.0.2.RELEASE'
+		springBootVersion = '2.0.3.RELEASE'
 		nettyVersion = '4.1.25.Final'
 		jackson_version='2.9.5'
 		logstash_logback_encoder_version='5.0'
@@ -54,6 +54,7 @@ dependencies {
 	compile("org.springframework.boot:spring-boot-starter")
 	compile("org.springframework.boot:spring-boot-starter-websocket")
 	compile "org.springframework.boot:spring-boot-starter-data-jpa"
+	compile "org.springframework.boot:spring-boot-starter-quartz"
 	compile group: 'org.springframework', name: 'spring-context-support', version: '4.0.0.RELEASE'
 	// COMMONS
 	compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
@@ -70,8 +71,6 @@ dependencies {
 	// DATABASE
 	compile group: 'org.postgresql', name: 'postgresql', version: '42.2.2'
 	compile group: 'org.hibernate', name: 'hibernate-core', version: hibernate_version
-	// QUARTZ
-	compile group: 'org.quartz-scheduler', name: 'quartz', version:'2.3.0'
 
 	// TESTING
 	testCompile('org.springframework.boot:spring-boot-starter-test')

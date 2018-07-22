@@ -28,10 +28,8 @@ public class Scope implements Serializable, Comparable {
     @JsonFormat(pattern = Strings.DATE_FORMAT_YYYYMMDD_HHMISS)
     private Date timestampFrom;
 
-    private Date timestampTo;
-
     @NotNull
-    private Integer currencyId;
+    private Currency currency;
 
     @NotNull
     private Integer type;
@@ -62,20 +60,12 @@ public class Scope implements Serializable, Comparable {
         this.timestampFrom = timestampFrom;
     }
 
-    public Date getTimestampTo() {
-        return timestampTo;
+    public Currency getCurrency() {
+        return currency;
     }
 
-    public void setTimestampTo(Date timestampTo) {
-        this.timestampTo = timestampTo;
-    }
-
-    public Integer getCurrencyId() {
-        return currencyId;
-    }
-
-    public void setCurrencyId(Integer currencyId) {
-        this.currencyId = currencyId;
+    public void setCurrency(Currency currency) {
+        this.currency = currency;
     }
 
     public Integer getType() {
@@ -97,9 +87,9 @@ public class Scope implements Serializable, Comparable {
     @Override
     public String toString() {
         return "Scope{" +
-                "timestampFrom=" + timestampFrom +
-                ", currencyId=" + currencyId +
-                ", type=" + type +
+                timestampFrom +
+                ", " + currency.getShortName() +
+                ", " + type +
                 '}';
     }
 

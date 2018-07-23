@@ -36,6 +36,9 @@ public class Scope implements Serializable, Comparable {
 
     private List<Zone> zones = new ArrayList<>();
 
+    @NotNull
+    private CurrencyRates currencyRate;
+
     public Integer getId() {
         return id;
     }
@@ -82,6 +85,14 @@ public class Scope implements Serializable, Comparable {
 
     public void setZones(List<Zone> zones) {
         this.zones = zones;
+    }
+
+    public CurrencyRates getCurrencyRate() {
+        return currencyRate;
+    }
+
+    public void setCurrencyRate(CurrencyRates currencyRate) {
+        this.currencyRate = currencyRate;
     }
 
     @Override

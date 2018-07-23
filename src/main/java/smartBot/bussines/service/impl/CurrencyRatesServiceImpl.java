@@ -13,6 +13,7 @@ import smartBot.bean.jpa.CurrencyRatesEntity;
 import smartBot.bean.jpa.ScopeEntity;
 import smartBot.bussines.service.CurrencyRatesService;
 import smartBot.bussines.service.CurrencyService;
+import smartBot.bussines.service.ScopeService;
 import smartBot.bussines.service.mapping.CurrencyRatesServiceMapper;
 import smartBot.bussines.service.mapping.CurrencyServiceMapper;
 import smartBot.bussines.service.mapping.ScopeServiceMapper;
@@ -36,6 +37,9 @@ public class CurrencyRatesServiceImpl implements CurrencyRatesService {
 
     @Autowired
     private CurrencyService currencyService;
+
+    @Autowired
+    private ScopeService scopeService;
 
     @Autowired
     private CurrencyServiceMapper currencyServiceMapper;
@@ -81,28 +85,44 @@ public class CurrencyRatesServiceImpl implements CurrencyRatesService {
     }
 
     @Override
+    public CurrencyRates findByScope(Scope scope) {
+        CurrencyRatesEntity currencyRatesEntity = currencyRatesJpaRepository.findAllByScopeIdAndScopeType(scope.getId(), scope.getType());
+        CurrencyRates currencyRates = null;
+        if (currencyRatesEntity != null) {
+            currencyRates = currencyRatesServiceMapper.mapEntityToBean(currencyRatesEntity);
+        }
+        return currencyRates;
+    }
+
+    @Override
     public void delete(String shortName) {
         currencyRatesJpaRepository.deleteAllByShortName(shortName);
     }
 
     @Override
-    public CurrencyRates save(Scope scope, CurrencyRates currencyRates) {
+    public void merge(CurrencyRates currentCurrencyRate, CurrencyRates lastCurrencyRate) {
+        lastCurrencyRate.setTimestamp(currentCurrencyRate.getTimestamp());
+        lastCurrencyRate.setVolume(currentCurrencyRate.getVolume());
+        lastCurrencyRate.setOpen(currentCurrencyRate.getOpen());
+        lastCurrencyRate.setClose(currentCurrencyRate.getClose());
+        lastCurrencyRate.setHigh(currentCurrencyRate.getHigh());
+        lastCurrencyRate.setLow(currentCurrencyRate.getLow());
+    }
+
+    @Override
+    public CurrencyRates save(CurrencyRates currencyRates) {
         if (currencyRates == null) {
             throw new IllegalStateException("ERROR: Create: CurrencyRates is NULL!");
         }
 
-        if (scope == null) {
-            throw new IllegalStateException("ERROR: Create: Scope is NULL!");
-        }
-
-        CurrencyRatesEntity currencyRatesEntity = currencyRatesJpaRepository.findAllByScopeId(scope.getId());
-        Integer currencyRateId = null;
+        // Search in DB
+        CurrencyRatesEntity currencyRatesEntity = currencyRatesJpaRepository.findAllByScopeIdAndScopeType(currencyRates.getScope().getId(), currencyRates.getScope().getType());
 
         if (currencyRatesEntity == null) {
             ScopeEntity scopeEntity = new ScopeEntity();
             CurrencyEntity currencyEntity = new CurrencyEntity();
 
-            scopeServiceMapper.mapBeanToEntity(scope, scopeEntity);
+            scopeServiceMapper.mapBeanToEntity(currencyRates.getScope(), scopeEntity);
 
             Currency currency = currencyService.findById(currencyRates.getCurrency().getId());
             if (currency == null) {
@@ -114,14 +134,10 @@ public class CurrencyRatesServiceImpl implements CurrencyRatesService {
             currencyRatesEntity = new CurrencyRatesEntity();
             currencyRatesEntity.setCurrency(currencyEntity);
             currencyRatesEntity.setScope(scopeEntity);
-        } else {
-            currencyRateId = currencyRatesEntity.getId();
         }
 
         currencyRatesServiceMapper.mapBeanToEntity(currencyRates, currencyRatesEntity);
-        if (currencyRateId != null) {
-            currencyRatesEntity.setId(currencyRateId);
-        }
+
         currencyRatesEntity = currencyRatesJpaRepository.save(currencyRatesEntity);
 
         return currencyRatesServiceMapper.mapEntityToBean(currencyRatesEntity);

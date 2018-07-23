@@ -49,8 +49,9 @@ public class CurrencyEntity implements Serializable {
     @OneToMany(mappedBy="currency", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ScopeEntity> scopes;
 
-    /*@OneToMany(mappedBy="currency", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<CurrencyRateCacheEntity> cache;*/
+    @OneToMany(mappedBy="currency", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<PriorityEntity> priorities;
+
     //----------------------------------------------------------------------
     // CONSTRUCTOR(S)
     //----------------------------------------------------------------------
@@ -157,11 +158,11 @@ public class CurrencyEntity implements Serializable {
         this.k = k;
     }
 
-    /*public List<CurrencyRateCacheEntity> getCache() {
-        return cache;
+    public List<PriorityEntity> getPriorities() {
+        return priorities;
     }
 
-    public void setCache(List<CurrencyRateCacheEntity> cache) {
-        this.cache = cache;
-    }*/
+    public void setPriorities(List<PriorityEntity> priorities) {
+        this.priorities = priorities;
+    }
 }

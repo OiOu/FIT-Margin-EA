@@ -35,10 +35,10 @@ public class ScopeEntity implements Serializable {
     @JoinColumn(name="currency_id", nullable=false)
     private CurrencyEntity currency;
 
-    @OneToMany(mappedBy="scope", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy="scope", fetch = FetchType.LAZY)
     private List<ZoneEntity> zones;
 
-    @OneToMany(mappedBy="scope", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy="scope", fetch = FetchType.LAZY)
     private List<CurrencyRatesEntity> currencyRates;
 
     //----------------------------------------------------------------------

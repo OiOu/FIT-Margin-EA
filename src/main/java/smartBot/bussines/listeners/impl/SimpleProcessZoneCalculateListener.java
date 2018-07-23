@@ -7,7 +7,7 @@ import smartBot.bean.CurrencyRates;
 import smartBot.bean.Scope;
 import smartBot.bean.Zone;
 import smartBot.bussines.listeners.ZoneListener;
-import smartBot.bussines.process.SimpleProcess;
+import smartBot.bussines.process.SimpleCalculateProcess;
 
 import javax.annotation.Resource;
 
@@ -17,7 +17,7 @@ public class SimpleProcessZoneCalculateListener implements ZoneListener {
     private static final Log logger = LogFactory.getLog(SimpleProcessZoneCalculateListener.class);
 
     @Resource
-    private SimpleProcess simpleProcess;
+    private SimpleCalculateProcess simpleCalculateProcess;
 
     @Override
     public void onZoneAdd(Scope scope, Zone zone) {
@@ -36,11 +36,9 @@ public class SimpleProcessZoneCalculateListener implements ZoneListener {
 
     @Override
     public void calculate(Scope scope, CurrencyRates currencyRate) {
-        logger.info("Calculation process was started...");
 
-        simpleProcess.calculate(scope, currencyRate);
+        simpleCalculateProcess.calculate(scope, currencyRate);
 
-        logger.info("Calculation process was finished");
         return;
     }
 }

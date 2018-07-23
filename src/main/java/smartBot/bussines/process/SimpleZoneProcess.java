@@ -1,24 +1,45 @@
 package smartBot.bussines.process;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import smartBot.bean.CurrencyRates;
 import smartBot.bean.Scope;
 import smartBot.bean.Zone;
 import smartBot.bussines.listeners.ZoneListener;
+import smartBot.bussines.listeners.impl.SimpleProcessZoneAddedListener;
+import smartBot.bussines.listeners.impl.SimpleProcessZoneCalculateListener;
+import smartBot.bussines.listeners.impl.SimpleProcessZoneRemoveListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Component
 @Transactional
 public class SimpleZoneProcess {
 
+    @Autowired
+    private SimpleProcessZoneAddedListener simpleProcessZoneAddedListener;
+
+    @Autowired
+    private SimpleProcessZoneRemoveListener simpleProcessZoneRemoveListener;
+
+    @Autowired
+    private SimpleProcessZoneCalculateListener simpleProcessZoneCalculateListener;
+
     private Scope scope;
     private CurrencyRates currencyRates;
 
-    //private List<Zone> zones = new ArrayList<>();
-    private List<ZoneListener> listeners = new ArrayList<>();
+    private List<ZoneListener> listeners = Collections.synchronizedList(new ArrayList<>());
+
+    public SimpleZoneProcess() {
+        if (getListeners().isEmpty()) {
+            registerZoneListener(simpleProcessZoneAddedListener);
+            registerZoneListener(simpleProcessZoneRemoveListener);
+            registerZoneListener(simpleProcessZoneCalculateListener);
+        }
+    }
 
     public void addZones(List<Zone> zones) {
         // Add the zone to the list of zones
@@ -72,17 +93,17 @@ public class SimpleZoneProcess {
         this.listeners.forEach(listener -> listener.onZoneRemove(this.scope, zone));
     }
 
-    protected void notifyZoneListeners(Scope scope, CurrencyRates currencyRate) {
+    protected void notifyZoneCalculateListeners(Scope scope, CurrencyRates currencyRate) {
         // Notify each of the listeners in the list of registered listeners
         for (ZoneListener listener : this.listeners) {
             listener.calculate(scope, currencyRate);
         }
     }
 
-    public void process() {
+    public void calculate() {
         if (this.scope != null) {
             // Notify the list of registered listeners
-            this.notifyZoneListeners(this.scope, this.currencyRates);
+            this.notifyZoneCalculateListeners(this.scope, this.currencyRates);
         }
         return;
     }

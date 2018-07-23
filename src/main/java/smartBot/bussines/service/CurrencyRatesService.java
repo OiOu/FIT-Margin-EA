@@ -9,7 +9,11 @@ public interface CurrencyRatesService extends Service<CurrencyRates> {
 
     List<CurrencyRates> findAllByShortName(String shortName);
 
-    CurrencyRates save(Scope scope, CurrencyRates currencyRate);
+    CurrencyRates findByScope(Scope scope);
+
+    CurrencyRates save(CurrencyRates currencyRate);
 
     void delete(String shortName);
+
+    void merge(CurrencyRates currentCurrencyRate, CurrencyRates lastCurrencyRate);
 }

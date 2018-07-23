@@ -32,4 +32,9 @@ public class SimpleProcessScopeRemoveListener implements ScopeListener {
     public void onScopeCalculateZones(Scope scope, CurrencyRates currencyRate) {
         return;
     }
+
+    @Override
+    public void onScopeDeterminePriorityZones(Scope scope, CurrencyRates currencyRate) {
+        return;
+    }
 }

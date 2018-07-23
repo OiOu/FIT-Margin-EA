@@ -117,9 +117,7 @@ public class Zone implements Serializable, Comparable {
     @Override
     public String toString() {
         return "Zone{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", scopeId=" + scope +
+                " scopeId=" + scope +
                 ", level=" + level +
                 ", price=" + price +
                 ", timestamp=" + timestamp +

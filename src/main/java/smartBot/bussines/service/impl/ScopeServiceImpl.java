@@ -10,6 +10,7 @@ import smartBot.bean.CurrencyRates;
 import smartBot.bean.Scope;
 import smartBot.bean.jpa.CurrencyEntity;
 import smartBot.bean.jpa.ScopeEntity;
+import smartBot.bussines.service.CurrencyService;
 import smartBot.bussines.service.ScopeService;
 import smartBot.bussines.service.cache.ServerCache;
 import smartBot.bussines.service.mapping.CurrencyServiceMapper;
@@ -38,7 +39,7 @@ public class ScopeServiceImpl implements ScopeService {
     private CurrencyJpaRepository currencyJpaRepository;
 
     @Autowired
-    private CurrencyServiceImpl currencyService;
+    private CurrencyService currencyService;
 
     @Resource
     private CurrencyServiceMapper currencyServiceMapper;
@@ -72,6 +73,7 @@ public class ScopeServiceImpl implements ScopeService {
 
         if (currency != null) {
             scope.setCurrency(currency);
+            //scope.setCurrencyRate(currencyRate);
             scope.setType(type);
             scope.setTimestampFrom(currencyRate.getTimestamp());
             scope.setName(scope.toString());
@@ -85,34 +87,17 @@ public class ScopeServiceImpl implements ScopeService {
             scope = scopeServiceMapper.mapEntityToBean(scopeEntity);
         }
 
-
-
         return scope;
     }
 
     @Override
     public void save(Scope scope) {
+        if (scope != null) {
 
-        ScopeEntity scopeEntity = new ScopeEntity();
-        CurrencyEntity currencyEntity = new CurrencyEntity();
-
-        Currency currency = currencyService.findById(scope.getCurrency().getId());
-        if (currency == null) {
-            currencyEntity = currencyJpaRepository.getById(scope.getCurrency().getId());
-            if (currencyEntity == null) {
-                logger.error("ERROR: Create: Scope: currencyEntity is NULL!");
-                return;
-            }
-        } else {
-            currencyServiceMapper.mapBeanToEntity(currency, currencyEntity);
+            ScopeEntity scopeEntity = new ScopeEntity();
+            scopeServiceMapper.mapBeanToEntity(scope, scopeEntity);
+            scopeJpaRepository.save(scopeEntity);
         }
-
-        scopeEntity.setCurrency(currencyEntity);
-
-        scopeServiceMapper.mapBeanToEntity(scope, scopeEntity);
-        scopeJpaRepository.save(scopeEntity);
-
-        return;
     }
 
 

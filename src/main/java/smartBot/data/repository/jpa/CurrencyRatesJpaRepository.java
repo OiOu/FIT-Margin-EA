@@ -25,6 +25,9 @@ public interface CurrencyRatesJpaRepository extends CrudRepository<CurrencyRates
     @Query("DELETE FROM CurrencyRatesEntity AS cre WHERE cre.currency IN (SELECT ce FROM CurrencyEntity AS ce WHERE ce.shortName = ?1)")
     void deleteAllByShortName(String shortName);
 
+    @Query("SELECT cre FROM CurrencyRatesEntity cre JOIN cre.scope s WHERE s.id = ?1 and s.type = ?2")
+    CurrencyRatesEntity findAllByScopeIdAndScopeType(Integer scopeId, Integer scopeType);
+
     @Query("SELECT cre FROM CurrencyRatesEntity cre JOIN cre.scope s WHERE s.id = ?1")
     CurrencyRatesEntity findAllByScopeId(Integer scopeId);
 }

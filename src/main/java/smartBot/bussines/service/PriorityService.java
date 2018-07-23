@@ -4,5 +4,5 @@ import smartBot.bean.Priority;
 
 public interface PriorityService extends Service<Priority>{
 
-    Priority determine();
+    Priority findByCurrencyId(Integer currencyId);
 }

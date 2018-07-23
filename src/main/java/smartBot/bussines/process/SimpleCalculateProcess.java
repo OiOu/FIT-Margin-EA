@@ -7,14 +7,17 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import smartBot.bean.CurrencyRates;
 import smartBot.bean.Scope;
+import smartBot.bean.Zone;
 import smartBot.bussines.service.CurrencyRatesService;
 import smartBot.bussines.service.ZoneService;
 
+import java.util.List;
+
 @Component
 @Transactional
-public class SimpleProcess {
+public class SimpleCalculateProcess {
 
-    private static final Log logger = LogFactory.getLog(SimpleProcess.class);
+    private static final Log logger = LogFactory.getLog(SimpleCalculateProcess.class);
 
     @Autowired
     private ZoneService zoneService;
@@ -24,9 +27,9 @@ public class SimpleProcess {
 
     public void calculate(Scope scope, CurrencyRates currencyRate) {
 
-        scope.setZones(zoneService.calculate(scope, currencyRate));
+        List<Zone> zoneList = zoneService.calculate(scope, currencyRate);
 
-        currencyRate = currencyRatesService.save(scope, currencyRate);
+        scope.setZones(zoneList);
 
         logger.info("");
     }

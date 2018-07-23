@@ -11,11 +11,12 @@ import java.util.stream.Collectors;
 @Component
 public class ServerCache {
 
-    private static Map<Integer, Map<Integer, CurrencyRates>> currencyRateLastMinMaxCache = new ConcurrentHashMap<>();
-    private static Map<Integer, Currency> currencyCache = new ConcurrentHashMap<>();
-    private static Map<Integer, List<MarginRates>> marginRateCache = new ConcurrentHashMap<>();
-    private static Map<Integer, List<Scope>> scopeCache = new ConcurrentHashMap<>();
-    private static List<ZoneLevel> zoneLevelCache = new ArrayList<>();
+    private static Map<Integer, Map<Integer, CurrencyRates>> currencyRateLastMinMaxCache = Collections.synchronizedMap(new ConcurrentHashMap<>());
+    private static Map<Integer, Currency> currencyCache = Collections.synchronizedMap(new ConcurrentHashMap<>());
+    private static Map<Integer, List<MarginRates>> marginRateCache = Collections.synchronizedMap(new ConcurrentHashMap<>());
+    private static Map<Integer, List<Scope>> scopeCache = Collections.synchronizedMap(new ConcurrentHashMap<>());
+    private static List<ZoneLevel> zoneLevelCache = Collections.synchronizedList(new ArrayList<>());
+    private static Map<Integer, Priority> priorityCache = Collections.synchronizedMap(new ConcurrentHashMap<>());
 
     // Map<CurrencyId, Map<Type, Rate>>
     public Map<Integer, Map<Integer, CurrencyRates>> getCurrencyRatesCache() {
@@ -26,7 +27,7 @@ public class ServerCache {
         return currencyCache.get(currencyId);
     }
 
-    public synchronized void setCurrencyToCache(Currency currency) {
+    public void setCurrencyToCache(Currency currency) {
         if (currency == null) return;
         currencyCache.put(currency.getId(), currency);
     }
@@ -41,7 +42,7 @@ public class ServerCache {
         return null;
     }
 
-    public synchronized void setCurrencyToCache(String shortName, Currency currency) {
+    public void setCurrencyToCache(String shortName, Currency currency) {
         if (currency == null) return;
 
         for (Map.Entry<Integer, Currency> entry : currencyCache.entrySet()) {
@@ -53,7 +54,7 @@ public class ServerCache {
 
     }
 
-    public synchronized boolean isNewCalculationNeededOrSkip(CurrencyRates currencyRate, Integer type) {
+    public boolean isNewCalculationNeededOrSkip(CurrencyRates currencyRate, Integer type) {
 
         Map<Integer, CurrencyRates> tmpCurrencyRateMap = currencyRateLastMinMaxCache.get(currencyRate.getCurrency().getId());
 
@@ -98,7 +99,7 @@ public class ServerCache {
         return null;
     }
 
-    public synchronized void setMarginRateToCache(Integer currencyId, MarginRates marginRate) {
+    public void setMarginRateToCache(Integer currencyId, MarginRates marginRate) {
 
         List<MarginRates> marginRateList = marginRateCache.get(currencyId);
         if (marginRateList == null) {
@@ -109,7 +110,7 @@ public class ServerCache {
         marginRateCache.put(currencyId, marginRateList);
     }
 
-    public synchronized Scope getScopeFromCache(Integer currencyId, Integer type, Date onDate) {
+    public Scope getScopeFromCache(Integer currencyId, Integer type, Date onDate) {
         List<Scope> scopeList = scopeCache.get(currencyId);
         if (scopeList == null) {
             scopeList = new ArrayList<>();
@@ -133,35 +134,32 @@ public class ServerCache {
         return scopeTmp;
     }
 
-    public synchronized void setScopeCache(Scope scope) {
+    public void setScopeCache(Scope scope) {
         List<Scope> scopeList = scopeCache.get(scope.getCurrency().getId());
         if (scopeList == null) {
             scopeList = new ArrayList<>();
         }
 
-        boolean exists = false;
         for (Scope s : scopeList) {
-            if (s.getCurrency().getId().intValue() == scope.getCurrency().getId().intValue()
+            if (s.getId().intValue() == scope.getId().intValue()
                     && s.getType().intValue() == scope.getType().intValue()
                     && s.getTimestampFrom() == scope.getTimestampFrom()) {
-                exists = true;
+                scopeList.remove(s);
                 break;
             }
         }
 
-        if (!exists) {
-            scopeList.add(scope);
-            scopeCache.put(scope.getCurrency().getId(), scopeList);
-        }
+        scopeList.add(scope);
+        scopeCache.put(scope.getCurrency().getId(), scopeList);
     }
 
-    public synchronized void removeScopeFromCache(Scope scope) {
+    public void removeScopeFromCache(Scope scope) {
         if (scopeCache != null && scopeCache.containsValue(scope)) {
             scopeCache.remove(scope.getCurrency().getId());
         }
     }
 
-    public synchronized ZoneLevel getZoneLevelFromCache(Integer id) {
+    public ZoneLevel getZoneLevelFromCache(Integer id) {
         for (ZoneLevel zoneLevel : zoneLevelCache) {
             if (zoneLevel.getId().intValue() == id) {
                 return zoneLevel;
@@ -171,18 +169,37 @@ public class ServerCache {
         return null;
     }
 
-    public synchronized List<ZoneLevel> getZoneLevelFromCache() {
+    public List<ZoneLevel> getZoneLevelFromCache() {
         return zoneLevelCache;
     }
 
-    public synchronized static void setZoneLevelToCache(List<ZoneLevel> zoneLevels) {
+    public static void setZoneLevelToCache(List<ZoneLevel> zoneLevels) {
         zoneLevelCache.clear();
         zoneLevelCache.addAll(zoneLevels);
     }
 
-    public synchronized static void setZoneLevelToCache(ZoneLevel zoneLevel) {
+    public static void setZoneLevelToCache(ZoneLevel zoneLevel) {
         if (!zoneLevelCache.contains(zoneLevel)) {
             zoneLevelCache.add(zoneLevel);
         }
     }
+
+    public Priority getPriorityFromCache(Integer currencyId) {
+        return priorityCache.get(currencyId);
+    }
+
+    public void setPriorityFromCache(Integer currencyId, Priority priority) {
+        Priority priorityFromCache = priorityCache.get(currencyId);
+        if (priorityFromCache == null) {
+            priorityFromCache = priority;
+        } else {
+            if (priorityFromCache.getType() != priority.getType()) {
+                priorityFromCache = priority;
+            }
+        }
+        if (priorityFromCache != null) {
+            priorityCache.put(currencyId, priorityFromCache);
+        }
+    }
+
 }

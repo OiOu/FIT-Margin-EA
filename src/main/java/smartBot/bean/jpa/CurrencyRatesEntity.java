@@ -35,6 +35,12 @@ public class CurrencyRatesEntity implements Serializable {
     @Column(name="volume")
     private Integer volume;
 
+    @Column(name="point_pips")
+    private Double pointPips;
+
+    @Column(name="point_price")
+    private Double pointPrice;
+
     @Column(name="timestamp")
     @DateTimeFormat(pattern = Strings.DATE_FORMAT_YYYYMMDD_HHMISS)
     private Date timestamp;
@@ -119,6 +125,22 @@ public class CurrencyRatesEntity implements Serializable {
 
     public void setCurrency(CurrencyEntity currency) {
         this.currency = currency;
+    }
+
+    public Double getPointPips() {
+        return pointPips;
+    }
+
+    public void setPointPips(Double pointPips) {
+        this.pointPips = pointPips;
+    }
+
+    public Double getPointPrice() {
+        return pointPrice;
+    }
+
+    public void setPointPrice(Double pointPrice) {
+        this.pointPrice = pointPrice;
     }
 
     public ScopeEntity getScope() {

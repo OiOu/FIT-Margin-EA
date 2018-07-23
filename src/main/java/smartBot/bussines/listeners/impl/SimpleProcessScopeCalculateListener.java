@@ -2,7 +2,6 @@ package smartBot.bussines.listeners.impl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import smartBot.bean.CurrencyRates;
 import smartBot.bean.Scope;
@@ -18,15 +17,6 @@ public class SimpleProcessScopeCalculateListener implements ScopeListener {
     @Resource
     private SimpleZoneProcess simpleZoneProcess;
 
-    @Autowired
-    private SimpleProcessZoneAddedListener simpleProcessZoneAddedListener;
-
-    @Autowired
-    private SimpleProcessZoneRemoveListener simpleProcessZoneRemoveListener;
-
-    @Autowired
-    private SimpleProcessZoneCalculateListener simpleProcessZoneCalculateListener;
-
     @Override
     public void onScopeAdd(Scope scope) {
         return;
@@ -39,20 +29,20 @@ public class SimpleProcessScopeCalculateListener implements ScopeListener {
 
     @Override
     public void onScopeCalculateZones(Scope scope, CurrencyRates currencyRate) {
-        logger.info("Calculation process was started...");
+        logger.info("Calculation calculate was started...");
 
         simpleZoneProcess.setScope(scope);
         simpleZoneProcess.setCurrencyRates(currencyRate);
 
-        if (simpleZoneProcess.getListeners().isEmpty()) {
-            simpleZoneProcess.registerZoneListener(simpleProcessZoneAddedListener);
-            simpleZoneProcess.registerZoneListener(simpleProcessZoneRemoveListener);
-            simpleZoneProcess.registerZoneListener(simpleProcessZoneCalculateListener);
-        }
+        simpleZoneProcess.calculate();
 
-        simpleZoneProcess.process();
-
-        logger.info("Calculation process was finished");
+        logger.info("Calculation calculate was finished");
         return;
+    }
+
+    @Override
+    public void onScopeDeterminePriorityZones(Scope scope, CurrencyRates currencyRate) {
+
+
     }
 }

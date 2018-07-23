@@ -17,11 +17,15 @@ public class PriorityEntity implements Serializable {
     @Column(name="id", nullable=false)
     private Integer id;
 
-    @JoinColumn(name="type_id", nullable=false)
-    private Integer type; // 0 - unknown; 1 - Buy; -1 - Sell; 2 - Global Buy; -2 - Global Sell
+    @JoinColumn(name="type_id")
+    private Integer type; // NULL - unknown; 1 - Buy; -1 - Sell; 2 - Global Buy; -2 - Global Sell
 
     @Column(name="start_date")
     private DateTime startDate;
+
+    @ManyToOne
+    @JoinColumn(name="currency_id", nullable=false)
+    private CurrencyEntity currency;
 
     /*@Column(name="usa_open_price")
     private Double usaOpenPrice;
@@ -82,6 +86,13 @@ public class PriorityEntity implements Serializable {
         this.startDate = startDate;
     }
 
+    public CurrencyEntity getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(CurrencyEntity currency) {
+        this.currency = currency;
+    }
 
 /*public Double getUsaOpenPrice() {
         return usaOpenPrice;

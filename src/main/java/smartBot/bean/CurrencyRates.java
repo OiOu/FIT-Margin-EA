@@ -119,4 +119,12 @@ public class CurrencyRates implements Serializable {
     public void setPointPrice(Double pointPrice) {
         this.pointPrice = pointPrice;
     }
+
+    public Scope getScope() {
+        return scope;
+    }
+
+    public void setScope(Scope scope) {
+        this.scope = scope;
+    }
 }

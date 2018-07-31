@@ -19,17 +19,13 @@ public class CurrencyRateListener implements CurrencyRatesListener {
     private PriorityProcess priorityProcess;
 
     @Override
-    public void onCloseBar(CurrencyRates currencyRate) {
+    public void onCloseBar(Scope scope, CurrencyRates currencyRate) {
         return;
     }
 
     @Override
-    public void onOpenBar(CurrencyRates currencyRate) {
+    public void onOpenBar(Scope scope, CurrencyRates currencyRate) {
         return;
     }
 
-    @Override
-    public void onZoneTouch(CurrencyRates currencyRate, Scope scope) {
-        //priorityProcess.execute(currencyRate);
-    }
 }

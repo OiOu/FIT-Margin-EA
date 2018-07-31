@@ -1,11 +1,11 @@
 package smartBot.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.joda.time.DateTime;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
-import java.util.Date;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Zone implements Serializable, Comparable {
@@ -24,7 +24,7 @@ public class Zone implements Serializable, Comparable {
 
     private Double price;
 
-    private Date timestamp;
+    private DateTime timestamp;
 
     private Double priceCalc;
 
@@ -74,11 +74,11 @@ public class Zone implements Serializable, Comparable {
         this.price = price;
     }
 
-    public Date getTimestamp() {
+    public DateTime getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(Date timestamp) {
+    public void setTimestamp(DateTime timestamp) {
         this.timestamp = timestamp;
     }
 

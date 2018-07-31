@@ -2,6 +2,7 @@ package smartBot.planner;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.joda.time.DateTime;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -32,9 +33,11 @@ public class MarginRatesJSONPlanner implements Job {
         logInstanceIp();
 
         List<MarginRates> marginRatesList = httpDownloader.getMarginRatesFXJSONFile().getMarginRates();
+        marginRatesList.forEach(marginRates -> marginRates.setStartDate(new DateTime()));
         marginRatesService.createAll(marginRatesList);
 
         marginRatesList = httpDownloader.getMarginRatesMetalJSONFile().getMarginRates();
+        marginRatesList.forEach(marginRates -> marginRates.setStartDate(new DateTime()));
         marginRatesService.createAll(marginRatesList);
 
         logInstanceStop(startTime);

@@ -1,10 +1,10 @@
 package smartBot.bean.jpa;
 
-import org.springframework.format.annotation.DateTimeFormat;
+import org.hibernate.annotations.Type;
+import org.joda.time.DateTime;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Date;
 
 @Entity
 @Table(name="margin_rates", schema="public" )
@@ -57,8 +57,8 @@ public class MarginRatesEntity implements Serializable {
     private CurrencyEntity currency;
 
     @Column(name="start_date")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date startDate;
+    @Type(type="org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+    private DateTime startDate = new DateTime();
 
     @Column(name="price_per_contract")
     private Double pricePerContract;
@@ -180,11 +180,11 @@ public class MarginRatesEntity implements Serializable {
         this.currency = currency;
     }
 
-    public Date getStartDate() {
+    public DateTime getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(Date startDate) {
+    public void setStartDate(DateTime startDate) {
         this.startDate = startDate;
     }
 

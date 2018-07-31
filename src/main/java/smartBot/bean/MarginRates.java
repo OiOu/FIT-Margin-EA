@@ -3,10 +3,10 @@ package smartBot.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 
 import javax.validation.constraints.Size;
 import java.io.Serializable;
-import java.util.Date;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MarginRates implements Serializable, Comparable {
@@ -44,7 +44,7 @@ public class MarginRates implements Serializable, Comparable {
 
     private String volScanMaintenanceRate;
 
-    private Date startDate = new Date();
+    private DateTime startDate;
 
     private Double pricePerContract;
 
@@ -158,11 +158,11 @@ public class MarginRates implements Serializable, Comparable {
         this.volScanMaintenanceRate = volScanMaintenanceRate;
     }
 
-    public Date getStartDate() {
+    public DateTime getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(Date startDate) {
+    public void setStartDate(DateTime startDate) {
         this.startDate = startDate;
     }
 

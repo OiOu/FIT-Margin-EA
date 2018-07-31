@@ -12,7 +12,7 @@ CREATE TABLE public.margin_rates (
 	maintenance_rate float4 NULL,
 	vol_scan_maintenance_rate varchar(255) NULL,
 	currency_id int4 NOT NULL,
-	start_date date NOT NULL DEFAULT date(now()),
+	start_date timestamp NOT NULL DEFAULT date(now()),
 	future_point float4 NULL,
 	price_per_contract float4 NULL,
 	CONSTRAINT margin_rates_pk PRIMARY KEY (id)

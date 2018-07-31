@@ -5,7 +5,7 @@ CREATE TABLE public.currency_rates (
 	"open" float4 NOT NULL,
 	"close" float4 NOT NULL,
 	volume int4 NOT NULL,
-	"timestamp" timestampt NOT NULL,
+	"timestamp" timestamp NOT NULL,
 	currency_id integer NOT NULL,
 	scope_id int4 NOT NULL,
 	point_pips float4 NULL,

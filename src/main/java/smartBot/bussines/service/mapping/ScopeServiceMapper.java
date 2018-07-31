@@ -70,6 +70,24 @@ public class ScopeServiceMapper extends AbstractServiceMapper {
     }
 
     /**
+     * Mapping from '{@link Scope}' to '{@link ScopeEntity}'
+     * @param scopes
+     * @param scopeEntities
+     */
+    public void mapBeansToEntities(List<Scope> scopes, List<ScopeEntity> scopeEntities) {
+        if(scopes == null) {
+            return;
+        }
+
+        //--- Generic mapping
+        for (Scope scope: scopes) {
+            ScopeEntity scopeEntity = new ScopeEntity();
+            map(scope, scopeEntity);
+            scopeEntities.add(scopeEntity);
+        }
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override

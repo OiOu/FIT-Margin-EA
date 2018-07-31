@@ -7,7 +7,6 @@ import org.joda.time.DateTimeZone;
 import smartBot.defines.Strings;
 
 import java.io.Serializable;
-import java.util.Date;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CurrencyRatesJson implements Serializable {
@@ -28,7 +27,7 @@ public class CurrencyRatesJson implements Serializable {
     private Integer volume;
 
     @JsonFormat(pattern = Strings.DATE_FORMAT_YYYYMMDD_HHMISS)
-    private Date timestamp;
+    private DateTime timestamp;
 
     private String currency;
 
@@ -92,13 +91,12 @@ public class CurrencyRatesJson implements Serializable {
         this.volume = volume;
     }
 
-    public Date getTimestamp() {
+    public DateTime getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(Date timestamp) {
-        DateTime dt = new DateTime(timestamp.getTime()).toDateTime(DateTimeZone.UTC);
-        this.timestamp = dt.toLocalDateTime().toDate();
+    public void setTimestamp(DateTime timestamp) {
+        this.timestamp = timestamp.toDateTime(DateTimeZone.UTC);
     }
 
     public String getCurrency() {

@@ -4,19 +4,82 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import smartBot.bean.CurrencyRates;
-import smartBot.bean.Scope;
+import smartBot.bean.*;
+import smartBot.bussines.service.PriorityService;
+import smartBot.bussines.service.ScopeService;
+import smartBot.bussines.service.cache.ServerCache;
+import smartBot.connection.netty.server.gateway.NettyBuildingMessageGateway;
+import smartBot.defines.PriorityConstants;
+
+import javax.annotation.Resource;
+import java.util.List;
 
 @Component
 @Transactional
 public class PriorityProcess {
     private static final Log logger = LogFactory.getLog(PriorityProcess.class);
 
-    public void determine(Scope scope, CurrencyRates currencyRate) {
-        if (scope != null) {
-            // Notify the list of registered listeners
-            //this.notifyZoneTouchListeners(scope, currencyRate);
+    @Resource
+    private ServerCache serverCache;
+
+   @Resource
+    private ScopeService scopeService;
+
+    @Resource
+    private PriorityService priorityService;
+
+    private NettyBuildingMessageGateway gateway;
+
+
+    //@Scheduled(cron = "0 2 20 * * MON-FRI", zone = "UTC")
+    public Priority determinePriorityAndChange(List<Scope> scopes, CurrencyRates currencyRate) {
+
+        // Get Priority settings (time when to check)
+        // TODO LOOP by PrioritySubTypes can be added
+        Currency currency = serverCache.getCurrencyFromCache(currencyRate.getCurrency().getId());
+
+
+        Priority priorityNew = new Priority();
+        priorityNew.setCurrency(currency);
+
+        logger.debug("Determine priority process was started: " + Thread.currentThread().getName() + "...");
+
+        boolean shouldBeSavedToCache = false;
+        for (Scope scope : scopes) {
+            for (Zone zone : scope.getZones()) {
+                if (priorityNew == null) {
+                    priorityNew = new Priority();
+                    priorityNew.setCurrency(currency);
+                }
+
+                if (zone.getLevel().getPrioritySubType() == PriorityConstants.LOCAL || zone.getLevel().getPrioritySubType() == PriorityConstants.GLOBAL) {
+                    if (scope.getType().intValue() == Scope.BUILD_FROM_HIGH
+                            && zone.getPriceCalc() > currencyRate.getClose()) {
+                        priorityNew.setSubtype(zone.getLevel().getPrioritySubType());
+                        priorityNew.setType(PriorityConstants.SELL);
+                        priorityNew.setStartDate(currencyRate.getTimestamp());
+
+                        shouldBeSavedToCache = true;
+                    }
+                    if (scope.getType().intValue() == Scope.BUILD_FROM_LOW
+                            && zone.getPriceCalc() < currencyRate.getClose()) {
+                        priorityNew.setSubtype(zone.getLevel().getPrioritySubType());
+                        priorityNew.setType(PriorityConstants.BUY);
+                        priorityNew.setStartDate(currencyRate.getTimestamp());
+
+                        shouldBeSavedToCache = true;
+                    }
+                }
+            }
+
+            if (shouldBeSavedToCache) {
+                // Create and save new priority to DB and cache
+                priorityNew = priorityService.create(priorityNew);
+            }
         }
-        return;
+
+        logger.debug("Determine priority process was finished");
+
+        return priorityNew;
     }
 }

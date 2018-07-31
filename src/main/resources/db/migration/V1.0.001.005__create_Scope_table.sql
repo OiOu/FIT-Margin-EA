@@ -3,7 +3,7 @@ CREATE TABLE public."scope" (
 	"name" varchar(255) NULL,
 	"type" integer NULL,
 	currency_id integer NOT NULL,
-	timestamp_from timestampt NOT NULL,
+	timestamp_from timestamp NOT NULL,
 	CONSTRAINT scope_zone_pk PRIMARY KEY (id)
 )
 WITH (

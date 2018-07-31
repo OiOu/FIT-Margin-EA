@@ -29,11 +29,11 @@ public class ZoneLevelEntity implements Serializable {
     @OneToMany(mappedBy="level", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ZoneEntity> zonesInfo;
 
-    @Column(name="local_priority")
-    private Boolean localPriority;
+    @Column(name="priority_type_id")
+    private Integer priorityType; // 1 - Buy; -1 - Sell
 
-    @Column(name="global_priority")
-    private Boolean globalPriority;
+    @Column(name="priority_subtype_id")
+    private Integer prioritySubType; // 1 - Local; 2 - Global
 
     //----------------------------------------------------------------------
     // CONSTRUCTOR(S)
@@ -86,19 +86,19 @@ public class ZoneLevelEntity implements Serializable {
         this.zonesInfo = zonesInfo;
     }
 
-    public Boolean getLocalPriority() {
-        return localPriority;
+    public Integer getPriorityType() {
+        return priorityType;
     }
 
-    public void setLocalPriority(Boolean localPriority) {
-        this.localPriority = localPriority;
+    public void setPriorityType(Integer priorityType) {
+        this.priorityType = priorityType;
     }
 
-    public Boolean getGlobalPriority() {
-        return globalPriority;
+    public Integer getPrioritySubType() {
+        return prioritySubType;
     }
 
-    public void setGlobalPriority(Boolean globalPriority) {
-        this.globalPriority = globalPriority;
+    public void setPrioritySubType(Integer prioritySubType) {
+        this.prioritySubType = prioritySubType;
     }
 }

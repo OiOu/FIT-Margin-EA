@@ -1,10 +1,10 @@
 package smartBot.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.joda.time.DateTime;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.util.Date;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CurrencyRates implements Serializable {
@@ -32,7 +32,7 @@ public class CurrencyRates implements Serializable {
     private Double pointPrice;
 
     @NotNull
-    private Date timestamp;
+    private DateTime timestamp;
 
     @NotNull
     private Currency currency;
@@ -88,11 +88,11 @@ public class CurrencyRates implements Serializable {
         this.volume = volume;
     }
 
-    public Date getTimestamp() {
+    public DateTime getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(Date timestamp) {
+    public void setTimestamp(DateTime timestamp) {
         this.timestamp = timestamp;
     }
 

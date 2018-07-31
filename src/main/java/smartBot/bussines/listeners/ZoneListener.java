@@ -10,7 +10,7 @@ public interface ZoneListener {
 
    void onZoneRemove(Scope scope, Zone zone);
 
-   void onZoneTouch(CurrencyRates currencyRate);
+   void onZoneTouch(Scope scope, Zone zone);
 
    void calculate(Scope scope, CurrencyRates currencyRate);
 }

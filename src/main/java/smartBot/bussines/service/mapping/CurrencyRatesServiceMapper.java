@@ -1,5 +1,6 @@
 package smartBot.bussines.service.mapping;
 
+import org.joda.time.DateTime;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.stereotype.Component;
@@ -106,7 +107,7 @@ public class CurrencyRatesServiceMapper extends AbstractServiceMapper {
         currencyRates.setLow(currencyRatesJson.getLow());
         currencyRates.setOpen(currencyRatesJson.getOpen());
         currencyRates.setClose(currencyRatesJson.getClose());
-        currencyRates.setTimestamp(currencyRatesJson.getTimestamp());
+        currencyRates.setTimestamp(new DateTime(currencyRatesJson.getTimestamp()));
         currencyRates.setVolume(currencyRatesJson.getVolume());
         currencyRates.setPointPips(currencyRatesJson.getPointPips());
         currencyRates.setPointPrice(currencyRatesJson.getPointPrice());

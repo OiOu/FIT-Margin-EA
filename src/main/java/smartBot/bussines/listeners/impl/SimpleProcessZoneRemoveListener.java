@@ -23,8 +23,8 @@ public class SimpleProcessZoneRemoveListener implements ZoneListener {
     }
 
     @Override
-    public void onZoneTouch(CurrencyRates currencyRate) {
-        return;
+    public void onZoneTouch(Scope scope, Zone zone) {
+       return;
     }
 
     @Override

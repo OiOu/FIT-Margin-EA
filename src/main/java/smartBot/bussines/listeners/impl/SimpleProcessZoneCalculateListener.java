@@ -30,7 +30,7 @@ public class SimpleProcessZoneCalculateListener implements ZoneListener {
     }
 
     @Override
-    public void onZoneTouch(CurrencyRates currencyRate) {
+    public void onZoneTouch(Scope scope, Zone zone) {
         return;
     }
 

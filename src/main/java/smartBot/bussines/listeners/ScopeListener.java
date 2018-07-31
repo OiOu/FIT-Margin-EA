@@ -10,6 +10,6 @@ public interface ScopeListener {
     void onScopeRemove(Scope scope);
 
     void onScopeCalculateZones(Scope scope, CurrencyRates currencyRate);
-    
-    void onScopeDeterminePriorityZones(Scope scope, CurrencyRates currencyRate);
+
+    void onScopeTouchZones(Scope scope, CurrencyRates currencyRate);
 }

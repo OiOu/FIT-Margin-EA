@@ -1,5 +1,6 @@
 package smartBot;
 
+import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -8,12 +9,16 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
+import javax.annotation.PostConstruct;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.TimeZone;
 
 @ComponentScan({"smartBot"})
 @SpringBootApplication
+@EnableScheduling
 public class SmartBotApplication {
 	private static final Logger log = LoggerFactory.getLogger(SmartBotApplication.class);
 
@@ -38,6 +43,12 @@ public class SmartBotApplication {
 				configServerStatus == null ?
 						"Not found or not setup for this application" :
 						configServerStatus);
+	}
+
+	@PostConstruct
+	void started() {
+		TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+		DateTimeZone.setDefault(DateTimeZone.UTC);
 	}
 
 	private static void printArg(String strArgumentName, Environment env){

@@ -1,11 +1,10 @@
 package smartBot.bean.jpa;
 
-import org.springframework.format.annotation.DateTimeFormat;
-import smartBot.defines.Strings;
+import org.hibernate.annotations.Type;
+import org.joda.time.DateTime;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -25,8 +24,12 @@ public class ScopeEntity implements Serializable {
     private String name;
 
     @Column(name="timestamp_from")
-    @DateTimeFormat(pattern = Strings.DATE_FORMAT_YYYYMMDD_HHMISS)
-    private Date timestampFrom;
+    @Type(type="org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+    private DateTime timestampFrom;
+
+    @Column(name="timestamp_to")
+    @Type(type="org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+    private DateTime timestampTo;
 
     @Column(name="type")
     private Integer type;
@@ -35,10 +38,10 @@ public class ScopeEntity implements Serializable {
     @JoinColumn(name="currency_id", nullable=false)
     private CurrencyEntity currency;
 
-    @OneToMany(mappedBy="scope", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy="scope")
     private List<ZoneEntity> zones;
 
-    @OneToMany(mappedBy="scope", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy="scope")
     private List<CurrencyRatesEntity> currencyRates;
 
     //----------------------------------------------------------------------
@@ -68,12 +71,20 @@ public class ScopeEntity implements Serializable {
         this.name = name;
     }
 
-    public Date getTimestampFrom() {
+    public DateTime getTimestampFrom() {
         return timestampFrom;
     }
 
-    public void setTimestampFrom(Date timestampFrom) {
+    public void setTimestampFrom(DateTime timestampFrom) {
         this.timestampFrom = timestampFrom;
+    }
+
+    public DateTime getTimestampTo() {
+        return timestampTo;
+    }
+
+    public void setTimestampTo(DateTime timestampTo) {
+        this.timestampTo = timestampTo;
     }
 
     public CurrencyEntity getCurrency() {

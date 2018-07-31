@@ -4,7 +4,7 @@ CREATE TABLE public."zone" (
 	scope_id integer NOT NULL,
 	level_id integer NOT NULL,
 	price float4 NULL,
-	"timestamp" timestampt NULL,
+	"timestamp" timestamp NULL,
 	price_calc float4 NULL,
 	price_calc_shift float4 NULL,
 	trade_count integer NULL,

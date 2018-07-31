@@ -23,9 +23,9 @@ public class ZoneLevel implements Serializable, Comparable {
     @Size( max = 255 )
     private String name;
 
-    private Boolean localPriority;
+    private Integer priorityType;
 
-    private Boolean globalPriority;
+    private Integer prioritySubType;
 
     public Integer getId() {
         return id;
@@ -59,20 +59,20 @@ public class ZoneLevel implements Serializable, Comparable {
         this.name = name;
     }
 
-    public Boolean getLocalPriority() {
-        return localPriority;
+    public Integer getPriorityType() {
+        return priorityType;
     }
 
-    public void setLocalPriority(Boolean localPriority) {
-        this.localPriority = localPriority;
+    public void setPriorityType(Integer priorityType) {
+        this.priorityType = priorityType;
     }
 
-    public Boolean getGlobalPriority() {
-        return globalPriority;
+    public Integer getPrioritySubType() {
+        return prioritySubType;
     }
 
-    public void setGlobalPriority(Boolean globalPriority) {
-        this.globalPriority = globalPriority;
+    public void setPrioritySubType(Integer prioritySubType) {
+        this.prioritySubType = prioritySubType;
     }
 
     @Override

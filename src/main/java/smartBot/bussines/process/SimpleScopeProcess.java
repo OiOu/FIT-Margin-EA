@@ -1,14 +1,10 @@
 package smartBot.bussines.process;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import smartBot.bean.CurrencyRates;
 import smartBot.bean.Scope;
 import smartBot.bussines.listeners.ScopeListener;
-import smartBot.bussines.listeners.impl.SimpleProcessScopeAddedListener;
-import smartBot.bussines.listeners.impl.SimpleProcessScopeCalculateListener;
-import smartBot.bussines.listeners.impl.SimpleProcessScopeRemoveListener;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,15 +15,6 @@ import java.util.List;
 public class SimpleScopeProcess {
 
     private List<ScopeListener> listeners = Collections.synchronizedList(new ArrayList<>());
-
-    @Autowired
-    private SimpleProcessScopeAddedListener simpleProcessScopeAddedListener;
-
-    @Autowired
-    private SimpleProcessScopeRemoveListener simpleProcessScopeRemoveListener;
-
-    @Autowired
-    private SimpleProcessScopeCalculateListener simpleProcessScopeCalculateListener;
 
     public void addScope(Scope scope) {
         // Notify the list of registered listeners
@@ -68,18 +55,9 @@ public class SimpleScopeProcess {
         this.listeners.forEach(listener -> listener.onScopeCalculateZones(scope, currencyRate));
     }
 
-    protected void notifyScopeDeterminePriorityListeners(Scope scope, CurrencyRates currencyRate) {
+    protected void notifyScopeTouchListeners(Scope scope, CurrencyRates currencyRate) {
         // Notify each of the listeners in the list of registered listeners
-        this.listeners.forEach(listener -> listener.onScopeDeterminePriorityZones(scope, currencyRate));
-    }
-
-    public SimpleScopeProcess() {
-
-        if (getListeners().isEmpty()) {
-            registerScopeListener(simpleProcessScopeAddedListener);
-            registerScopeListener(simpleProcessScopeCalculateListener);
-            registerScopeListener(simpleProcessScopeRemoveListener);
-        }
+        this.listeners.forEach(listener -> listener.onScopeTouchZones(scope, currencyRate));
     }
 
     public void calculate(Scope scope, CurrencyRates currencyRate) {
@@ -91,11 +69,11 @@ public class SimpleScopeProcess {
         return;
     }
 
-    public void determinePriority(Scope scope, CurrencyRates currencyRate) {
+    public void touchZone(Scope scope, CurrencyRates currencyRate) {
         // Add the scope to the list of scopes
         if (scope != null) {
             // Notify the list of registered listeners
-            this.notifyScopeDeterminePriorityListeners(scope, currencyRate);
+            this.notifyScopeTouchListeners(scope, currencyRate);
         }
         return;
     }

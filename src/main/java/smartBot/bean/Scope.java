@@ -2,13 +2,13 @@ package smartBot.bean;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.joda.time.DateTime;
 import smartBot.defines.Strings;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -26,7 +26,11 @@ public class Scope implements Serializable, Comparable {
 
     @NotNull
     @JsonFormat(pattern = Strings.DATE_FORMAT_YYYYMMDD_HHMISS)
-    private Date timestampFrom;
+    private DateTime timestampFrom;
+
+    @NotNull
+    @JsonFormat(pattern = Strings.DATE_FORMAT_YYYYMMDD_HHMISS)
+    private DateTime timestampTo;
 
     @NotNull
     private Currency currency;
@@ -55,12 +59,20 @@ public class Scope implements Serializable, Comparable {
         this.name = name;
     }
 
-    public Date getTimestampFrom() {
+    public DateTime getTimestampFrom() {
         return timestampFrom;
     }
 
-    public void setTimestampFrom(Date timestampFrom) {
+    public void setTimestampFrom(DateTime timestampFrom) {
         this.timestampFrom = timestampFrom;
+    }
+
+    public DateTime getTimestampTo() {
+        return timestampTo;
+    }
+
+    public void setTimestampTo(DateTime timestampTo) {
+        this.timestampTo = timestampTo;
     }
 
     public Currency getCurrency() {

@@ -2,6 +2,7 @@ package smartBot.bussines.service.impl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +20,6 @@ import smartBot.data.repository.jpa.MarginRatesJpaRepository;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 @Component
@@ -77,7 +77,7 @@ public class MarginRatesServiceImpl implements MarginRatesService {
     }
 
     @Override
-    public MarginRates findByShortNameAndDate(String shortName, Date onDate) {
+    public MarginRates findByShortNameAndDate(String shortName, DateTime onDate) {
         // TODO Try to get marginRate from cache to avoid additional DB query
 
         List<MarginRatesEntity> marginRateEntity = marginRatesJpaRepository.getByShortNameAndDate(shortName, onDate);
@@ -90,7 +90,7 @@ public class MarginRatesServiceImpl implements MarginRatesService {
     }
 
     @Override
-    public MarginRates findByCurrencyIdAndDate(Integer currencyId, Date onDate) {
+    public MarginRates findByCurrencyIdAndDate(Integer currencyId, DateTime onDate) {
         // Try to get marginRate from cache to avoid additional DB query
         MarginRates marginRate = serverCache.getMarginRateFromCache(currencyId, onDate);
         if (marginRate == null) {
@@ -123,7 +123,7 @@ public class MarginRatesServiceImpl implements MarginRatesService {
 
         marginRateEntityList =  marginRatesServiceMapper.mapBeansToEntities(marginRateJsonList);
 
-        marginRateEntityList.stream().forEach( value -> {
+        for (MarginRatesEntity value : marginRateEntityList) {
             Currency currency = currencyService.findByClearingCode(value.getClearingCode());
             if (currency != null) {
                 CurrencyEntity currencyEntity = new CurrencyEntity();
@@ -153,7 +153,7 @@ public class MarginRatesServiceImpl implements MarginRatesService {
                     }
                 }
             }
-        });
+        }
 
         marginRatesJpaRepository.saveAll(marginRateEntityListForSave);
 

@@ -1,8 +1,10 @@
 package smartBot.bean.jpa;
 
+import org.hibernate.annotations.Type;
+import org.joda.time.DateTime;
+
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Date;
 
 @Entity
 @Table(name="zone", schema="public" )
@@ -24,7 +26,8 @@ public class ZoneEntity implements Serializable {
     private Double price;
 
     @Column(name="timestamp")
-    private Date timestamp;
+    @Type(type="org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+    private DateTime timestamp;
 
     @Column(name="price_calc")
     private Double priceCalc;
@@ -38,7 +41,7 @@ public class ZoneEntity implements Serializable {
     @Column(name="activated")
     private Boolean activated;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name="scope_id", nullable=false)
     private ScopeEntity scope;
 
@@ -97,11 +100,11 @@ public class ZoneEntity implements Serializable {
         this.price = price;
     }
 
-    public Date getTimestamp() {
+    public DateTime getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(Date timestamp) {
+    public void setTimestamp(DateTime timestamp) {
         this.timestamp = timestamp;
     }
 

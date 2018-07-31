@@ -19,8 +19,8 @@ import smartBot.data.repository.jpa.CurrencyJpaRepository;
 import smartBot.data.repository.jpa.ScopeJpaRepository;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 @Component
@@ -91,13 +91,37 @@ public class ScopeServiceImpl implements ScopeService {
     }
 
     @Override
-    public void save(Scope scope) {
+    public Scope save(Scope scope) {
         if (scope != null) {
-
             ScopeEntity scopeEntity = new ScopeEntity();
             scopeServiceMapper.mapBeanToEntity(scope, scopeEntity);
-            scopeJpaRepository.save(scopeEntity);
+            scopeEntity = scopeJpaRepository.save(scopeEntity);
+            scope = scopeServiceMapper.mapEntityToBean(scopeEntity);
         }
+        return scope;
+    }
+
+    @Override
+    public void delete(Scope scope) {
+        if (scope != null) {
+            ScopeEntity scopeEntity = new ScopeEntity();
+            scopeServiceMapper.mapBeanToEntity(scope, scopeEntity);
+            scopeJpaRepository.delete(scopeEntity);
+        }
+        return;
+    }
+
+    @Override
+    public List<Scope> saveAll(List<Scope> scopes) {
+        if (scopes != null) {
+
+            List<ScopeEntity> scopeEntities = new ArrayList<>();
+            scopeServiceMapper.mapBeansToEntities(scopes, scopeEntities);
+            scopeEntities = (List<ScopeEntity>)scopeJpaRepository.saveAll(scopeEntities);
+            scopeServiceMapper.mapBeansToEntities(scopes, scopeEntities);
+
+        }
+        return scopes;
     }
 
 
@@ -112,19 +136,20 @@ public class ScopeServiceImpl implements ScopeService {
     }
 
     @Override
-    public Scope findByCurrencyIdAndScopeTypeAndOnDate(Integer currencyId, Integer scopeType, Date onDate) {
+    public Scope findByCurrencyIdAndScopeType(Integer currencyId, Integer scopeType) {
         // Try to get scope from cache
-        Scope scope = serverCache.getScopeFromCache(currencyId, scopeType, onDate);
+        Scope scope = serverCache.getScopeFromCache(currencyId, scopeType);
 
         if (scope == null) {
             // Search in DB
-            List<ScopeEntity> scopeEntityList = scopeJpaRepository.findByCurrencyIdAndScopeTypeAndTimestamp(currencyId, scopeType, onDate);
+            List<ScopeEntity> scopeEntityList = scopeJpaRepository.findByCurrencyIdAndScopeType(currencyId, scopeType);
             if (scopeEntityList != null) {
 
                 List<Scope> scopes = scopeServiceMapper.mapEntitiesToBeans(scopeEntityList);
                 if (scopes != null && !scopes.isEmpty()) {
                     Collections.sort(scopes);
                     scope = scopes.get(0);
+
                     serverCache.setScopeCache(scope);
                 }
             }

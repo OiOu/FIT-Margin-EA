@@ -5,12 +5,9 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import smartBot.bean.Currency;
 import smartBot.bean.CurrencyRates;
 import smartBot.bean.Scope;
-import smartBot.bean.jpa.CurrencyEntity;
 import smartBot.bean.jpa.CurrencyRatesEntity;
-import smartBot.bean.jpa.ScopeEntity;
 import smartBot.bussines.service.CurrencyRatesService;
 import smartBot.bussines.service.CurrencyService;
 import smartBot.bussines.service.ScopeService;
@@ -85,7 +82,7 @@ public class CurrencyRatesServiceImpl implements CurrencyRatesService {
     }
 
     @Override
-    public CurrencyRates findByScope(Scope scope) {
+    public CurrencyRates findLastByScope(Scope scope) {
         CurrencyRatesEntity currencyRatesEntity = currencyRatesJpaRepository.findAllByScopeIdAndScopeType(scope.getId(), scope.getType());
         CurrencyRates currencyRates = null;
         if (currencyRatesEntity != null) {
@@ -107,6 +104,20 @@ public class CurrencyRatesServiceImpl implements CurrencyRatesService {
         lastCurrencyRate.setClose(currentCurrencyRate.getClose());
         lastCurrencyRate.setHigh(currentCurrencyRate.getHigh());
         lastCurrencyRate.setLow(currentCurrencyRate.getLow());
+        lastCurrencyRate.setPointPrice(currentCurrencyRate.getPointPrice());
+        lastCurrencyRate.setPointPips(currentCurrencyRate.getPointPips());
+        lastCurrencyRate.setScope(currentCurrencyRate.getScope());
+        lastCurrencyRate.setCurrency(currentCurrencyRate.getCurrency());
+    }
+
+    @Override
+    public CurrencyRates findLastByCurrencyIdAndScopeType(Integer currencyId, Integer scopeType) {
+        CurrencyRatesEntity currencyRatesEntity = currencyRatesJpaRepository.findAllByCurrencyIdAndScopeType(currencyId, scopeType);
+        CurrencyRates currencyRates = null;
+        if (currencyRatesEntity != null) {
+            currencyRates = currencyRatesServiceMapper.mapEntityToBean(currencyRatesEntity);
+        }
+        return currencyRates;
     }
 
     @Override
@@ -119,21 +130,21 @@ public class CurrencyRatesServiceImpl implements CurrencyRatesService {
         CurrencyRatesEntity currencyRatesEntity = currencyRatesJpaRepository.findAllByScopeIdAndScopeType(currencyRates.getScope().getId(), currencyRates.getScope().getType());
 
         if (currencyRatesEntity == null) {
-            ScopeEntity scopeEntity = new ScopeEntity();
-            CurrencyEntity currencyEntity = new CurrencyEntity();
+            //ScopeEntity scopeEntity = new ScopeEntity();
+            //CurrencyEntity currencyEntity = new CurrencyEntity();
 
-            scopeServiceMapper.mapBeanToEntity(currencyRates.getScope(), scopeEntity);
+            //scopeServiceMapper.mapBeanToEntity(currencyRates.getScope(), scopeEntity);
 
-            Currency currency = currencyService.findById(currencyRates.getCurrency().getId());
+           /* Currency currency = currencyService.findById(currencyRates.getCurrency().getId());
             if (currency == null) {
                 logger.error("ERROR: Create: CurrencyRates: Currency is NULL!");
                 return null;
-            }
-            currencyServiceMapper.mapBeanToEntity(currency, currencyEntity);
+            }*/
+            //currencyServiceMapper.mapBeanToEntity(currency, currencyEntity);
 
             currencyRatesEntity = new CurrencyRatesEntity();
-            currencyRatesEntity.setCurrency(currencyEntity);
-            currencyRatesEntity.setScope(scopeEntity);
+            //currencyRatesEntity.setCurrency(currencyEntity);
+            //currencyRatesEntity.setScope(scopeEntity);
         }
 
         currencyRatesServiceMapper.mapBeanToEntity(currencyRates, currencyRatesEntity);

@@ -5,9 +5,8 @@ import smartBot.bean.Scope;
 
 public interface CurrencyRatesListener {
 
-    void onCloseBar(CurrencyRates currencyRate);
+    void onCloseBar(Scope scope, CurrencyRates currencyRate);
 
-    void onOpenBar(CurrencyRates currencyRate);
+    void onOpenBar(Scope scope, CurrencyRates currencyRate);
 
-    void onZoneTouch(CurrencyRates currencyRate, Scope scope);
 }

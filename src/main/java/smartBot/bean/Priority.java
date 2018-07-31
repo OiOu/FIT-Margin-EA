@@ -8,6 +8,7 @@ import java.io.Serializable;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Priority implements Serializable {
+
     private static final long serialVersionUID = 1L;
 
     @NotNull
@@ -15,32 +16,13 @@ public class Priority implements Serializable {
 
     private Integer type;
 
+    private Integer subtype;
+
     private DateTime startDate;
 
+    private DateTime endDate;
 
-    /*@Column(name="usa_open_price")
-    private Double usaOpenPrice;
-
-    @Column(name="usa_close_price")
-    private Double usaClosePrice;
-
-    @Column(name="usa_open_date")
-    private DateTime usaOpenDate;
-
-    @Column(name="usa_close_date")
-    private DateTime usaCloseDate;
-
-    @Column(name="eur_open_price")
-    private Double eurOpenPrice;
-
-    @Column(name="eur_close_price")
-    private Double eurClosePrice;
-
-    @Column(name="eur_open_date")
-    private DateTime eurOpenDate;
-
-    @Column(name="eur_close_date")
-    private DateTime eurCloseDate;*/
+    private Currency currency;
 
     //----------------------------------------------------------------------
     // CONSTRUCTOR(S)
@@ -69,6 +51,14 @@ public class Priority implements Serializable {
         this.type = type;
     }
 
+    public Integer getSubtype() {
+        return subtype;
+    }
+
+    public void setSubtype(Integer subtype) {
+        this.subtype = subtype;
+    }
+
     public DateTime getStartDate() {
         return startDate;
     }
@@ -77,67 +67,19 @@ public class Priority implements Serializable {
         this.startDate = startDate;
     }
 
-/*public Double getUsaOpenPrice() {
-        return usaOpenPrice;
+    public DateTime getEndDate() {
+        return endDate;
     }
 
-    public void setUsaOpenPrice(Double usaOpenPrice) {
-        this.usaOpenPrice = usaOpenPrice;
+    public void setEndDate(DateTime endDate) {
+        this.endDate = endDate;
     }
 
-    public Double getUsaClosePrice() {
-        return usaClosePrice;
+    public Currency getCurrency() {
+        return currency;
     }
 
-    public void setUsaClosePrice(Double usaClosePrice) {
-        this.usaClosePrice = usaClosePrice;
+    public void setCurrency(Currency currency) {
+        this.currency = currency;
     }
-
-    public DateTime getUsaOpenDate() {
-        return usaOpenDate;
-    }
-
-    public void setUsaOpenDate(DateTime usaOpenDate) {
-        this.usaOpenDate = usaOpenDate;
-    }
-
-    public DateTime getUsaCloseDate() {
-        return usaCloseDate;
-    }
-
-    public void setUsaCloseDate(DateTime usaCloseDate) {
-        this.usaCloseDate = usaCloseDate;
-    }
-
-    public Double getEurOpenPrice() {
-        return eurOpenPrice;
-    }
-
-    public void setEurOpenPrice(Double eurOpenPrice) {
-        this.eurOpenPrice = eurOpenPrice;
-    }
-
-    public Double getEurClosePrice() {
-        return eurClosePrice;
-    }
-
-    public void setEurClosePrice(Double eurClosePrice) {
-        this.eurClosePrice = eurClosePrice;
-    }
-
-    public DateTime getEurOpenDate() {
-        return eurOpenDate;
-    }
-
-    public void setEurOpenDate(DateTime eurOpenDate) {
-        this.eurOpenDate = eurOpenDate;
-    }
-
-    public DateTime getEurCloseDate() {
-        return eurCloseDate;
-    }
-
-    public void setEurCloseDate(DateTime eurCloseDate) {
-        this.eurCloseDate = eurCloseDate;
-    }*/
 }

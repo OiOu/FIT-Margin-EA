@@ -4,11 +4,11 @@ import smartBot.bean.CurrencyRates;
 import smartBot.bean.Scope;
 import smartBot.bean.jpa.ScopeEntity;
 
-import java.util.Date;
+import java.util.List;
 
 public interface ScopeService extends Service<ScopeEntity>{
 
-    Scope findByCurrencyIdAndScopeTypeAndOnDate(Integer currencyId, Integer scopeType, Date onDate);
+    Scope findByCurrencyIdAndScopeType(Integer currencyId, Integer scopeType);
 
     Integer getLastId();
 
@@ -16,5 +16,9 @@ public interface ScopeService extends Service<ScopeEntity>{
 
     Scope create(CurrencyRates currencyRate, Integer type);
 
-    void save(Scope scope);
+    Scope save(Scope scope);
+
+    void delete(Scope scope);
+
+    List<Scope> saveAll(List<Scope> scopes);
 }

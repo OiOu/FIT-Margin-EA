@@ -85,6 +85,7 @@ public class ZoneServiceImpl implements ZoneService {
                 zone.setPrice(currencyRate.getLow());
             }
             zone.setTimestamp(currencyRate.getTimestamp());
+            zone.setActivated(false);
             newZones.add(calculate(scope, zone, currency, currencyRate, marginRate));
         }
 
@@ -131,8 +132,12 @@ public class ZoneServiceImpl implements ZoneService {
     }
 
     @Override
-    public Zone create(Zone bean) {
-        return null;
+    public Zone create(Zone zone) {
+        ZoneEntity zoneEntity = new ZoneEntity();
+        zoneServiceMapper.mapBeanToEntity(zone, zoneEntity);
+
+        zoneEntity = zoneJpaRepository.save(zoneEntity);
+        return zoneServiceMapper.mapEntityToBean(zoneEntity);
     }
 
     @Override

@@ -30,4 +30,7 @@ public interface CurrencyRatesJpaRepository extends CrudRepository<CurrencyRates
 
     @Query("SELECT cre FROM CurrencyRatesEntity cre JOIN cre.scope s WHERE s.id = ?1")
     CurrencyRatesEntity findAllByScopeId(Integer scopeId);
+
+    @Query("SELECT cre FROM CurrencyRatesEntity cre JOIN cre.scope s JOIN s.currency c WHERE c.id = ?1 and s.type = ?2")
+    CurrencyRatesEntity findAllByCurrencyIdAndScopeType(Integer currencyId, Integer scopeType);
 }

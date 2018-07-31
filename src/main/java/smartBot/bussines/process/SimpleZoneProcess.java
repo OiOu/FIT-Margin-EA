@@ -1,15 +1,11 @@
 package smartBot.bussines.process;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import smartBot.bean.CurrencyRates;
 import smartBot.bean.Scope;
 import smartBot.bean.Zone;
 import smartBot.bussines.listeners.ZoneListener;
-import smartBot.bussines.listeners.impl.SimpleProcessZoneAddedListener;
-import smartBot.bussines.listeners.impl.SimpleProcessZoneCalculateListener;
-import smartBot.bussines.listeners.impl.SimpleProcessZoneRemoveListener;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,27 +15,10 @@ import java.util.List;
 @Transactional
 public class SimpleZoneProcess {
 
-    @Autowired
-    private SimpleProcessZoneAddedListener simpleProcessZoneAddedListener;
-
-    @Autowired
-    private SimpleProcessZoneRemoveListener simpleProcessZoneRemoveListener;
-
-    @Autowired
-    private SimpleProcessZoneCalculateListener simpleProcessZoneCalculateListener;
-
     private Scope scope;
     private CurrencyRates currencyRates;
 
     private List<ZoneListener> listeners = Collections.synchronizedList(new ArrayList<>());
-
-    public SimpleZoneProcess() {
-        if (getListeners().isEmpty()) {
-            registerZoneListener(simpleProcessZoneAddedListener);
-            registerZoneListener(simpleProcessZoneRemoveListener);
-            registerZoneListener(simpleProcessZoneCalculateListener);
-        }
-    }
 
     public void addZones(List<Zone> zones) {
         // Add the zone to the list of zones
@@ -100,11 +79,24 @@ public class SimpleZoneProcess {
         }
     }
 
+    protected void notifyZoneTouchListeners(Scope scope, Zone zone) {
+        // Notify each of the listeners in the list of registered listeners
+        for (ZoneListener listener : this.listeners) {
+            listener.onZoneTouch(scope, zone);
+        }
+    }
+
     public void calculate() {
         if (this.scope != null) {
             // Notify the list of registered listeners
             this.notifyZoneCalculateListeners(this.scope, this.currencyRates);
         }
+        return;
+    }
+
+    public void touchZone(Scope scope, Zone zone) {
+        // Notify the list of registered listeners
+        this.notifyZoneTouchListeners(scope, zone);
         return;
     }
 

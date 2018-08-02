@@ -2,6 +2,7 @@ package smartBot.bean.jpa;
 
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
+import smartBot.utils.DoubleUtils;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -113,7 +114,7 @@ public class ZoneEntity implements Serializable {
     }
 
     public void setPriceCalc(Double priceCalc) {
-        this.priceCalc = priceCalc;
+        this.priceCalc = DoubleUtils.round(priceCalc, 5);
     }
 
     public Double getPriceCalcShift() {
@@ -121,7 +122,7 @@ public class ZoneEntity implements Serializable {
     }
 
     public void setPriceCalcShift(Double priceCalcShift) {
-        this.priceCalcShift = priceCalcShift;
+        this.priceCalcShift = DoubleUtils.round(priceCalcShift, 5);
     }
 
     public Integer getTradeCount() {

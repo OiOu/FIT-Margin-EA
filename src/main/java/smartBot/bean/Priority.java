@@ -14,9 +14,9 @@ public class Priority implements Serializable {
     @NotNull
     private Integer id;
 
-    private Integer type;
+    private PriorityType type;
 
-    private Integer subtype;
+    private PrioritySubType subtype;
 
     private DateTime startDate;
 
@@ -43,19 +43,19 @@ public class Priority implements Serializable {
         this.id = id;
     }
 
-    public Integer getType() {
+    public PriorityType getType() {
         return type;
     }
 
-    public void setType(Integer type) {
+    public void setType(PriorityType type) {
         this.type = type;
     }
 
-    public Integer getSubtype() {
+    public PrioritySubType getSubtype() {
         return subtype;
     }
 
-    public void setSubtype(Integer subtype) {
+    public void setSubtype(PrioritySubType subtype) {
         this.subtype = subtype;
     }
 

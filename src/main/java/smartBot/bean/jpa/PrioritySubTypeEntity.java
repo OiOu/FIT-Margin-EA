@@ -4,23 +4,23 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
-@Table(name="priority_type", schema="public" )
+@Table(name="priority_subtype", schema="public" )
 @NamedQueries({
-        @NamedQuery(name="PriorityTypeEntity.countAll", query="SELECT COUNT(x) FROM PriorityTypeEntity x")
+        @NamedQuery(name="PrioritySubTypeEntity.countAll", query="SELECT COUNT(x) FROM PrioritySubTypeEntity x")
 })
-public class PriorityTypeEntity {
+public class PrioritySubTypeEntity {
 
     @Id
     @Column(name="id", nullable=false)
     private Integer id;
 
-    @Column(name="type")
-    private Integer type; // 1 - Buy; -1 - Sell
+    @Column(name="subtype")
+    private Integer subtype; // 1 - Local; 2 - Global
 
     @Column(name="name")
     private String name;
 
-    @OneToMany(mappedBy="type")
+    @OneToMany(mappedBy="subtype")
     private List<PriorityEntity> priorities;
 
     public Integer getId() {
@@ -31,12 +31,12 @@ public class PriorityTypeEntity {
         this.id = id;
     }
 
-    public Integer getType() {
-        return type;
+    public Integer getSubtype() {
+        return subtype;
     }
 
-    public void setType(Integer type) {
-        this.type = type;
+    public void setSubtype(Integer subtype) {
+        this.subtype = subtype;
     }
 
     public String getName() {

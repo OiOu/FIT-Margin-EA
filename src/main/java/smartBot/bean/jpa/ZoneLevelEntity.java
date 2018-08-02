@@ -26,6 +26,9 @@ public class ZoneLevelEntity implements Serializable {
     @Column(name="height")
     private Integer height;
 
+    @Column(name="distance")
+    private Integer distance;
+
     @OneToMany(mappedBy="level", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ZoneEntity> zonesInfo;
 
@@ -76,6 +79,14 @@ public class ZoneLevelEntity implements Serializable {
 
     public void setHeight(Integer height) {
         this.height = height;
+    }
+
+    public Integer getDistance() {
+        return distance;
+    }
+
+    public void setDistance(Integer distance) {
+        this.distance = distance;
     }
 
     public List<ZoneEntity> getZonesInfo() {

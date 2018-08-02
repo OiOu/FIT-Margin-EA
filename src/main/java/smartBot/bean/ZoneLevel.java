@@ -20,6 +20,8 @@ public class ZoneLevel implements Serializable, Comparable {
     @NotNull
     private Integer height;
 
+    private Integer distance;
+
     @Size( max = 255 )
     private String name;
 
@@ -49,6 +51,14 @@ public class ZoneLevel implements Serializable, Comparable {
 
     public void setHeight(Integer height) {
         this.height = height;
+    }
+
+    public Integer getDistance() {
+        return distance;
+    }
+
+    public void setDistance(Integer distance) {
+        this.distance = distance;
     }
 
     public String getName() {

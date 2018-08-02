@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import smartBot.defines.Strings;
+import smartBot.utils.DoubleUtils;
 
 import java.io.Serializable;
 
@@ -56,7 +57,7 @@ public class CurrencyRatesJson implements Serializable {
     }
 
     public void setHigh(Double high) {
-        this.high = high;
+        this.high = DoubleUtils.round(high, 5);
     }
 
     public Double getLow() {
@@ -64,7 +65,7 @@ public class CurrencyRatesJson implements Serializable {
     }
 
     public void setLow(Double low) {
-        this.low = low;
+        this.low = DoubleUtils.round(low, 5);
     }
 
     public Double getOpen() {
@@ -72,7 +73,7 @@ public class CurrencyRatesJson implements Serializable {
     }
 
     public void setOpen(Double open) {
-        this.open = open;
+        this.open = DoubleUtils.round(open, 5);
     }
 
     public Double getClose() {
@@ -80,7 +81,7 @@ public class CurrencyRatesJson implements Serializable {
     }
 
     public void setClose(Double close) {
-        this.close = close;
+        this.close = DoubleUtils.round(close, 5);
     }
 
     public Integer getVolume() {

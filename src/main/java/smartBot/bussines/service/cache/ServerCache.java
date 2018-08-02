@@ -4,6 +4,7 @@ import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
 import smartBot.bean.Currency;
 import smartBot.bean.*;
+import smartBot.utils.DoubleUtils;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,10 +18,28 @@ public class ServerCache {
     private static Map<Integer, List<MarginRates>> marginRateCache = Collections.synchronizedMap(new ConcurrentHashMap<>());
     private static Map<Integer, List<Scope>> scopeCache = Collections.synchronizedMap(new ConcurrentHashMap<>());
     private static List<ZoneLevel> zoneLevelCache = Collections.synchronizedList(new ArrayList<>());
+    private static List<PriorityType> priorityTypeCache = Collections.synchronizedList(new ArrayList<>());
+    private static List<PrioritySubType> prioritySubTypeCache = Collections.synchronizedList(new ArrayList<>());
 
     // Map<CurrencyId, Map<Type, Rate>>
-    public Map<Integer, Map<Integer, CurrencyRates>> getCurrencyRatesCache() {
-        return currencyRateCache;
+    public CurrencyRates getCurrencyRatesFromCache(Integer currencyId, Integer scopeType) {
+        Map<Integer, CurrencyRates> currencyRatesMap = currencyRateCache.get(currencyId);
+
+        if (currencyRatesMap != null) {
+            return currencyRatesMap.get(scopeType);
+        }
+
+        return null;
+    }
+
+    public void setCurrencyRatesToCache(CurrencyRates currencyRate) {
+        Map<Integer, CurrencyRates> currencyRatesMap = currencyRateCache.get(currencyRate.getCurrency().getId());
+
+        if (currencyRatesMap != null) {
+            currencyRatesMap.remove(currencyRate.getScope().getType());
+            currencyRatesMap.put(currencyRate.getScope().getType(), currencyRate);
+        }
+        return;
     }
 
     public Currency getCurrencyFromCache(Integer currencyId) {
@@ -56,34 +75,14 @@ public class ServerCache {
 
     public boolean isNewCalculationNeededOrSkip(CurrencyRates currencyRateFromDB, CurrencyRates currentCurrencyRate, Integer type) {
 
-        Map<Integer, CurrencyRates> tmpCurrencyRateMap = currencyRateCache.get(currentCurrencyRate.getCurrency().getId());
-
-        // init
-        if (tmpCurrencyRateMap == null) {
-            tmpCurrencyRateMap = new HashMap<>();
-        }
-        if (tmpCurrencyRateMap.get(type) == null || tmpCurrencyRateMap.isEmpty()) {
-            // init with last CurrencyRate from DB
-            if (currencyRateFromDB != null) {
-                tmpCurrencyRateMap.put(type, currencyRateFromDB);
-            }
-
-            currencyRateCache.put(currentCurrencyRate.getCurrency().getId(), tmpCurrencyRateMap);
-        }
-
-        // check
-        CurrencyRates tmpCurrencyRates = tmpCurrencyRateMap.get(type);
-
-        if (type.intValue() == Scope.BUILD_FROM_HIGH && (tmpCurrencyRates == null || tmpCurrencyRates.getHigh() < currentCurrencyRate.getHigh())) {
-            tmpCurrencyRateMap.remove(tmpCurrencyRates);
-            tmpCurrencyRateMap.put(type, currentCurrencyRate);
-
+        if (type.intValue() == Scope.BUILD_FROM_HIGH &&
+                (currencyRateFromDB == null
+                        || DoubleUtils.round(currencyRateFromDB.getHigh() , 5) < DoubleUtils.round(currentCurrencyRate.getHigh(), 5))) {
             return true;
         }
-        if (type.intValue() == Scope.BUILD_FROM_LOW && (tmpCurrencyRates == null || tmpCurrencyRates.getLow() > currentCurrencyRate.getLow())) {
-            tmpCurrencyRateMap.remove(tmpCurrencyRates);
-            tmpCurrencyRateMap.put(type, currentCurrencyRate);
-
+        if (type.intValue() == Scope.BUILD_FROM_LOW &&
+                (currencyRateFromDB == null
+                        || DoubleUtils.round(currencyRateFromDB.getLow(), 5) > DoubleUtils.round(currentCurrencyRate.getLow(), 5))) {
             return true;
         }
         return false;
@@ -198,5 +197,39 @@ public class ServerCache {
                 tmpCurrencyRateMap.remove(type);
             }
         }
+    }
+
+    public void setPriorityTypeToCache(PriorityType priorityType) {
+        if (priorityTypeCache != null && !priorityTypeCache.contains(priorityType)) {
+            priorityTypeCache.add(priorityType);
+        }
+    }
+
+    public void setPrioritySubType(PrioritySubType prioritySubType) {
+        if (prioritySubTypeCache != null && !prioritySubTypeCache.contains(prioritySubType)) {
+            prioritySubTypeCache.add(prioritySubType);
+        }
+    }
+
+    public PriorityType getPriorityTypeFromCache(Integer type) {
+        if (priorityTypeCache != null) {
+            for (PriorityType pt : priorityTypeCache) {
+                if (pt.getType() == type) {
+                    return pt;
+                }
+            }
+        }
+        return null;
+    }
+
+    public PrioritySubType getPrioritySubTypeFromCache(Integer subtype) {
+        if (prioritySubTypeCache != null) {
+            for (PrioritySubType pst : prioritySubTypeCache) {
+                if (pst.getSubtype() == subtype) {
+                    return pst;
+                }
+            }
+        }
+        return null;
     }
 }

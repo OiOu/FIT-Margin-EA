@@ -2,18 +2,28 @@ package smartBot.bussines.service.impl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import smartBot.bean.Currency;
 import smartBot.bean.Priority;
+import smartBot.bean.PrioritySubType;
+import smartBot.bean.PriorityType;
 import smartBot.bean.jpa.PriorityEntity;
+import smartBot.bean.jpa.PrioritySubTypeEntity;
+import smartBot.bean.jpa.PriorityTypeEntity;
 import smartBot.bussines.service.CurrencyService;
 import smartBot.bussines.service.PriorityService;
+import smartBot.bussines.service.PrioritySubTypeService;
+import smartBot.bussines.service.PriorityTypeService;
 import smartBot.bussines.service.cache.ServerCache;
 import smartBot.bussines.service.mapping.PriorityServiceMapper;
+import smartBot.bussines.service.mapping.PrioritySubTypeServiceMapper;
+import smartBot.bussines.service.mapping.PriorityTypeServiceMapper;
 import smartBot.data.repository.jpa.PriorityJpaRepository;
 import smartBot.defines.PriorityConstants;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 @Component
@@ -21,16 +31,28 @@ import java.util.List;
 public class PriorityServiceImpl implements PriorityService{
     private static final Log logger = LogFactory.getLog(PriorityServiceImpl.class);
 
-    @Autowired
+    @Resource
     private PriorityJpaRepository priorityJpaRepository;
 
-    @Autowired
+    @Resource
     private PriorityServiceMapper priorityServiceMapper;
 
-    @Autowired
+    @Resource
     private CurrencyService currencyService;
 
-    @Autowired
+    @Resource
+    private PriorityTypeService priorityTypeService;
+
+    @Resource
+    private PrioritySubTypeService prioritySubTypeService;
+
+    @Resource
+    private PriorityTypeServiceMapper priorityTypeServiceMapper;
+
+    @Resource
+    private PrioritySubTypeServiceMapper prioritySubTypeServiceMapper;
+
+    @Resource
     private ServerCache serverCache;
 
     @Override
@@ -38,6 +60,21 @@ public class PriorityServiceImpl implements PriorityService{
 
         PriorityEntity priorityEntity = priorityJpaRepository.findByCurrencyIdAndSubType(currencyId, prioritySubType);
         Priority priority = priorityServiceMapper.mapEntityToBean(priorityEntity);
+
+        return priority;
+    }
+
+    @Override
+    public Priority build(Currency currency, Integer priorityType, Integer prioritySubType, DateTime onDate) {
+        Priority priority = new Priority();
+        priority.setCurrency(currency);
+
+        PriorityType pt = priorityTypeService.getType(priorityType);
+        PrioritySubType pst = prioritySubTypeService.getSubtype(prioritySubType);
+
+        priority.setType(pt);
+        priority.setSubtype(pst);
+        priority.setStartDate(onDate);
 
         return priority;
     }
@@ -62,7 +99,14 @@ public class PriorityServiceImpl implements PriorityService{
                 priorityEntity = new PriorityEntity();
                 priorityServiceMapper.mapBeanToEntity(priority, priorityEntity);
             } else {
-                priorityEntity.setType(priority.getType());
+                PriorityTypeEntity pte = new PriorityTypeEntity();
+                priorityTypeServiceMapper.mapBeanToEntity(priority.getType(), pte);
+
+                PrioritySubTypeEntity pste = new PrioritySubTypeEntity();
+                prioritySubTypeServiceMapper.mapBeanToEntity(priority.getSubtype(), pste);
+
+                priorityEntity.setType(pte);
+                priorityEntity.setSubtype(pste);
                 priorityEntity.setStartDate(priority.getStartDate());
             }
 

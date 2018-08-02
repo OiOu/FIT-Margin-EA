@@ -2,6 +2,7 @@ package smartBot.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.joda.time.DateTime;
+import smartBot.utils.DoubleUtils;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -53,7 +54,7 @@ public class CurrencyRates implements Serializable {
     }
 
     public void setHigh(Double high) {
-        this.high = high;
+        this.high = DoubleUtils.round(high, 5);
     }
 
     public Double getLow() {
@@ -61,7 +62,7 @@ public class CurrencyRates implements Serializable {
     }
 
     public void setLow(Double low) {
-        this.low = low;
+        this.low = DoubleUtils.round(low, 5);
     }
 
     public Double getOpen() {
@@ -69,7 +70,7 @@ public class CurrencyRates implements Serializable {
     }
 
     public void setOpen(Double open) {
-        this.open = open;
+        this.open = DoubleUtils.round(open, 5);
     }
 
     public Double getClose() {
@@ -77,7 +78,7 @@ public class CurrencyRates implements Serializable {
     }
 
     public void setClose(Double close) {
-        this.close = close;
+        this.close = DoubleUtils.round(close, 5);
     }
 
     public Integer getVolume() {

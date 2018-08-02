@@ -39,33 +39,26 @@ public class PriorityProcess {
         Currency currency = serverCache.getCurrencyFromCache(currencyRate.getCurrency().getId());
 
 
-        Priority priorityNew = new Priority();
-        priorityNew.setCurrency(currency);
+        Priority priorityNew = null;
 
         logger.debug("Determine priority process was started: " + Thread.currentThread().getName() + "...");
 
         boolean shouldBeSavedToCache = false;
         for (Scope scope : scopes) {
             for (Zone zone : scope.getZones()) {
-                if (priorityNew == null) {
-                    priorityNew = new Priority();
-                    priorityNew.setCurrency(currency);
-                }
 
                 if (zone.getLevel().getPrioritySubType() == PriorityConstants.LOCAL || zone.getLevel().getPrioritySubType() == PriorityConstants.GLOBAL) {
                     if (scope.getType().intValue() == Scope.BUILD_FROM_HIGH
-                            && zone.getPriceCalc() > currencyRate.getClose()) {
-                        priorityNew.setSubtype(zone.getLevel().getPrioritySubType());
-                        priorityNew.setType(PriorityConstants.SELL);
-                        priorityNew.setStartDate(currencyRate.getTimestamp());
+                            && (zone.getPriceCalc() - currencyRate.getPointPips() * currencyRate.getPointPrice() * zone.getLevel().getDistance() > currencyRate.getClose())) {
+
+                        priorityNew = priorityService.build(currency, PriorityConstants.SELL, zone.getLevel().getPrioritySubType(), currencyRate.getTimestamp());
 
                         shouldBeSavedToCache = true;
                     }
                     if (scope.getType().intValue() == Scope.BUILD_FROM_LOW
-                            && zone.getPriceCalc() < currencyRate.getClose()) {
-                        priorityNew.setSubtype(zone.getLevel().getPrioritySubType());
-                        priorityNew.setType(PriorityConstants.BUY);
-                        priorityNew.setStartDate(currencyRate.getTimestamp());
+                            && (zone.getPriceCalc() + currencyRate.getPointPips() * currencyRate.getPointPrice() * zone.getLevel().getDistance() < currencyRate.getClose())) {
+
+                        priorityNew = priorityService.build(currency, PriorityConstants.BUY, zone.getLevel().getPrioritySubType(), currencyRate.getTimestamp());
 
                         shouldBeSavedToCache = true;
                     }

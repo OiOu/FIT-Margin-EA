@@ -2,6 +2,7 @@ package smartBot.bean.jpa;
 
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
+import smartBot.utils.DoubleUtils;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -19,16 +20,16 @@ public class CurrencyRatesEntity implements Serializable {
     @Column(name="id", nullable=false)
     private Integer id;
 
-    @Column(name="high")
+    @Column(name="high", precision=10, scale=5)
     private Double high;
 
-    @Column(name="low")
+    @Column(name="low", precision=10, scale=5)
     private Double low;
 
-    @Column(name="open")
+    @Column(name="open", precision=10, scale=5)
     private Double open;
 
-    @Column(name="close")
+    @Column(name="close", precision=10, scale=5)
     private Double close;
 
     @Column(name="volume")
@@ -75,7 +76,7 @@ public class CurrencyRatesEntity implements Serializable {
     }
 
     public void setHigh(Double high) {
-        this.high = high;
+        this.high = DoubleUtils.round(high, 5);
     }
 
     public Double getLow() {
@@ -83,7 +84,7 @@ public class CurrencyRatesEntity implements Serializable {
     }
 
     public void setLow(Double low) {
-        this.low = low;
+        this.low = DoubleUtils.round(low, 5);
     }
 
     public Double getOpen() {
@@ -91,7 +92,7 @@ public class CurrencyRatesEntity implements Serializable {
     }
 
     public void setOpen(Double open) {
-        this.open = open;
+        this.open = DoubleUtils.round(open, 5);
     }
 
     public Double getClose() {
@@ -99,7 +100,7 @@ public class CurrencyRatesEntity implements Serializable {
     }
 
     public void setClose(Double close) {
-        this.close = close;
+        this.close = DoubleUtils.round(close, 5);
     }
 
     public Integer getVolume() {

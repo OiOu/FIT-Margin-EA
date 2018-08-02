@@ -177,19 +177,19 @@ public class NettyBuildingMessageListener implements NettyMessageListener {
 
                             Priority priorityNew = priorityProcess.determinePriorityAndChange(scopes, currentCurrencyRate);
 
-                            if (priorityNew != null && (priorityLast == null || priorityLast.getType() != priorityNew.getType())) {
+                            if (priorityNew != null && (priorityLast == null || priorityLast.getType().getType() != priorityNew.getType().getType())) {
 
                                 // close last scope
                                 Scope scopeLast = scopeFromHigh;
                                 CurrencyRates currencyRateLast = lastCurrencyRateFromLow; // correct: we  need to get last inverse extremum
-                                if (priorityNew.getType() == PriorityConstants.SELL) {
+                                if (priorityNew.getType().getType() == PriorityConstants.SELL) {
                                     scopeLast = scopeFromLow;
                                     currencyRateLast = lastCurrencyRateFromHigh; // correct
                                 }
 
                                 DateTime moveCursorTo = currencyRateLast.getTimestamp();
                                 serverCache.removeScopeFromCache(scopeLast);
-                                serverCache.removeCurrencyRateFromCache(currentCurrencyRate, scopeLast.getType());
+                                serverCache.setCurrencyRatesToCache(currentCurrencyRate);
 
                                 scopeService.delete(scopeLast);
 
@@ -202,7 +202,7 @@ public class NettyBuildingMessageListener implements NettyMessageListener {
                                             RequestsSocket.PRIORITY_CHANGED,
                                             moveCursorTo.toString(DateTimeFormat.forPattern("yyyy.MM.dd HH:mm")) + Constants.COMMA +
                                                     priorityNew.getStartDate().toString(DateTimeFormat.forPattern("yyyy.MM.dd HH:mm")) + Constants.COMMA +
-                                                    priorityNew.getType(),
+                                                    priorityNew.getType().getType(),
                                             hostPort
                                     );
                                     return;
@@ -246,6 +246,7 @@ public class NettyBuildingMessageListener implements NettyMessageListener {
 
                             scope.setCurrencyRate(lastCurrencyRate);
                             serverCache.setScopeCache(scope);
+                            serverCache.setCurrencyRatesToCache(lastCurrencyRate);
 
                             // Create/calculate scope and zones
                             currencyRateProcess.calculateZones(scope);

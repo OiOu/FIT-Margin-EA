@@ -19,19 +19,17 @@ public class PriorityEntity implements Serializable {
     @Column(name="id", nullable=false)
     private Integer id;
 
-    @Column(name="type")
-    private Integer type; // NULL - unknown; 1 - Buy; -1 - Sell;
+    @ManyToOne
+    @JoinColumn(name="type", nullable=false)
+    private PriorityTypeEntity type; // NULL - unknown; 1 - Buy; -1 - Sell;
 
-    @Column(name="subtype")
-    private Integer subtype; // NULL - unknown; 1 - Local; 2 - Global
+    @ManyToOne
+    @JoinColumn(name="subtype")
+    private PrioritySubTypeEntity subtype; // NULL - unknown; 1 - Local; 2 - Global
 
-    @Column(name="start_date")
+    @Column(name="start_date", nullable=false)
     @Type(type="org.jadira.usertype.dateandtime.joda.PersistentDateTime")
     private DateTime startDate;
-
-    @Column(name="end_date")
-    @Type(type="org.jadira.usertype.dateandtime.joda.PersistentDateTime")
-    private DateTime endDate;
 
     @ManyToOne
     @JoinColumn(name="currency_id", nullable=false)
@@ -56,19 +54,19 @@ public class PriorityEntity implements Serializable {
         this.id = id;
     }
 
-    public Integer getType() {
+    public PriorityTypeEntity getType() {
         return type;
     }
 
-    public void setType(Integer type) {
+    public void setType(PriorityTypeEntity type) {
         this.type = type;
     }
 
-    public Integer getSubtype() {
+    public PrioritySubTypeEntity getSubtype() {
         return subtype;
     }
 
-    public void setSubtype(Integer subtype) {
+    public void setSubtype(PrioritySubTypeEntity subtype) {
         this.subtype = subtype;
     }
 
@@ -78,14 +76,6 @@ public class PriorityEntity implements Serializable {
 
     public void setStartDate(DateTime startDate) {
         this.startDate = startDate;
-    }
-
-    public DateTime getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(DateTime endDate) {
-        this.endDate = endDate;
     }
 
     public CurrencyEntity getCurrency() {

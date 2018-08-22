@@ -1,20 +1,20 @@
 package smartBot.connection.netty.server.listeners;
 
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import smartBot.bean.*;
-import smartBot.bussines.listeners.impl.SimpleProcessScopeAddedListener;
-import smartBot.bussines.listeners.impl.SimpleProcessScopeCalculateListener;
-import smartBot.bussines.listeners.impl.SimpleProcessScopeRemoveListener;
+import smartBot.bean.json.CurrencyRatesJson;
+import smartBot.bean.json.OrderJSON;
+import smartBot.bussines.listeners.impl.*;
 import smartBot.bussines.process.CurrencyRateProcess;
+import smartBot.bussines.process.OrderProcess;
 import smartBot.bussines.process.PriorityProcess;
 import smartBot.bussines.process.SimpleScopeProcess;
-import smartBot.bussines.service.CurrencyRatesService;
-import smartBot.bussines.service.CurrencyService;
-import smartBot.bussines.service.PriorityService;
-import smartBot.bussines.service.ScopeService;
+import smartBot.bussines.service.*;
 import smartBot.bussines.service.cache.ServerCache;
 import smartBot.bussines.service.mapping.CurrencyRatesServiceMapper;
 import smartBot.connection.netty.server.common.HostPort;
@@ -31,7 +31,6 @@ import smartBot.utils.Json;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -69,6 +68,12 @@ public class NettyBuildingMessageListener implements NettyMessageListener {
     private PriorityService priorityService;
 
     @Resource
+    private MarginRatesService marginRateService;
+
+    @Resource
+    private OrderService orderService;
+
+    @Resource
     private SimpleProcessScopeAddedListener simpleProcessScopeAddedListener;
 
     @Resource
@@ -77,6 +82,35 @@ public class NettyBuildingMessageListener implements NettyMessageListener {
     @Resource
     private SimpleProcessScopeCalculateListener simpleProcessScopeCalculateListener;
 
+    @Resource
+    private OrderOpenListener orderOpenListener;
+
+    @Resource
+    private OrderModifyListener orderModifyListener;
+
+    @Resource
+    private OrderCloseListener orderCloseListener;
+
+    @Resource
+    private OrderProcess orderProcess;
+
+    /*@PostConstruct
+    public void postConstruct() {
+        if (simpleScopeProcess.getListeners().isEmpty()) {
+            simpleScopeProcess.registerScopeListener(simpleProcessScopeAddedListener);
+            simpleScopeProcess.registerScopeListener(simpleProcessScopeCalculateListener);
+            simpleScopeProcess.registerScopeListener(simpleProcessScopeRemoveListener);
+        }
+
+        if (orderProcess.getListeners().isEmpty()) {
+            orderProcess.registerListener(orderOpenListener);
+            orderProcess.registerListener(orderModifyListener);
+            orderProcess.registerListener(orderCloseListener);
+            orderOpenListener.setGateway(gateway);
+            orderModifyListener.setGateway(gateway);
+            orderCloseListener.setGateway(gateway);
+        }
+    }*/
 
     @Override
     public void messageReceived(NettyMessage<?> msg, HostPort hostPort) {
@@ -116,8 +150,19 @@ public class NettyBuildingMessageListener implements NettyMessageListener {
                 );
             }
 
+            // Open order confirmation
+            if (RequestsSocket.OPEN_ORDER.equals(strDestination)) {
+                // received rates and start main calculate
+                OrderJSON orderJson = Json.readObjectFromString(strBody, OrderJSON.class);
+                if (orderJson != null) {
+                    Order order = orderService.findByName(orderJson.getOrderName());
+                    order.setTicket(orderJson.getTicket());
+                    orderService.save(order);
+                }
+            }
+
             // Request for calculation zones (if needed)
-            if (RequestsSocket.CURRENCIES_RATES_LIST.equals(strDestination)) {
+            if (RequestsSocket.CURRENCY_RATE.equals(strDestination)) {
 
                 // received rates and start main calculate
                 CurrencyRatesJson currencyRatesJson =
@@ -130,10 +175,18 @@ public class NettyBuildingMessageListener implements NettyMessageListener {
                         simpleScopeProcess.registerScopeListener(simpleProcessScopeRemoveListener);
                     }
 
+                    if (orderProcess.getListeners().isEmpty()) {
+                        orderProcess.registerListener(orderOpenListener);
+                        orderProcess.registerListener(orderModifyListener);
+                        orderProcess.registerListener(orderCloseListener);
+                        orderOpenListener.setGateway(gateway);
+                        orderModifyListener.setGateway(gateway);
+                        orderCloseListener.setGateway(gateway);
+                    }
+
                     CurrencyRates currentCurrencyRate = currencyRatesServiceMapper.mapJsonToBean(currencyRatesJson);
 
                     Integer currencyId = currentCurrencyRate.getCurrency().getId();
-                    DateTime currencyRateTimeStamp = currentCurrencyRate.getTimestamp();
 
                     // Get Last CurrencyRates from DB to start with it (to avoid server sleep time)
                     CurrencyRates lastCurrencyRateFromHigh = currencyRatesService.findLastByCurrencyIdAndScopeType(currencyId, Scope.BUILD_FROM_HIGH);
@@ -142,6 +195,15 @@ public class NettyBuildingMessageListener implements NettyMessageListener {
                     // Check if we have a new high/low
                     boolean isNewCalculationFromHighNeeded = serverCache.isNewCalculationNeededOrSkip(lastCurrencyRateFromHigh, currentCurrencyRate,  Scope.BUILD_FROM_HIGH);
                     boolean isNewCalculationFromLowNeeded = serverCache.isNewCalculationNeededOrSkip(lastCurrencyRateFromLow, currentCurrencyRate, Scope.BUILD_FROM_LOW);
+
+                    // Try to get margin rate from cache and if not found get from DB and set force flag to recalculate all zones
+                    MarginRates marginRate = marginRateService.findByCurrencyIdOnDate(currencyId, currentCurrencyRate.getTimestamp());
+
+                    // Force calculation is needed during margin rate changes
+                    if ( serverCache.isForceUpdateZoneNeeded() ) {
+                        isNewCalculationFromHighNeeded = true;
+                        isNewCalculationFromLowNeeded = true;
+                    }
 
                     // Get last scope for currency
                     Scope scopeFromHigh = scopeService.findByCurrencyIdAndScopeType(currencyId, Scope.BUILD_FROM_HIGH);
@@ -153,6 +215,7 @@ public class NettyBuildingMessageListener implements NettyMessageListener {
                         currentCurrencyRate.setScope(scopeFromHigh);
                         simpleScopeProcess.addScope(scopeFromHigh);
                     }
+
                     if (scopeFromLow == null) {
                         scopeFromLow = scopeService.create(currentCurrencyRate, Scope.BUILD_FROM_LOW);
                         currentCurrencyRate.setScope(scopeFromHigh);
@@ -164,55 +227,43 @@ public class NettyBuildingMessageListener implements NettyMessageListener {
                     if (scopeFromHigh != null) { scopes.add(scopeFromHigh); }
                     if (scopeFromLow != null) { scopes.add(scopeFromLow); }
 
-                    //----------------------------------
-                    // We need to determine priority (without cron task) for each days that we had skipped
-                    if (currencyRateTimeStamp.toDate().before(new Date())) {
-                        DateTime dateTime1 = new DateTime(currencyRateTimeStamp).withTime(22, 59, 0, 0);
-                        DateTime dateTime2 = new DateTime(currencyRateTimeStamp).withTime(23, 1, 0, 0);
+                    // We need to determine priority (without cron task) for each days that we skipped
+                    // TODO move all priority process into CurrencyRateProcess
+                    Priority priorityNew = priorityProcess.determinePriority(scopes, currentCurrencyRate);
+                    if (priorityNew != null) {
+                        serverCache.setCurrencyRatesToCache(currentCurrencyRate);
 
-                        Priority priorityLast = priorityService.findByCurrencyIdAndPrioritySubType(currencyId, PriorityConstants.LOCAL);
+                        // close last scope
+                        Scope scopeLast = scopeFromHigh;
+                        CurrencyRates currencyRateLast = lastCurrencyRateFromLow; // correct: we  need to get last inverse extremum
+                        if (priorityNew.getType().getType() == PriorityConstants.SELL) {
+                            scopeLast = scopeFromLow;
+                            currencyRateLast = lastCurrencyRateFromHigh; // correct
+                        }
 
-                        if (currencyRateTimeStamp.isAfter(dateTime1) && currencyRateTimeStamp.isBefore(dateTime2)
-                                && (priorityLast == null || priorityLast.getStartDate().toDate().before(dateTime1.toDate()))) {
+                        // Delete scope and related zones
+                        scopeService.delete(scopeLast);
 
-                            Priority priorityNew = priorityProcess.determinePriorityAndChange(scopes, currentCurrencyRate);
+                        // Create and save new priority to DB and cache
+                        priorityNew = priorityService.save(priorityNew);
 
-                            if (priorityNew != null && (priorityLast == null || priorityLast.getType().getType() != priorityNew.getType().getType())) {
-
-                                // close last scope
-                                Scope scopeLast = scopeFromHigh;
-                                CurrencyRates currencyRateLast = lastCurrencyRateFromLow; // correct: we  need to get last inverse extremum
-                                if (priorityNew.getType().getType() == PriorityConstants.SELL) {
-                                    scopeLast = scopeFromLow;
-                                    currencyRateLast = lastCurrencyRateFromHigh; // correct
-                                }
-
-                                DateTime moveCursorTo = currencyRateLast.getTimestamp();
-                                serverCache.removeScopeFromCache(scopeLast);
-                                serverCache.setCurrencyRatesToCache(currentCurrencyRate);
-
-                                scopeService.delete(scopeLast);
-
-                                // Create and save new priority to DB and cache
-                                priorityNew = priorityService.create(priorityNew);
-
-                                if (moveCursorTo != null) {
-                                    // Send response to client
-                                    gateway.sendMessage(
-                                            RequestsSocket.PRIORITY_CHANGED,
-                                            moveCursorTo.toString(DateTimeFormat.forPattern("yyyy.MM.dd HH:mm")) + Constants.COMMA +
-                                                    priorityNew.getStartDate().toString(DateTimeFormat.forPattern("yyyy.MM.dd HH:mm")) + Constants.COMMA +
-                                                    priorityNew.getType().getType(),
-                                            hostPort
-                                    );
-                                    return;
-                                }
-                            }
+                        DateTime moveCursorTo = currencyRateLast.getTimestamp();
+                        if (moveCursorTo != null) {
+                            // Send response to client
+                            gateway.sendMessage(
+                                    RequestsSocket.PRIORITY_CHANGED,
+                                    moveCursorTo.toString(DateTimeFormat.forPattern("yyyy.MM.dd HH:mm")) + Constants.COMMA +
+                                            priorityNew.getStartDate().toString(DateTimeFormat.forPattern("yyyy.MM.dd HH:mm")) + Constants.COMMA +
+                                            priorityNew.getType().getType(),
+                                    hostPort
+                            );
+                            return;
                         }
                     }
-
-                    // Determine type of scope
+                    String response = "";
+                    // Determine type of scope and calculate zones
                     while (isNewCalculationFromLowNeeded || isNewCalculationFromHighNeeded) {
+
                         CurrencyRates currencyRates = new CurrencyRates();
                         currencyRatesService.merge(currentCurrencyRate, currencyRates);
 
@@ -231,10 +282,12 @@ public class NettyBuildingMessageListener implements NettyMessageListener {
                                 isNewCalculationFromLowNeeded = false;
                             }
 
+                            // Calculate only if high/low was updated
+                            // for force flag only recalculation will be needed
                             CurrencyRates lastCurrencyRate = currencyRatesService.findLastByScope(scope);
                             if (lastCurrencyRate == null) {
                                 lastCurrencyRate = currencyRates;
-                            } else {
+                            } else if (!serverCache.isForceUpdateZoneNeeded()) {
                                 currencyRatesService.merge(currencyRates, lastCurrencyRate);
                             }
 
@@ -245,7 +298,7 @@ public class NettyBuildingMessageListener implements NettyMessageListener {
                             lastCurrencyRate = currencyRatesService.save(lastCurrencyRate);
 
                             scope.setCurrencyRate(lastCurrencyRate);
-                            serverCache.setScopeCache(scope);
+                            serverCache.setScopeToCache(scope);
                             serverCache.setCurrencyRatesToCache(lastCurrencyRate);
 
                             // Create/calculate scope and zones
@@ -253,24 +306,66 @@ public class NettyBuildingMessageListener implements NettyMessageListener {
                         }
                     }
 
+                    if (scopes != null && scopes.size() > 0) {
+                        response = prepareZonesMessageResponse(scopes);
+                    }
+
+                    // Send response that CurrencyRate was processed
+                    if (StringUtils.isNotEmpty(response)) {
+                        gateway.sendMessage(
+                                RequestsSocket.DRAW_ZONES,
+                                response,
+                                hostPort
+                        );
+                    } else {
+                        gateway.sendMessage(
+                                RequestsSocket.NEXT_RATE,
+                                "next rate",
+                                hostPort
+                        );
+                    }
+
+                    // Reset force flag
+                    if ( serverCache.isForceUpdateZoneNeeded() ) {
+                        serverCache.setIsForceUpdateZoneNeeded(false);
+                    }
+
+                    // Process if zone was touched
                     for (Scope scope : scopes) {
-                        currencyRateProcess.touchZone(scope, currentCurrencyRate);
+                        currencyRateProcess.checkAndProcess(scope, currentCurrencyRate, hostPort);
+                    }
+
+                    // TODO Process open orders
+                    for (Scope scope : scopes) {
+                        currencyRateProcess.checkAndProcessOrders(scope, currentCurrencyRate, hostPort);
                     }
                 }
             }
         }
     }
 
-    private String prepareZonesMessageResponse(Scope scope) {
+    private String prepareZonesMessageResponse(List<Scope> scopes) {
         StringBuilder sb = new StringBuilder();
+        DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy.MM.dd HH:mm");
 
-        scope.getZones().stream().forEach(zone -> sb.append(scope.getType()).append(Strings.COMMA)
-                .append(zone.getTimestamp()).append(Strings.COMMA)
-                .append(zone.getPrice()).append(Strings.COMMA)
-                .append(zone.getPriceCalc()).append(Strings.COMMA)
-                .append(zone.getPriceCalcShift()));
-        logger.info("> message size: " + sb.toString().length());
-        return sb.toString();
+        scopes.forEach(scope -> scope.getZones().stream().forEach(zone ->
+                sb.append("zone_" + zone.getLevel().getK()+ "_" + scope.getType()).append(Strings.COMMA)
+                    .append(dtf.print(zone.getTimestamp())).append(Strings.COMMA)
+                    .append(zone.getPrice()).append(Strings.COMMA)
+                    .append(zone.getPriceCalc()).append(Strings.COMMA)
+                    .append(zone.getPriceCalcShift()).append(Strings.COMMA)
+                    .append(zone.getLevel().getK()).append(Strings.COMMA)
+                    .append(scope.getType())
+                .append(Strings.VERTICAL_BAR_PIPE))
+        );
+
+        String res = sb.toString();
+        if (res.endsWith(Strings.VERTICAL_BAR_PIPE)) {
+           res = res.substring(0, res.length() -1);
+        }
+
+        logger.info("> message size: " + res.length());
+        return res;
     }
 
     public void setGateway(NettyBuildingMessageGateway gateway) {

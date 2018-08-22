@@ -53,7 +53,7 @@ public class PrioritySubTypeServiceImpl implements PrioritySubTypeService {
     }
 
     @Override
-    public PrioritySubType create(PrioritySubType bean) {
+    public PrioritySubType save(PrioritySubType bean) {
         return null;
     }
 

@@ -52,6 +52,9 @@ public class CurrencyEntity implements Serializable {
     @OneToMany(mappedBy="currency", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<PriorityEntity> priorities;
 
+    @OneToMany(mappedBy="currency", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<OrderSettingsEntity> orderSettings;
+
     //----------------------------------------------------------------------
     // CONSTRUCTOR(S)
     //----------------------------------------------------------------------
@@ -164,5 +167,13 @@ public class CurrencyEntity implements Serializable {
 
     public void setPriorities(List<PriorityEntity> priorities) {
         this.priorities = priorities;
+    }
+
+    public List<OrderSettingsEntity> getOrderSettings() {
+        return orderSettings;
+    }
+
+    public void setOrderSettings(List<OrderSettingsEntity> orderSettings) {
+        this.orderSettings = orderSettings;
     }
 }

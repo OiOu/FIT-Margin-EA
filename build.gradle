@@ -1,6 +1,6 @@
 buildscript {
 	ext {
-		springBootVersion = '2.0.3.RELEASE'
+		springBootVersion = '2.0.4.RELEASE'
 		nettyVersion = '4.1.25.Final'
 		jackson_version='2.9.5'
 		logstash_logback_encoder_version='5.0'

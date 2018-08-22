@@ -90,7 +90,7 @@ public class PriorityServiceImpl implements PriorityService{
     }
 
     @Override
-    public Priority create(Priority priority) {
+    public Priority save(Priority priority) {
         PriorityEntity priorityEntity = null;
         if (priority != null) {
 

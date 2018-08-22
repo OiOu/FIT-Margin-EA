@@ -1,6 +1,5 @@
 package smartBot.bussines.service.cache;
 
-import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
 import smartBot.bean.Currency;
 import smartBot.bean.*;
@@ -13,13 +12,26 @@ import java.util.stream.Collectors;
 @Component
 public class ServerCache {
 
+    private static boolean isForceUpdateZoneNeeded = false;
     private static Map<Integer, Map<Integer, CurrencyRates>> currencyRateCache = Collections.synchronizedMap(new ConcurrentHashMap<>());
     private static Map<Integer, Currency> currencyCache = Collections.synchronizedMap(new ConcurrentHashMap<>());
-    private static Map<Integer, List<MarginRates>> marginRateCache = Collections.synchronizedMap(new ConcurrentHashMap<>());
+    private static Map<Integer, MarginRates> marginRateCache = Collections.synchronizedMap(new ConcurrentHashMap<>());
     private static Map<Integer, List<Scope>> scopeCache = Collections.synchronizedMap(new ConcurrentHashMap<>());
+    private static Map<Integer, Priority> priorityCache = Collections.synchronizedMap(new ConcurrentHashMap<>());
+    private static Map<Integer, List<Order>> orderCache = Collections.synchronizedMap(new ConcurrentHashMap<>());
+    private static Map<Integer, OrderSettings> orderSettingsCache = Collections.synchronizedMap(new ConcurrentHashMap<>());
     private static List<ZoneLevel> zoneLevelCache = Collections.synchronizedList(new ArrayList<>());
     private static List<PriorityType> priorityTypeCache = Collections.synchronizedList(new ArrayList<>());
     private static List<PrioritySubType> prioritySubTypeCache = Collections.synchronizedList(new ArrayList<>());
+    private OrderSettings orderSettingsToCache;
+
+    public boolean isForceUpdateZoneNeeded() {
+        return isForceUpdateZoneNeeded;
+    }
+
+    public void setIsForceUpdateZoneNeeded(boolean isForceUpdateZoneNeeded) {
+        ServerCache.isForceUpdateZoneNeeded = isForceUpdateZoneNeeded;
+    }
 
     // Map<CurrencyId, Map<Type, Rate>>
     public CurrencyRates getCurrencyRatesFromCache(Integer currencyId, Integer scopeType) {
@@ -75,11 +87,13 @@ public class ServerCache {
 
     public boolean isNewCalculationNeededOrSkip(CurrencyRates currencyRateFromDB, CurrencyRates currentCurrencyRate, Integer type) {
 
+        // Price part
         if (type.intValue() == Scope.BUILD_FROM_HIGH &&
                 (currencyRateFromDB == null
                         || DoubleUtils.round(currencyRateFromDB.getHigh() , 5) < DoubleUtils.round(currentCurrencyRate.getHigh(), 5))) {
             return true;
         }
+
         if (type.intValue() == Scope.BUILD_FROM_LOW &&
                 (currencyRateFromDB == null
                         || DoubleUtils.round(currencyRateFromDB.getLow(), 5) > DoubleUtils.round(currentCurrencyRate.getLow(), 5))) {
@@ -89,31 +103,13 @@ public class ServerCache {
     }
 
 
-    public MarginRates getMarginRateFromCache(Integer currencyId, DateTime onDate) {
-        List<MarginRates> marginRateList = marginRateCache.get(currencyId);
-
-        if (marginRateList == null) {
-            marginRateList = new ArrayList<>();
-        }
-
-        Collections.sort(marginRateList);
-        for (MarginRates marginRate : marginRateList) {
-            if (marginRate.getStartDate().isBefore(onDate)) {
-                return marginRate;
-            }
-        }
-        return null;
+    public MarginRates getMarginRateFromCache(Integer currencyId) {
+        MarginRates marginRate = marginRateCache.get(currencyId);
+        return marginRate;
     }
 
     public void setMarginRateToCache(Integer currencyId, MarginRates marginRate) {
-
-        List<MarginRates> marginRateList = marginRateCache.get(currencyId);
-        if (marginRateList == null) {
-            marginRateList = new ArrayList<>();
-        }
-
-        marginRateList.add(marginRate);
-        marginRateCache.put(currencyId, marginRateList);
+        marginRateCache.put(currencyId, marginRate);
     }
 
     public Scope getScopeFromCache(Integer currencyId, Integer type) {
@@ -138,7 +134,7 @@ public class ServerCache {
         return null;
     }
 
-    public void setScopeCache(Scope scope) {
+    public void setScopeToCache(Scope scope) {
         List<Scope> scopeList = scopeCache.get(scope.getCurrency().getId());
         if (scopeList == null) {
             scopeList = new ArrayList<>();
@@ -231,5 +227,69 @@ public class ServerCache {
             }
         }
         return null;
+    }
+
+    public void setPriorityToCache(Priority priority) {
+        if (priorityCache != null) {
+            if (priorityCache.get(priority.getCurrency().getId()) != null) {
+                priorityCache.remove(priority.getCurrency().getId());
+            }
+            priorityCache.put(priority.getCurrency().getId(), priority);
+        }
+    }
+
+    public Priority getPriorityFromCache(Integer currencyId) {
+        if (priorityCache != null) {
+            return priorityCache.get(currencyId);
+        }
+        return null;
+    }
+
+    public OrderSettings getOrderSettingsFromCache(Integer currencyId) {
+        if (orderSettingsCache != null && orderSettingsCache.containsKey(currencyId)) {
+            return orderSettingsCache.get(currencyId);
+        }
+        return null;
+    }
+
+    public void setOrderSettingsToCache(Integer currencyId, OrderSettings orderSettingsToCache) {
+        if (orderSettingsCache != null) {
+            if (orderSettingsCache.containsKey(currencyId)) {
+                orderSettingsCache.remove(currencyId);
+            }
+            orderSettingsCache.put(currencyId, orderSettingsToCache);
+        }
+    }
+
+    public void setOrderToCache(Order order) {
+        if (orderCache != null) {
+            List<Order> orders = orderCache.get(order.getCurrency().getId());
+
+            if (orders != null) {
+                orders.remove(order);
+            } else {
+                orders = new ArrayList();
+            }
+            orders.add(order);
+
+            orderCache.put(order.getCurrency().getId(), orders);
+        }
+    }
+
+    public List<Order> getOrderFromCache(Integer currencyId) {
+        if (orderCache != null) {
+            return orderCache.get(currencyId);
+        }
+        return null;
+    }
+
+    public void removeOrderFromCache(Order order) {
+        if (orderCache != null) {
+            List<Order> orders = orderCache.get(order.getCurrency().getId());
+            if (orders != null && !orders.isEmpty()) {
+                orders.remove(order);
+            }
+        }
+        return;
     }
 }

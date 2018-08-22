@@ -9,8 +9,8 @@ public interface MarginRatesService extends Service<MarginRates> {
 
     List<MarginRates> findAllByShortName(String shortName);
 
-    MarginRates findByShortNameAndDate(String shortName, DateTime onDate);
-    MarginRates findByCurrencyIdAndDate(Integer currencyId, DateTime onDate);
-    void createAll(List<MarginRates> marginRateJsonList);
+    MarginRates findByShortNameOnDate(String shortName, DateTime onDate);
+    MarginRates findByCurrencyIdOnDate(Integer currencyId, DateTime onDate);
+    List<MarginRates> createAll(List<MarginRates> marginRateJsonList);
     void delete(String shortName);
 }

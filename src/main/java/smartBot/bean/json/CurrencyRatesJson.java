@@ -1,4 +1,4 @@
-package smartBot.bean;
+package smartBot.bean.json;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -35,6 +35,8 @@ public class CurrencyRatesJson implements Serializable {
     private Double pointPrice;
 
     private Double pointPips;
+
+    private boolean isHistory;
 
     public Integer getPeriod() {
         return period;
@@ -122,5 +124,13 @@ public class CurrencyRatesJson implements Serializable {
 
     public void setPointPrice(Double pointPrice) {
         this.pointPrice = pointPrice;
+    }
+
+    public boolean isHistory() {
+        return isHistory;
+    }
+
+    public void setHistory(boolean history) {
+        isHistory = history;
     }
 }

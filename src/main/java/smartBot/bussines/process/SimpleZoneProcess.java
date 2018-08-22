@@ -87,7 +87,7 @@ public class SimpleZoneProcess {
     }
 
     public void calculate() {
-        if (this.scope != null) {
+        if (this.scope != null && this.currencyRates != null) {
             // Notify the list of registered listeners
             this.notifyZoneCalculateListeners(this.scope, this.currencyRates);
         }

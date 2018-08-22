@@ -2,6 +2,7 @@ package smartBot.bussines.listeners;
 
 import smartBot.bean.CurrencyRates;
 import smartBot.bean.Scope;
+import smartBot.connection.netty.server.common.HostPort;
 
 public interface ScopeListener {
 
@@ -11,5 +12,5 @@ public interface ScopeListener {
 
     void onScopeCalculateZones(Scope scope, CurrencyRates currencyRate);
 
-    void onScopeTouchZones(Scope scope, CurrencyRates currencyRate);
+    void onScopeCheckAndProcess(Scope scope, CurrencyRates currencyRate, HostPort hostPort);
 }

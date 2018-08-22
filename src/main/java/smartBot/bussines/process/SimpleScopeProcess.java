@@ -5,6 +5,7 @@ import org.springframework.transaction.annotation.Transactional;
 import smartBot.bean.CurrencyRates;
 import smartBot.bean.Scope;
 import smartBot.bussines.listeners.ScopeListener;
+import smartBot.connection.netty.server.common.HostPort;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -55,9 +56,9 @@ public class SimpleScopeProcess {
         this.listeners.forEach(listener -> listener.onScopeCalculateZones(scope, currencyRate));
     }
 
-    protected void notifyScopeTouchListeners(Scope scope, CurrencyRates currencyRate) {
+    protected void notifyScopeCheckAndProcessListeners(Scope scope, CurrencyRates currencyRate, HostPort hostPort) {
         // Notify each of the listeners in the list of registered listeners
-        this.listeners.forEach(listener -> listener.onScopeTouchZones(scope, currencyRate));
+        this.listeners.forEach(listener -> listener.onScopeCheckAndProcess(scope, currencyRate, hostPort));
     }
 
     public void calculate(Scope scope, CurrencyRates currencyRate) {
@@ -69,11 +70,11 @@ public class SimpleScopeProcess {
         return;
     }
 
-    public void touchZone(Scope scope, CurrencyRates currencyRate) {
+    public void scopeCheckAndProcess(Scope scope, CurrencyRates currencyRate, HostPort hostPort) {
         // Add the scope to the list of scopes
         if (scope != null) {
             // Notify the list of registered listeners
-            this.notifyScopeTouchListeners(scope, currencyRate);
+            this.notifyScopeCheckAndProcessListeners(scope, currencyRate, hostPort);
         }
         return;
     }

@@ -2,11 +2,10 @@ package smartBot.bussines.service;
 
 import smartBot.bean.CurrencyRates;
 import smartBot.bean.Scope;
-import smartBot.bean.jpa.ScopeEntity;
 
 import java.util.List;
 
-public interface ScopeService extends Service<ScopeEntity>{
+public interface ScopeService extends Service<Scope>{
 
     Scope findByCurrencyIdAndScopeType(Integer currencyId, Integer scopeType);
 

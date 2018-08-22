@@ -3,7 +3,8 @@ package smartBot.bussines.service.impl;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.joda.time.DateTime;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import smartBot.bean.Currency;
@@ -28,16 +29,16 @@ public class MarginRatesServiceImpl implements MarginRatesService {
 
     private static final Log logger = LogFactory.getLog(MarginRatesServiceImpl.class);
 
-    @Autowired
+    @Resource
     private MarginRatesJpaRepository marginRatesJpaRepository;
 
-    @Autowired
+    @Resource
     private CurrencyService currencyService;
 
-    @Autowired
+    @Resource
     private CurrencyServiceMapper currencyServiceMapper;
 
-    @Autowired
+    @Resource
     private ServerCache serverCache;
 
     @Resource
@@ -77,10 +78,10 @@ public class MarginRatesServiceImpl implements MarginRatesService {
     }
 
     @Override
-    public MarginRates findByShortNameAndDate(String shortName, DateTime onDate) {
+    public MarginRates findByShortNameOnDate(String shortName, DateTime onDate) {
         // TODO Try to get marginRate from cache to avoid additional DB query
 
-        List<MarginRatesEntity> marginRateEntity = marginRatesJpaRepository.getByShortNameAndDate(shortName, onDate);
+        List<MarginRatesEntity> marginRateEntity = marginRatesJpaRepository.getByShortNameOnDate(shortName, onDate);
         MarginRates marginRates = null;
         if (marginRateEntity != null && marginRateEntity.size() > 0) {
             marginRates = marginRatesServiceMapper.mapEntityToBean(marginRateEntity.get(0));
@@ -90,44 +91,54 @@ public class MarginRatesServiceImpl implements MarginRatesService {
     }
 
     @Override
-    public MarginRates findByCurrencyIdAndDate(Integer currencyId, DateTime onDate) {
+    public MarginRates findByCurrencyIdOnDate(Integer currencyId, DateTime onDate) {
         // Try to get marginRate from cache to avoid additional DB query
-        MarginRates marginRate = serverCache.getMarginRateFromCache(currencyId, onDate);
-        if (marginRate == null) {
+        MarginRates marginRate = serverCache.getMarginRateFromCache(currencyId);
+        if (marginRate == null
+                || marginRate.getEndDate() != null && (marginRate.getEndDate().isBefore(onDate) ||  marginRate.getEndDate().isEqual(onDate))) {
 
-            List<MarginRatesEntity> marginRateEntityList = marginRatesJpaRepository.getByCurrencyIdAndDate(currencyId, onDate);
+            List<MarginRatesEntity> marginRateEntityList = marginRatesJpaRepository.getByCurrencyIdOnDate(currencyId, onDate);
             if (marginRateEntityList != null && !marginRateEntityList.isEmpty()) {
+
                 List<MarginRates> marginRateList = marginRatesServiceMapper.mapEntitiesToBeans(marginRateEntityList);
                 Collections.sort(marginRateList);
+
                 marginRate = marginRateList.get(0);
                 serverCache.setMarginRateToCache(currencyId, marginRate);
+
+                // Set force update flag for recalculation
+                serverCache.setIsForceUpdateZoneNeeded(true);
+            } else {
+                logger.error("Margin Rate for currencyId: " + currencyId + " was not found on date: " +onDate);
             }
         }
 
         return marginRate;
     }
 
-    @Transactional
     @Override
     public void delete(String shortName) {
         marginRatesJpaRepository.deleteAllByShortName(shortName);
     }
 
-    public void createAll(List<MarginRates> marginRateJsonList) {
+    @Override
+    public synchronized List<MarginRates> createAll(List<MarginRates> marginRateJsonList) {
         if (marginRateJsonList == null) {
             throw new IllegalStateException("ERROR: Create: MarginRates json list is NULL!");
         }
 
-        List<MarginRatesEntity> marginRateEntityList = new ArrayList<MarginRatesEntity>();
-        List<MarginRatesEntity> marginRateEntityListForSave = new ArrayList<MarginRatesEntity>();
+        List<MarginRatesEntity> marginRateEntityList = new ArrayList<>();
+        List<MarginRatesEntity> marginRateEntityListForSave = new ArrayList<>();
 
         marginRateEntityList =  marginRatesServiceMapper.mapBeansToEntities(marginRateJsonList);
 
         for (MarginRatesEntity value : marginRateEntityList) {
             Currency currency = currencyService.findByClearingCode(value.getClearingCode());
+
             if (currency != null) {
                 CurrencyEntity currencyEntity = new CurrencyEntity();
                 currencyServiceMapper.mapBeanToEntity(currency, currencyEntity);
+
                 value.setCurrency(currencyEntity);
 
                 List<MarginRatesEntity> marginRateEntityAllList = marginRatesJpaRepository.findAllByClearingCode(value.getClearingCode());
@@ -140,13 +151,22 @@ public class MarginRatesServiceImpl implements MarginRatesService {
                     if (marginRateAllList != null && !marginRateAllList.isEmpty()) {
                         Collections.sort(marginRateAllList);
                         MarginRates lastMarginRate = marginRateAllList.get(0);
+                        lastMarginRate.setEndDate(new DateTime().withTime(23, 00, 00, 00 ));
 
-                        if (lastMarginRate.getMaintenanceRate().doubleValue() != value.getMaintenanceRate().doubleValue()) {
+                        // TODO check period to avoid duplicates for RU
+
+                        if (lastMarginRate.getMaintenanceRate().doubleValue() != value.getMaintenanceRate().doubleValue()
+                                && comparePeriods(value.getStartPeriod(), value.getEndPeriod())) {
                             // get values from currency because we should save history of changing next values
                             value.setFuturePoint(currency.getFuturePoint());
                             value.setPricePerContract(currency.getPricePerContract());
 
+                            MarginRatesEntity lastMarginRatesEntity = new MarginRatesEntity();
+                            marginRatesServiceMapper.mapBeanToEntity(lastMarginRate, lastMarginRatesEntity);
+                            lastMarginRatesEntity.setCurrency(currencyEntity);
+
                             marginRateEntityListForSave.add(value);
+                            marginRateEntityListForSave.add(lastMarginRatesEntity);
                         }
                     } else {
                         logger.fatal("Cant get Margin Rate from JSON!");
@@ -155,13 +175,38 @@ public class MarginRatesServiceImpl implements MarginRatesService {
             }
         }
 
-        marginRatesJpaRepository.saveAll(marginRateEntityListForSave);
+        List<MarginRates> marginRateAllList = new ArrayList<>();
+        if (marginRateEntityListForSave != null && marginRateEntityListForSave.size() > 0) {
+            List<MarginRatesEntity> marginRatesEntityList = (List<MarginRatesEntity>) marginRatesJpaRepository.saveAll(marginRateEntityListForSave);
+            marginRateAllList = marginRatesServiceMapper.mapEntitiesToBeans(marginRatesEntityList);
+        }
 
-        return;
+        return marginRateAllList;
+    }
+
+    private boolean comparePeriods(String date1, String date2) {
+        if (date1.equals("-") || date2.equals("-")) {
+            return true;
+        }
+        DateTimeFormatter dtf = DateTimeFormat.forPattern("MM/yyyy");
+        DateTime dt1 = dtf.parseDateTime(date1);
+        DateTime dt2 = dtf.parseDateTime(date2);
+        DateTime dtNow = new DateTime();
+
+        // set the first day of month
+        dt1.withDayOfMonth(1);
+        dt2.withDayOfMonth(1);
+        dtNow.withDayOfMonth(1);
+
+        if (dtNow.isAfter(dt1) && dtNow.isBefore(dt2)) {
+            return true;
+        }
+
+        return false;
     }
 
     @Override
-    public MarginRates create(MarginRates marginRates) {
+    public MarginRates save(MarginRates marginRates) {
         if (marginRates == null) {
             throw new IllegalStateException("ERROR: Create: MarginRates is NULL!");
         }

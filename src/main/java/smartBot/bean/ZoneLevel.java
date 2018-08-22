@@ -20,7 +20,7 @@ public class ZoneLevel implements Serializable, Comparable {
     @NotNull
     private Integer height;
 
-    private Integer distance;
+    private Integer priorityDistance;
 
     @Size( max = 255 )
     private String name;
@@ -28,6 +28,12 @@ public class ZoneLevel implements Serializable, Comparable {
     private Integer priorityType;
 
     private Integer prioritySubType;
+
+    private boolean tradeAllowed;
+
+    private Integer orderAssignmentShift;
+
+    private boolean enable;
 
     public Integer getId() {
         return id;
@@ -53,12 +59,12 @@ public class ZoneLevel implements Serializable, Comparable {
         this.height = height;
     }
 
-    public Integer getDistance() {
-        return distance;
+    public Integer getPriorityDistance() {
+        return priorityDistance;
     }
 
-    public void setDistance(Integer distance) {
-        this.distance = distance;
+    public void setPriorityDistance(Integer priorityDistance) {
+        this.priorityDistance = priorityDistance;
     }
 
     public String getName() {
@@ -85,9 +91,40 @@ public class ZoneLevel implements Serializable, Comparable {
         this.prioritySubType = prioritySubType;
     }
 
+    public boolean isTradeAllowed() {
+        return tradeAllowed;
+    }
+
+    public void setTradeAllowed(boolean tradeAllowed) {
+        this.tradeAllowed = tradeAllowed;
+    }
+
+    public Integer getOrderAssignmentShift() {
+        return orderAssignmentShift;
+    }
+
+    public void setOrderAssignmentShift(Integer orderAssignmentShift) {
+        this.orderAssignmentShift = orderAssignmentShift;
+    }
+
+    public boolean isEnable() {
+        return enable;
+    }
+
+    public void setEnable(boolean enable) {
+        this.enable = enable;
+    }
+
     @Override
     public int compareTo(Object o) {
          /* For Asc order*/
         return this.k.compareTo(((ZoneLevel)o).getK());
+    }
+
+    @Override
+    public String toString() {
+        return "ZoneLevel{" +
+                k+
+                '}';
     }
 }

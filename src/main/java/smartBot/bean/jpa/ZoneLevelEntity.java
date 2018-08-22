@@ -26,8 +26,8 @@ public class ZoneLevelEntity implements Serializable {
     @Column(name="height")
     private Integer height;
 
-    @Column(name="distance")
-    private Integer distance;
+    @Column(name="priority_distance")
+    private Integer priorityDistance;
 
     @OneToMany(mappedBy="level", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ZoneEntity> zonesInfo;
@@ -37,6 +37,15 @@ public class ZoneLevelEntity implements Serializable {
 
     @Column(name="priority_subtype_id")
     private Integer prioritySubType; // 1 - Local; 2 - Global
+
+    @Column(name="trade_allowed")
+    private boolean tradeAllowed; // true - order can be opened on this level; false - can't be
+
+    @Column(name="order_assignment_shift")
+    private Integer orderAssignmentShift;
+
+    @Column(name="enable")
+    private boolean enable; // true - order can be opened on this level; false - can't be
 
     //----------------------------------------------------------------------
     // CONSTRUCTOR(S)
@@ -81,12 +90,12 @@ public class ZoneLevelEntity implements Serializable {
         this.height = height;
     }
 
-    public Integer getDistance() {
-        return distance;
+    public Integer getPriorityDistance() {
+        return priorityDistance;
     }
 
-    public void setDistance(Integer distance) {
-        this.distance = distance;
+    public void setPriorityDistance(Integer priorityDistance) {
+        this.priorityDistance = priorityDistance;
     }
 
     public List<ZoneEntity> getZonesInfo() {
@@ -111,5 +120,29 @@ public class ZoneLevelEntity implements Serializable {
 
     public void setPrioritySubType(Integer prioritySubType) {
         this.prioritySubType = prioritySubType;
+    }
+
+    public boolean isTradeAllowed() {
+        return tradeAllowed;
+    }
+
+    public void setTradeAllowed(boolean tradeAllowed) {
+        this.tradeAllowed = tradeAllowed;
+    }
+
+    public Integer getOrderAssignmentShift() {
+        return orderAssignmentShift;
+    }
+
+    public void setOrderAssignmentShift(Integer orderAssignmentShift) {
+        this.orderAssignmentShift = orderAssignmentShift;
+    }
+
+    public boolean isEnable() {
+        return enable;
+    }
+
+    public void setEnable(boolean enable) {
+        this.enable = enable;
     }
 }

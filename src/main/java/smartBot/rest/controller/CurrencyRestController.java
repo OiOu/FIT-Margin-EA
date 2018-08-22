@@ -37,7 +37,7 @@ public class CurrencyRestController {
     @ResponseBody
     @Transactional
     public Currency create(@RequestBody Currency currency) {
-        return currencyService.create(currency);
+        return currencyService.save(currency);
     }
 
     @RequestMapping(value = "/currency/{id}", method = RequestMethod.DELETE,

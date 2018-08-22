@@ -8,6 +8,7 @@ import smartBot.bean.CurrencyRates;
 import smartBot.bean.Scope;
 import smartBot.bussines.listeners.ScopeListener;
 import smartBot.bussines.service.cache.ServerCache;
+import smartBot.connection.netty.server.common.HostPort;
 
 @Component
 public class SimpleProcessScopeAddedListener implements ScopeListener {
@@ -18,7 +19,7 @@ public class SimpleProcessScopeAddedListener implements ScopeListener {
 
     @Override
     public void onScopeAdd(Scope scope) {
-        serverCache.setScopeCache(scope);
+        serverCache.setScopeToCache(scope);
         logger.info("Added a new Scope with name '" + scope.getName() + "'");
     }
 
@@ -33,7 +34,7 @@ public class SimpleProcessScopeAddedListener implements ScopeListener {
     }
 
     @Override
-    public void onScopeTouchZones(Scope scope, CurrencyRates currencyRate) {
+    public void onScopeCheckAndProcess(Scope scope, CurrencyRates currencyRate, HostPort hostPort) {
         return;
     }
 }

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
-import smartBot.bean.MarginRatesJSON;
+import smartBot.bean.json.MarginRatesJSON;
 
 import java.io.IOException;
 import java.net.URL;

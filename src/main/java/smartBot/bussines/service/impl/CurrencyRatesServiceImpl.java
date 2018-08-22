@@ -70,11 +70,6 @@ public class CurrencyRatesServiceImpl implements CurrencyRatesService {
     }
 
     @Override
-    public CurrencyRates create(CurrencyRates bean) {
-        return null;
-    }
-
-    @Override
     public List<CurrencyRates> findAllByShortName(String shortName) {
         List<CurrencyRatesEntity> currencyRatesEntity = currencyRatesJpaRepository.findAllByCurrencyShortName(shortName);
         List<CurrencyRates> currencyRates = null;

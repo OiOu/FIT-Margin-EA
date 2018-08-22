@@ -36,21 +36,22 @@ public class QuartzConfig {
     @Bean
     public SimpleTriggerFactoryBean marginRatesPlannerTriggerFactory() {
         SimpleTriggerFactoryBean stFactory = new SimpleTriggerFactoryBean();
-        stFactory.setJobDetail(marginRatesPlannerFactory().getObject());
-        stFactory.setStartDelay(1000);
-        stFactory.setRepeatInterval(14400000); // each hour
+        stFactory.setJobDetail(marginRatesInitialPlannerFactory().getObject());
+        stFactory.setStartDelay(10);
+        stFactory.setRepeatInterval(1);
+        stFactory.setRepeatCount(1);
         stFactory.setMisfireInstruction(
             SimpleTrigger.MISFIRE_INSTRUCTION_RESCHEDULE_NEXT_WITH_REMAINING_COUNT);
         return stFactory;
     }
 
     @Bean
-    public JobDetailFactoryBean marginRatesPlannerFactory() {
+    public JobDetailFactoryBean marginRatesInitialPlannerFactory() {
         JobDetailFactoryBean factory = new JobDetailFactoryBean();
         factory.setJobClass(MarginRatesJSONPlanner.class);
         factory.setDurability(true);
-        factory.setGroup("MarginRatesJSONPlannerGroup");
-        factory.setName("MarginRatesJSONPlanner");
+        factory.setGroup("MarginRatesInitialJSONPlannerGroup");
+        factory.setName("MarginRatesInitialJSONPlanner");
         return factory;
     }
 }

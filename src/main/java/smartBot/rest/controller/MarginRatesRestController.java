@@ -33,7 +33,7 @@ public class MarginRatesRestController {
     @Transactional
     public void findMarginOnDateByShortName(@PathVariable("shortname") String shortName,
                                            @RequestParam(value = "ondate") @DateTimeFormat(pattern = "YYYY-MM-DD") DateTime onDate) {
-        marginRatesService.findByShortNameAndDate(shortName, onDate);
+        marginRatesService.findByShortNameOnDate(shortName, onDate);
     }
 
     @RequestMapping(value = "/currency/margins", method = RequestMethod.POST,
@@ -42,7 +42,7 @@ public class MarginRatesRestController {
     @ResponseBody
     @Transactional
     public MarginRates create(@RequestBody MarginRates marginRates) {
-        return marginRatesService.create(marginRates);
+        return marginRatesService.save(marginRates);
     }
 
     @RequestMapping(value = "/currency/margins/id/{id}", method = RequestMethod.DELETE,

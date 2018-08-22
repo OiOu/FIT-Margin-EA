@@ -57,7 +57,7 @@ public class ZoneLevelServiceImpl implements ZoneLevelService {
     }
 
     @Override
-    public ZoneLevel create(ZoneLevel bean) {
+    public ZoneLevel save(ZoneLevel bean) {
         return null;
     }
 

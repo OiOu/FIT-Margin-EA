@@ -6,15 +6,17 @@ import org.joda.time.DateTime;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import smartBot.bean.MarginRates;
 import smartBot.bussines.service.MarginRatesService;
+import smartBot.bussines.service.cache.ServerCache;
 import smartBot.utils.HttpDownloader;
 
 import javax.annotation.Resource;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -22,24 +24,37 @@ public class MarginRatesJSONPlanner implements Job {
 
     private static final Log logger = LogFactory.getLog(MarginRatesJSONPlanner.class);
 
-    @Autowired
+    @Resource
     private HttpDownloader httpDownloader;
+
+    @Resource
+    private ServerCache serverCache;
 
     @Resource
     private MarginRatesService marginRatesService;
 
+    @Scheduled(cron = "0 0 * ? * MON-FRI")
+    public void execute() throws JobExecutionException {
+        execute(null);
+    }
+
+    @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
         long startTime = System.currentTimeMillis();
+        List<MarginRates> marginRatesResultList = new ArrayList<>();
+
         logInstanceIp();
+        try {
+            List<MarginRates> marginRatesList = httpDownloader.getMarginRatesFXJSONFile().getMarginRates();
+            marginRatesList.forEach(marginRates -> marginRates.setStartDate(new DateTime()));
+            marginRatesResultList.addAll(marginRatesService.createAll(marginRatesList));
 
-        List<MarginRates> marginRatesList = httpDownloader.getMarginRatesFXJSONFile().getMarginRates();
-        marginRatesList.forEach(marginRates -> marginRates.setStartDate(new DateTime()));
-        marginRatesService.createAll(marginRatesList);
-
-        marginRatesList = httpDownloader.getMarginRatesMetalJSONFile().getMarginRates();
-        marginRatesList.forEach(marginRates -> marginRates.setStartDate(new DateTime()));
-        marginRatesService.createAll(marginRatesList);
-
+            marginRatesList = httpDownloader.getMarginRatesMetalJSONFile().getMarginRates();
+            marginRatesList.forEach(marginRates -> marginRates.setStartDate(new DateTime()));
+            marginRatesResultList.addAll(marginRatesService.createAll(marginRatesList));
+        } catch (Exception ex) {
+            logger.info("Internet connection failed");
+        }
         logInstanceStop(startTime);
     }
 

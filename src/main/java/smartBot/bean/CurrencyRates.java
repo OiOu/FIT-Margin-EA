@@ -32,6 +32,8 @@ public class CurrencyRates implements Serializable {
 
     private Double pointPrice;
 
+    private boolean isHistory;
+
     @NotNull
     private DateTime timestamp;
 
@@ -119,6 +121,14 @@ public class CurrencyRates implements Serializable {
 
     public void setPointPrice(Double pointPrice) {
         this.pointPrice = pointPrice;
+    }
+
+    public boolean isHistory() {
+        return isHistory;
+    }
+
+    public void setHistory(boolean history) {
+        isHistory = history;
     }
 
     public Scope getScope() {

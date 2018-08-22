@@ -100,7 +100,7 @@ public class CurrencyServiceImpl implements CurrencyService{
 
     @Transactional
     @Override
-    public Currency create(Currency currency) {
+    public Currency save(Currency currency) {
         if (currency == null) {
             throw new IllegalStateException("ERROR: Create: Currency is NULL!");
         }

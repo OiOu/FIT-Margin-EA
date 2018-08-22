@@ -43,15 +43,24 @@ public class ZoneServiceImpl implements ZoneService {
     private ZoneLevelService zoneLevelService;
 
     @Resource
+    private OrderSettingsService orderSettingsService;
+
+    @Resource
     private ServerCache serverCache;
 
     /*
     * Main procedure for calculate scope of zone info
     */
+    // TODO remove synchronized and test it
     public synchronized List<Zone> calculate(Scope scope, CurrencyRates currencyRate) {
 
-        Currency currency = currencyService.findById(currencyRate.getCurrency().getId());
-        MarginRates marginRate = marginRateService.findByCurrencyIdAndDate( currencyRate.getCurrency().getId(),  currencyRate.getTimestamp());
+        MarginRates marginRate = serverCache.getMarginRateFromCache(scope.getCurrency().getId());
+
+        // do not process if margin was not found
+        if (marginRate == null) return null;
+
+        Currency currency = currencyService.findById(scope.getCurrency().getId());
+
         List<ZoneLevel> zoneLevels = zoneLevelService.findAll();
         Collections.sort(zoneLevels);
 
@@ -59,6 +68,8 @@ public class ZoneServiceImpl implements ZoneService {
 
         if (zones == null || zones.isEmpty()) {
             for (ZoneLevel level : zoneLevels){
+                if (!level.isEnable()) { continue; }
+
                 Zone zone = new Zone();
                 zone.setLevel(level);
                 if (scope.getType() == Scope.BUILD_FROM_HIGH) {
@@ -67,6 +78,7 @@ public class ZoneServiceImpl implements ZoneService {
                     zone.setPrice(currencyRate.getLow());
                 }
                 zone.setActivated(false);
+                zone.setTouched(false);
                 zone.setScope(scope);
                 zone.setTimestamp(currencyRate.getTimestamp());
                 zone.setName(zone.toString());
@@ -79,6 +91,8 @@ public class ZoneServiceImpl implements ZoneService {
         List<Zone> newZones = new ArrayList<>();
         for (int i = 0; i < zones.size(); i++) {
             Zone zone = zones.get(i);
+            if (!zone.getLevel().isEnable()) { continue; }
+
             if (scope.getType() == Scope.BUILD_FROM_HIGH) {
                 zone.setPrice(currencyRate.getHigh());
             } else {
@@ -86,6 +100,7 @@ public class ZoneServiceImpl implements ZoneService {
             }
             zone.setTimestamp(currencyRate.getTimestamp());
             zone.setActivated(false);
+            zone.setTouched(false);
             newZones.add(calculate(scope, zone, currency, currencyRate, marginRate));
         }
 
@@ -112,6 +127,53 @@ public class ZoneServiceImpl implements ZoneService {
             zone.setPriceCalc(zone.getPrice() - marginRateForCalculation * zone.getLevel().getK() * scope.getType());
         }
         zone.setPriceCalcShift(zone.getPriceCalc() + zone.getLevel().getHeight() * heightK * currencyRate.getPointPips() * currencyRate.getPointPrice() * scope.getType());
+        zone.setPriceCalcOrderDetectionZone(zone.getPriceCalc() + zone.getLevel().getHeight() * 2 * heightK * currencyRate.getPointPips() * currencyRate.getPointPrice() * scope.getType());
+
+        // Get inverse scope for determining take profit price
+        Integer scopeTypeForTakeProfit = scope.getType() == Scope.BUILD_FROM_HIGH? Scope.BUILD_FROM_LOW : Scope.BUILD_FROM_HIGH;
+        Scope scopeForTakeProfit = scopeService.findByCurrencyIdAndScopeType(currency.getId(), scopeTypeForTakeProfit);
+
+        // Getting Order settings
+        OrderSettings orderSettings = orderSettingsService.getByCurrencyId(currency.getId());
+        if (orderSettings != null) {
+            // If smth will happen later we will have StopLoss anyway
+            zone.setPriceStopLoss(zone.getPriceCalc() - orderSettings.getSlSize() * heightK * currencyRate.getPointPips() * currencyRate.getPointPrice() * scope.getType());
+
+            if (scopeForTakeProfit != null && scopeForTakeProfit.getZones() != null) {
+                List<Zone> zones = scopeForTakeProfit.getZones();
+                for (Zone z : zones) {
+                    // filter zones which has priceCalcShift with risk/profit >= 1:N
+                    if (zone.getLevel().isEnable()) {
+                        // TODO Calculate distance to next (profit) zone and determine stop loss size like (distance / riskProfitRounded)
+                        Double distanceInPoints = (z.getPriceCalcShift() - zone.getPriceCalcShift()) * scope.getType() / currencyRate.getPointPrice() / currencyRate.getPointPips();
+                        Integer stopLossInPoint = distanceInPoints.intValue() / (orderSettings.getRiskProfitMin() != null ? orderSettings.getRiskProfitMin() : 2);
+
+                        // to avoid useless orders (open price is very close to TP)
+                        if (distanceInPoints > 50) {
+//                            if (!z.getTouched()) {
+                                // SL Should not be > fixed size but it can be less
+                                if (stopLossInPoint > orderSettings.getSlSize()) {
+                                    stopLossInPoint = orderSettings.getSlSize();
+                                }
+
+                                zone.setPriceStopLoss(zone.getPriceCalcShift() - stopLossInPoint * heightK * currencyRate.getPointPips() * currencyRate.getPointPrice() * scope.getType());
+                                zone.setPriceTakeProfit(z.getPriceCalcShift());
+
+                                if (orderSettings.getBreakEven() > 0) {
+                                    zone.setPriceBreakEvenProfit(zone.getPriceCalcShift() + orderSettings.getBreakEven() * heightK * currencyRate.getPointPips() * currencyRate.getPointPrice() * scope.getType());
+                                    zone.setPriceTrailProfit(zone.getPriceCalcShift() + orderSettings.getTrail() * heightK * currencyRate.getPointPips() * currencyRate.getPointPrice() * scope.getType());
+                                }
+                                break;
+//                            } else {
+//                                continue;
+//                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            logger.info("OrderSettings for currency: " + currency.getShortName() + " was not found");
+        }
 
         return zone;
     }
@@ -132,7 +194,7 @@ public class ZoneServiceImpl implements ZoneService {
     }
 
     @Override
-    public Zone create(Zone zone) {
+    public Zone save(Zone zone) {
         ZoneEntity zoneEntity = new ZoneEntity();
         zoneServiceMapper.mapBeanToEntity(zone, zoneEntity);
 

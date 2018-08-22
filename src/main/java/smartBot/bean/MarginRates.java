@@ -46,6 +46,8 @@ public class MarginRates implements Serializable, Comparable {
 
     private DateTime startDate;
 
+    private DateTime endDate;
+
     private Double pricePerContract;
 
     private Double futurePoint;
@@ -168,6 +170,14 @@ public class MarginRates implements Serializable, Comparable {
 
     public Double getPricePerContract() {
         return pricePerContract;
+    }
+
+    public DateTime getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(DateTime endDate) {
+        this.endDate = endDate;
     }
 
     public void setPricePerContract(Double pricePerContract) {

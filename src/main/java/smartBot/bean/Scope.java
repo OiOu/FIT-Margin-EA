@@ -9,6 +9,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -110,8 +111,7 @@ public class Scope implements Serializable, Comparable {
     @Override
     public String toString() {
         return "Scope{" +
-                timestampFrom +
-                ", " + currency.getShortName() +
+                currency.getShortName() +
                 ", " + type +
                 '}';
     }
@@ -120,5 +120,17 @@ public class Scope implements Serializable, Comparable {
     public int compareTo(Object o) {
         /* For Desc order*/
         return ((Scope)o).getTimestampFrom().compareTo(this.timestampFrom);
+    }
+
+    public void setZone(Zone zone) {
+        if (zone != null && this.zones != null) {
+            for (Iterator<Zone> it = this.zones.iterator(); it.hasNext();) {
+                Zone tmpZone = it.next();
+                if (tmpZone.getId() == zone.getId()) {
+                    tmpZone = zone;
+                    break;
+                }
+            }
+        }
     }
 }

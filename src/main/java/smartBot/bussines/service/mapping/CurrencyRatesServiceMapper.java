@@ -6,8 +6,8 @@ import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.stereotype.Component;
 import smartBot.bean.Currency;
 import smartBot.bean.CurrencyRates;
-import smartBot.bean.CurrencyRatesJson;
 import smartBot.bean.jpa.CurrencyRatesEntity;
+import smartBot.bean.json.CurrencyRatesJson;
 import smartBot.bussines.service.CurrencyService;
 
 import javax.annotation.Resource;
@@ -111,6 +111,7 @@ public class CurrencyRatesServiceMapper extends AbstractServiceMapper {
         currencyRates.setVolume(currencyRatesJson.getVolume());
         currencyRates.setPointPips(currencyRatesJson.getPointPips());
         currencyRates.setPointPrice(currencyRatesJson.getPointPrice());
+        currencyRates.setHistory(currencyRatesJson.isHistory());
 
         return currencyRates;
     }

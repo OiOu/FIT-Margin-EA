@@ -48,17 +48,12 @@ public class ScopeServiceImpl implements ScopeService {
     private ServerCache serverCache;
 
     @Override
-    public ScopeEntity findById(Integer id) {
+    public Scope findById(Integer id) {
         return null;
     }
 
     @Override
-    public List<ScopeEntity> findAll() {
-        return null;
-    }
-
-    @Override
-    public ScopeEntity create(ScopeEntity bean) {
+    public List<Scope> findAll() {
         return null;
     }
 
@@ -107,6 +102,8 @@ public class ScopeServiceImpl implements ScopeService {
             ScopeEntity scopeEntity = new ScopeEntity();
             scopeServiceMapper.mapBeanToEntity(scope, scopeEntity);
             scopeJpaRepository.delete(scopeEntity);
+
+            serverCache.removeScopeFromCache(scope);
         }
         return;
     }
@@ -122,12 +119,6 @@ public class ScopeServiceImpl implements ScopeService {
 
         }
         return scopes;
-    }
-
-
-    @Override
-    public void delete(ScopeEntity bean) {
-        return ;
     }
 
     @Override
@@ -150,7 +141,7 @@ public class ScopeServiceImpl implements ScopeService {
                     Collections.sort(scopes);
                     scope = scopes.get(0);
 
-                    serverCache.setScopeCache(scope);
+                    serverCache.setScopeToCache(scope);
                 }
             }
         }
@@ -166,7 +157,4 @@ public class ScopeServiceImpl implements ScopeService {
     public Integer getLastId(Integer currencyId, Integer scopeType) {
         return scopeJpaRepository.getLastId(currencyId, scopeType);
     }
-
-
-
 }

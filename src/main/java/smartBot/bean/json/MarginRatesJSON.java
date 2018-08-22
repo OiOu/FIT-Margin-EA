@@ -1,7 +1,8 @@
-package smartBot.bean;
+package smartBot.bean.json;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import smartBot.bean.MarginRates;
 
 import java.io.Serializable;
 import java.util.List;

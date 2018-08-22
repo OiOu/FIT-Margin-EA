@@ -60,6 +60,10 @@ public class MarginRatesEntity implements Serializable {
     @Type(type="org.jadira.usertype.dateandtime.joda.PersistentDateTime")
     private DateTime startDate = new DateTime();
 
+    @Column(name="end_date")
+    @Type(type="org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+    private DateTime endDate = new DateTime();
+
     @Column(name="price_per_contract")
     private Double pricePerContract;
 
@@ -186,6 +190,14 @@ public class MarginRatesEntity implements Serializable {
 
     public void setStartDate(DateTime startDate) {
         this.startDate = startDate;
+    }
+
+    public DateTime getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(DateTime endDate) {
+        this.endDate = endDate;
     }
 
     public Double getPricePerContract() {

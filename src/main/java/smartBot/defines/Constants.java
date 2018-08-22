@@ -9,7 +9,7 @@ public class Constants {
     public static final String COMMA = ","; // End
 
 
-    public static final String IMAP_CURRENCY_RATES_INFO = "imap.currencyrates.info";
+    public static final String Order = "imap.currencyrates.info";
 
 
 }

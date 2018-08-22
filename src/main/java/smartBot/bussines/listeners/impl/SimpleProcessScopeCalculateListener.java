@@ -5,10 +5,16 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import smartBot.bean.CurrencyRates;
+import smartBot.bean.Priority;
 import smartBot.bean.Scope;
 import smartBot.bean.Zone;
 import smartBot.bussines.listeners.ScopeListener;
+import smartBot.bussines.process.OrderProcess;
 import smartBot.bussines.process.SimpleZoneProcess;
+import smartBot.bussines.service.PriorityService;
+import smartBot.bussines.service.ZoneService;
+import smartBot.connection.netty.server.common.HostPort;
+import smartBot.defines.PriorityConstants;
 
 import javax.annotation.Resource;
 
@@ -18,6 +24,15 @@ public class SimpleProcessScopeCalculateListener implements ScopeListener {
 
     @Resource
     private SimpleZoneProcess simpleZoneProcess;
+
+    @Resource
+    private ZoneService zoneService;
+
+    @Resource
+    private PriorityService priorityService;
+
+    @Resource
+    private OrderProcess orderProcess;
 
     @Override
     public void onScopeAdd(Scope scope) {
@@ -38,6 +53,9 @@ public class SimpleProcessScopeCalculateListener implements ScopeListener {
     @Autowired
     private SimpleProcessZoneCalculateListener simpleProcessZoneCalculateListener;
 
+    @Autowired
+    private SimpleProcessZoneTouchListener simpleProcessZoneTouchListener;
+
     @Override
     public void onScopeCalculateZones(Scope scope, CurrencyRates currencyRate) {
         logger.info("Calculation calculate was started...");
@@ -49,6 +67,7 @@ public class SimpleProcessScopeCalculateListener implements ScopeListener {
             simpleZoneProcess.registerZoneListener(simpleProcessZoneAddedListener);
             simpleZoneProcess.registerZoneListener(simpleProcessZoneRemoveListener);
             simpleZoneProcess.registerZoneListener(simpleProcessZoneCalculateListener);
+            simpleZoneProcess.registerZoneListener(simpleProcessZoneTouchListener);
         }
 
         simpleZoneProcess.calculate();
@@ -58,16 +77,35 @@ public class SimpleProcessScopeCalculateListener implements ScopeListener {
     }
 
     @Override
-    public void onScopeTouchZones(Scope scope, CurrencyRates currencyRate) {
+    public void onScopeCheckAndProcess(Scope scope, CurrencyRates currencyRate, HostPort hostPort) {
         if (scope != null && scope.getZones() != null && scope.getZones().size() > 0) {
 
-            for (Zone zone: scope.getZones()) {
-                if (!zone.getActivated()
-                        && (scope.getType().intValue() == Scope.BUILD_FROM_HIGH && currencyRate.getLow() <= zone.getPriceCalcShift()
-                        || scope.getType().intValue() == Scope.BUILD_FROM_LOW && currencyRate.getHigh() >= zone.getPriceCalcShift())) {
+            Priority priority = priorityService.findByCurrencyIdAndPrioritySubType(scope.getCurrency().getId(), PriorityConstants.LOCAL);
 
-                    // Update Activated and Trade count columns for zone
-                    // Activated will be reset after re-calculation
+            for (Zone zone : scope.getZones()) {
+                // Price has enter pre-zone range
+                if (priority != null && !zone.getActivated() && scope.getType() == priority.getType().getType()) {
+                    if ((scope.getType().intValue() == Scope.BUILD_FROM_HIGH && currencyRate.getLow() <= zone.getPriceCalcOrderDetectionZone() && currencyRate.getLow() >= zone.getPriceCalc())
+                            || (scope.getType().intValue() == Scope.BUILD_FROM_LOW && currencyRate.getHigh() >= zone.getPriceCalcOrderDetectionZone() && currencyRate.getLow() <= zone.getPriceCalc())) {
+
+                        // Set flag that zone was touched
+                        zone.setActivated(true);
+
+                        // Update zone
+                        zone = zoneService.save(zone);
+
+                        if (zone.getLevel().isTradeAllowed()) {
+                            // Create and save into DB new order (only for actual CurrencyRate). For history we will only save in DB
+                            orderProcess.openOrder(currencyRate, priority, zone, hostPort);
+                        }
+                    }
+                }
+
+                // Price has enter zone range
+                if ((scope.getType().intValue() == Scope.BUILD_FROM_HIGH && !zone.getTouched() && currencyRate.getLow() <= zone.getPriceCalcShift())
+                        || (scope.getType().intValue() == Scope.BUILD_FROM_LOW && !zone.getTouched() && currencyRate.getHigh() >= zone.getPriceCalcShift())) {
+
+                    // Update Touched flag
                     simpleZoneProcess.touchZone(scope, zone);
                 }
             }

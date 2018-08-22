@@ -24,10 +24,10 @@ public interface MarginRatesJpaRepository extends CrudRepository<MarginRatesEnti
     void deleteAllByShortName(String shortName);
 
     @Query("SELECT mre FROM MarginRatesEntity AS mre JOIN mre.currency c WHERE c.shortName IN (?1) AND ?2 >= mre.startDate")
-    List<MarginRatesEntity> getByShortNameAndDate(String shortName, DateTime onDate);
+    List<MarginRatesEntity> getByShortNameOnDate(String shortName, DateTime onDate);
 
-    @Query("SELECT mre FROM MarginRatesEntity AS mre JOIN mre.currency c WHERE c.id IN (?1) AND ?2 >= mre.startDate")
-    List<MarginRatesEntity> getByCurrencyIdAndDate(Integer currencyId, DateTime onDate);
+    @Query("SELECT mre FROM MarginRatesEntity AS mre JOIN mre.currency c WHERE c.id IN (?1) AND (mre.endDate != null AND ?2 <= mre.endDate OR mre.endDate = null AND ?2 >= mre.startDate)")
+    List<MarginRatesEntity> getByCurrencyIdOnDate(Integer currencyId, DateTime onDate);
 
     @Query("SELECT mre FROM MarginRatesEntity AS mre WHERE mre.clearingCode = ?1 AND mre.startPeriod <= ?2")
     List<MarginRatesEntity> getLastByClearingCode(String clearingCode, DateTime onDate);

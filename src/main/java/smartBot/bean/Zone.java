@@ -30,9 +30,21 @@ public class Zone implements Serializable, Comparable {
 
     private Double priceCalcShift;
 
+    private Double priceCalcOrderDetectionZone;
+
+    private Double priceStopLoss;
+
+    private Double priceTakeProfit;
+
+    private Double priceBreakEvenProfit;
+
+    private Double priceTrailProfit;
+
     private Integer tradeCount;
 
     private Boolean activated;
+
+    private Boolean touched;
 
     public Integer getId() {
         return id;
@@ -98,6 +110,46 @@ public class Zone implements Serializable, Comparable {
         this.priceCalcShift = priceCalcShift;
     }
 
+    public Double getPriceCalcOrderDetectionZone() {
+        return priceCalcOrderDetectionZone;
+    }
+
+    public void setPriceCalcOrderDetectionZone(Double priceCalcOrderDetectionZone) {
+        this.priceCalcOrderDetectionZone = priceCalcOrderDetectionZone;
+    }
+
+    public Double getPriceStopLoss() {
+        return priceStopLoss;
+    }
+
+    public void setPriceStopLoss(Double priceStopLoss) {
+        this.priceStopLoss = priceStopLoss;
+    }
+
+    public Double getPriceTakeProfit() {
+        return priceTakeProfit;
+    }
+
+    public void setPriceTakeProfit(Double priceTakeProfit) {
+        this.priceTakeProfit = priceTakeProfit;
+    }
+
+    public Double getPriceBreakEvenProfit() {
+        return priceBreakEvenProfit;
+    }
+
+    public void setPriceBreakEvenProfit(Double priceBreakEvenProfit) {
+        this.priceBreakEvenProfit = priceBreakEvenProfit;
+    }
+
+    public Double getPriceTrailProfit() {
+        return priceTrailProfit;
+    }
+
+    public void setPriceTrailProfit(Double priceTrailProfit) {
+        this.priceTrailProfit = priceTrailProfit;
+    }
+
     public Integer getTradeCount() {
         return tradeCount;
     }
@@ -114,17 +166,19 @@ public class Zone implements Serializable, Comparable {
         this.activated = activated;
     }
 
+    public Boolean getTouched() {
+        return touched;
+    }
+
+    public void setTouched(Boolean touched) {
+        this.touched = touched;
+    }
+
     @Override
     public String toString() {
         return "Zone{" +
-                " scopeId=" + scope +
+                " scope=" + scope +
                 ", level=" + level +
-                ", price=" + price +
-                ", timestamp=" + timestamp +
-                ", priceCalc=" + priceCalc +
-                ", priceCalcShift=" + priceCalcShift +
-                ", tradeCount=" + tradeCount +
-                ", activated=" + activated +
                 '}';
     }
 

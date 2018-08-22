@@ -1,7 +1,7 @@
 /*
 ###################################################################
 
-Socket Main Client.
+Main Client.
 
 ###################################################################
 */
@@ -13,29 +13,47 @@ Socket Main Client.
 // --------------------------------------------------------------------
 
 #include <socket-library-mt4-mt5.mqh>
+// Font
+string font = "Lucida Console";
 
-string SymbolsRequired[];
-string Symbols[];
-string Message[];
-string Headers[];
-int    SymbolCount = 0;
-string sVolumeSerialNumber="";
-string sep_body_begin = ">";
-string sep_body_end = "<";
-ushort u_sep_body_begin = StringGetCharacter(sep_body_begin,0);
-ushort u_sep_body_end = StringGetCharacter(sep_body_end,0);
-ushort u_sep_body_elems = StringGetCharacter(",",0);
-ushort u_sep_header = StringGetCharacter(":",0);
+// STOMP message
+string s_symbols[];
+string s_messages[];
+string s_headers[];
+string s_body[];
+string s_volumeSerialNumber="";
+string s_sepBodyBegin = ">";
+string s_sepBodyEnd = "<";
+ushort u_sepBodyBegin = StringGetCharacter(s_sepBodyBegin,0);
+ushort u_sepBodyEnd = StringGetCharacter(s_sepBodyEnd,0);
+ushort u_sepBodyElems = StringGetCharacter(",",0);
+ushort u_sepHeader = StringGetCharacter(":",0);
+
+
+// Custom
+int    i_symbolCount = 0;
+int    i_period = PERIOD_CURRENT;
+double d_pipsInPoint = 1;
+double d_pointPrice = Point;
+bool   b_currencyExists = false;
+bool   b_printOnce = true;
 
 // --------------------------------------------------------------------
 // EA user inputs
 // --------------------------------------------------------------------
 
-input string   Hostname = "localhost";    // Server hostname or IP address
-input ushort   ServerPort = 33333;        // Server port
-input int      MessageDelayMils = 300;    // Delay between sending/reading message to/from server
+input string   s_hostname = "localhost";     // Server hostname or IP address
+input ushort   u_port = 33333;               // Server port
+input int      i_messagesDelayMils = 500;     // Delay between sending messages to server
+input string   s_currencies = "XAUUSD";      // List for specified currencies (if empty then all)
+input bool     b_draw = true;                // Visualize zones and other info
+input bool     b_move_cursor = true;         // Move cursor automaticly
 
-input string   Currencies = "XAUUSD";     // List for specified currencies (if empty then all)
+input int      i_stoploss = 30;              // Deafult StopLoss size
+input int      i_breakEven = 50;             // Deafult break even size, 0 - off
+input int      i_trailStopLoss = 100;        // Deafult trail stop loss size, 0 - off
+
+input int      i_orderBorder = 0;            // Create order on border: 0 - Both; 1 - inner; 2 - outner
 
 #import "Kernel32.dll"
    bool GetVolumeInformationW(string RootPathName,
@@ -52,10 +70,10 @@ string SystemDriveSerialNumber(string sDrive) {
 
   if(GetVolumeInformationW(sDrive+":\\", "                ", 15, iVolumeSerialNumber, 0, 0, "                ", 15))
   {
-    sVolumeSerialNumber=IntegerToHexString(iVolumeSerialNumber[0]);
-    sVolumeSerialNumber=StringConcatenate(StringSubstr(sVolumeSerialNumber,0,4), "-", StringSubstr(sVolumeSerialNumber,4));
+    s_volumeSerialNumber=IntegerToHexString(iVolumeSerialNumber[0]);
+    s_volumeSerialNumber=StringConcatenate(StringSubstr(s_volumeSerialNumber,0,4), "-", StringSubstr(s_volumeSerialNumber,4));
   }
-  return(sVolumeSerialNumber);
+  return(s_volumeSerialNumber);
 }
 
 // --------------------------------------------------------------------
@@ -68,17 +86,26 @@ ClientSocket * glbClientSocket = NULL;
 // Initialisation (no action required)
 // --------------------------------------------------------------------
 
-void OnInit() {
+void connect() {
    if (!glbClientSocket) {
-      glbClientSocket = new ClientSocket(Hostname, ServerPort);
+      glbClientSocket = new ClientSocket(s_hostname, u_port);
       if (glbClientSocket.IsSocketConnected()) {
          Print("Client connection succeeded");
       } else {
          Print("Client connection failed");
       }
    }
+}
 
-   StringSplit(Currencies, u_sep_body_elems, SymbolsRequired);
+void OnInit() {
+   connect();
+
+   //StringSplit(s_currencies, u_sepBodyElems, s_symbolsRequired);
+   if (MarketInfo(Symbol(), MODE_POINT) == 0.00001) d_pipsInPoint = 10;
+   if (MarketInfo(Symbol(), MODE_POINT) == 0.0001) d_pipsInPoint = 1;
+   if (MarketInfo(Symbol(), MODE_POINT) == 0.001) d_pipsInPoint = 0.1;
+
+   if (Digits == 3) d_pointPrice = 10.0 * d_pointPrice;
 
    string sNumber=SystemDriveSerialNumber("C");
    Print(sNumber);
@@ -87,6 +114,9 @@ void OnInit() {
       "content-type:application/json\r\n";
 
    glbClientSocket.Send(strMsg);
+
+   EventSetMillisecondTimer(i_messagesDelayMils);
+   b_printOnce = true;
 }
 
 
@@ -94,8 +124,7 @@ void OnInit() {
 // Termination - free the client socket, if created
 // --------------------------------------------------------------------
 
-void OnDeinit(const int reason)
-{
+void OnDeinit(const int reason) {
    EventKillTimer();
 
    if (glbClientSocket) {
@@ -112,52 +141,110 @@ void OnDeinit(const int reason)
 // and send the current price quote
 // --------------------------------------------------------------------
 
-void OnTick(){
-   EventSetMillisecondTimer(MessageDelayMils);
+void OnTick() {
+   if (ObjectFind(ChartID(), "SmartBotStartHere") == -1 || iBarShift(NULL, i_period, ObjectGet("SmartBotStartHere", OBJPROP_TIME1), false) == 0) {
+      process();
+   }
 }
 
 void OnTimer() {
+   int shift = iBarShift(NULL, i_period, ObjectGet("SmartBotStartHere", OBJPROP_TIME1), false);
 
+   if (shift > 0 && ObjectFind(ChartID(), "SmartBotStartHere") > -1) {
+      process();
+   }
+}
+
+void process() {
    // Reconnect if connection was lost
    if (!glbClientSocket) {
-      glbClientSocket = new ClientSocket(Hostname, ServerPort);
+      glbClientSocket = new ClientSocket(s_hostname, u_port);
 
       if (glbClientSocket.IsSocketConnected()) {
          Print("Client connection succeeded");
       } else {
-         Print("Client connection failed. Will try to reconnect...");
+
+         b_printOnce("Client connection failed. Will try to reconnect...");
+         //connect();
       }
    }
 
-   // Read message from socket channel
+   // Read messages from socket channel
    if (glbClientSocket.IsSocketConnected()) {
 
-      // Try to receive new message
-      string strMessage = glbClientSocket.Receive();
+      // Try to receive new messages
+      string strs_messages = glbClientSocket.Receive();
 
-      if (strMessage != "") {
-         Print("Message received: " + strMessage);
+      if (strs_messages != "") {
 
-         // Get body from message
-         StringSplit(strMessage, u_sep_body_begin, Message);
-         if (ArraySize(Message) > 1) {
+         // Get body from messages
+         StringSplit(strs_messages, u_sepBodyBegin, s_messages);
+         if (ArraySize(s_messages) > 1) {
 
-            StringReplace(Message[1], sep_body_begin, "");
-            StringReplace(Message[1], sep_body_end, "");
+            StringReplace(s_messages[1], s_sepBodyBegin, "");
+            StringReplace(s_messages[1], s_sepBodyEnd, "");
 
-            Print("Header received: " + Message[0]);
-            Print("Body received: " + Message[1]);
+//Print("Header received: " + s_messages[0]);
+//Print("s_body received: " + s_messages[1]);
+//Print("s_body bytes: " + StringLen(s_messages[1]));
 
-            // TODO: make parse message via handler
-            StringSplit(StringTrimRight(StringTrimLeft(Message[0])), u_sep_header, Headers);
+            // TODO: make parse messages via handler
+            StringSplit(StringTrimRight(StringTrimLeft(s_messages[0])), u_sepHeader, s_headers);
 
-            if (ArraySize(Headers) > 0) {
-               // Process the messages
+            if (ArraySize(s_headers) > 0) {
+               // Process the s_messagess
 
-               if (StringCompare(StringTrimRight(StringTrimLeft(Headers[0])), "destination", false) == 0) {// destination
+               if (StringCompare(StringTrimRight(StringTrimLeft(s_headers[0])), "destination", false) == 0) {// destination
+// -------------------------------------------------------------------------------------------------------------------------------
+                  if (StringCompare(StringTrimRight(StringTrimLeft(s_headers[1])), "currencies.getAll", false) == 0) {
+                     i_symbolCount = StringSplit(s_messages[1], u_sepBodyElems, s_symbols);
 
-                  if (StringCompare(StringTrimRight(StringTrimLeft(Headers[1])), "currencies.getAll", false) == 0) {// process destination
-                     SymbolCount = StringSplit(Message[1], u_sep_body_elems, Symbols);
+                     for (int i = 0; i < i_symbolCount; i++) {
+                        if (StringCompare(s_symbols[i], Symbol(), false)) {
+                           b_currencyExists = true;
+                        }
+                     }
+                  }
+// -------------------------------------------------------------------------------------------------------------------------------
+                  if (StringCompare(StringTrimRight(StringTrimLeft(s_headers[1])), "priority.was.changed", false) == 0) {
+                     StringSplit(s_messages[1], u_sepBodyElems, s_body);
+
+//Print("s_body received: " + s_messages[1]);
+//Print("s_body[0]:"+s_body[0]+"|s_body[1]:" +s_body[1]+"|s_body[2]:" +s_body[2]);
+
+                     datetime searchExtremumFrom = StrToTime(StringTrimLeft(StringTrimRight(s_body[0])));
+                     datetime searchExtremumTo = StrToTime(StringTrimLeft(StringTrimRight(s_body[1])));
+
+                     int shiftFrom = iBarShift(NULL, i_period, searchExtremumFrom);
+                     int shiftTo = iBarShift(NULL, i_period, searchExtremumTo);
+
+                     int priorityType = StrToInteger(s_body[2]);
+                     int extremumShift = 0;
+                     string priorityTypeName = "";
+                     color priorityLineColor = clrRed;
+                     if (priorityType == 1) {
+                        extremumShift = iHighest(NULL, i_period, MODE_HIGH, shiftFrom-shiftTo, shiftTo);
+                        priorityTypeName = "BUY";
+                        priorityLineColor = clrDarkGreen;
+                     }
+                     if (priorityType == -1) {
+                        extremumShift = iLowest(NULL, i_period, MODE_LOW, shiftFrom-shiftTo, shiftTo);
+                        priorityTypeName = "SELL";
+                     }
+
+                     if (ObjectFind(ChartID(), "SmartBotStartHere") > -1) {
+                         // Move Cursor to last extremum
+                         ObjectSet("SmartBotStartHere", OBJPROP_TIME1, iTime(NULL, i_period, extremumShift));
+                     }
+
+                     if (b_draw) {
+                        DrawChangeLine("Priority" + searchExtremumTo, "Priority " + priorityTypeName, searchExtremumTo, priorityLineColor, OBJ_ALL_PERIODS);
+                     }
+
+                  }
+// -------------------------------------------------------------------------------------------------------------------------------
+                  if (StringCompare(StringTrimRight(StringTrimLeft(s_headers[1])), "draw.zones", false) == 0) {
+
                   }
                }
             }
@@ -165,52 +252,56 @@ void OnTimer() {
       }
    }
 
-   // Send message with currencies date
-   if (glbClientSocket.IsSocketConnected() && SymbolCount > 0) {
-      string strMsg = "command:SEND\n" +
-         "destination:currencies.rates \n"
-         "content-type:application/json\n\n" +
-         sep_body_begin;
 
-      string strMsgBody = "";
-      for(int i = 0; i < SymbolCount; i++) {
-         string symbol = Symbols[i];
-         symbol = StringTrimRight(StringTrimLeft(symbol));
+   // Send s_messages with s_currencies date
+   // this part can be moved to onTick()
+   if (b_currencyExists) {
+      if (glbClientSocket.IsSocketConnected() && i_symbolCount > 0) {
+         string strMsgHeader = "command:SEND\n" +
+            "destination:currencies.rates\n"
+            "content-type:java/base64\n\n";
 
-         bool exists = false;
-         for(int j = 0; j < ArraySize(SymbolsRequired); j++) {
+         int smartBotStartHereShift = 0;
 
-            if(StringFind(SymbolsRequired[j],symbol) != -1 && !exists) {
-               exists = true;
-               break;
-            }
+         if (ObjectFind(ChartID(), "SmartBotStartHere") > -1) {
+            smartBotStartHereShift = iBarShift(NULL, i_period, ObjectGet("SmartBotStartHere", OBJPROP_TIME1), false);
          }
 
-         if ((StringLen(Currencies) > 0 && exists) || StringLen(Currencies) == 0 ) {
+         if (iTime( Symbol(), i_period, smartBotStartHereShift) != 0) { // does Broker support currency
 
-            if (iTime(symbol, PERIOD_CURRENT, 0) != 0) { // for non supported currencies we do not send data
+            string strMsgs_body =
+               "{"+
+                   "\"currency\":\"" + Symbol() + "\", " +
+                   "\"period\":" +  i_period + ", " +
+                   "\"timestamp\": \"" + TimeToString(iTime( Symbol(), i_period, smartBotStartHereShift), TIME_DATE|TIME_SECONDS) + "\", " +
+                   "\"high\":" + DoubleToStr(iHigh( Symbol(), i_period, smartBotStartHereShift)) + ", " +
+                   "\"low\":" + DoubleToStr(iLow( Symbol(), i_period, smartBotStartHereShift)) + ", " +
+                   "\"open\":" + DoubleToStr(iOpen( Symbol(), i_period, smartBotStartHereShift)) + ", " +
+                   "\"close\":" + DoubleToStr(iClose( Symbol(), i_period, smartBotStartHereShift)) + ", " +
+                   "\"volume\":" + IntegerToString(iVolume( Symbol(), i_period, smartBotStartHereShift)) + ", " +
+                   "\"pointPrice\":" + DoubleToStr(d_pointPrice) + ", " +
+                   "\"pointPips\":" + DoubleToStr(d_pipsInPoint) +
 
-               if (StringLen(strMsgBody) > 0) strMsgBody += ",\n";
+               "}";
 
-               strMsgBody +=
-                  "{"+
-                      "currency:" + symbol + ", " +
-                      "timestamp:" + IntegerToString(iTime(symbol, PERIOD_CURRENT, 0)) + ", " +
-                      "high:" + DoubleToStr(iHigh(symbol, PERIOD_CURRENT, 0)) + ", " +
-                      "low:" + DoubleToStr(iLow(symbol, PERIOD_CURRENT, 0)) + ", " +
-                      "open:" + DoubleToStr(iOpen(symbol, PERIOD_CURRENT, 0)) + ", " +
-                      "close:" + DoubleToStr(iClose(symbol, PERIOD_CURRENT, 0)) + ", " +
-                      "bid:" + DoubleToStr(MarketInfo(symbol,MODE_BID)) + ", " +
-                      "ask:" + DoubleToStr(MarketInfo(symbol,MODE_ASK)) + ", " +
-                      "volume:" + IntegerToString(iVolume(symbol, PERIOD_CURRENT, 0)) +
-                  "}";
+            string strMsg = strMsgHeader + strMsgs_body + "\r\n";
+
+            glbClientSocket.Send(strMsg);
+
+            // move iterator to the next bar
+            if (b_currencyExists && glbClientSocket.IsSocketConnected() && ObjectFind(ChartID(), "SmartBotStartHere") > -1) {
+               int shift = iBarShift(NULL, i_period, ObjectGet("SmartBotStartHere", OBJPROP_TIME1), false);
+               if (shift > 1) {
+                  if (b_move_cursor) {
+                     ObjectSet("SmartBotStartHere", OBJPROP_TIME1, iTime(Symbol(), i_period, shift - 1));
+                  }
+               }
             }
          }
       }
-
-      strMsg += strMsgBody + sep_body_end + "\r\n";
-      glbClientSocket.Send(strMsg);
    }
+
+
 
    // If the socket is closed, destroy it, and attempt a new connection
    // on the next call to OnTimer()
@@ -218,10 +309,34 @@ void OnTimer() {
 
       // Destroy the server socket. A new connection
       // will be attempted on the next tick
-      Print("Client was disconnected. Will retry...");
       delete glbClientSocket;
 
       glbClientSocket = NULL;
    }
+}
 
+// --------------------------------------------------------------------
+// Utils methods
+// --------------------------------------------------------------------
+void DrawChangeLine(string name, string descr, datetime time1, int clr, int timeframe) {
+
+   string c_name = name + "_line";
+
+   // Draw Vertical Line
+   ObjectCreate(c_name , OBJ_VLINE, 0, 0, 0, 0, 0);
+   ObjectSetText(c_name, descr);
+   ObjectSet(c_name , OBJPROP_TIME1, time1);
+   ObjectSet(c_name , OBJPROP_COLOR, clr);
+   ObjectSet(c_name , OBJPROP_TIMEFRAMES, timeframe);
+   ObjectSet(c_name , OBJPROP_BACK, false);
+   ObjectSet(c_name , OBJPROP_SELECTED, false);
+   ObjectSet(c_name , OBJPROP_STYLE, 1);
+   ObjectSet(c_name , OBJPROP_WIDTH, 1);
+   ObjectSet(c_name , OBJPROP_FONT, font);
+}
+
+void b_printOnce(string str) {
+   if (b_printOnce) {
+      b_printOnce = false;
+   }
 }

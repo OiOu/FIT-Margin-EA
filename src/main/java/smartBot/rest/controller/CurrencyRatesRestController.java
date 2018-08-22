@@ -30,7 +30,7 @@ public class CurrencyRatesRestController {
     @ResponseBody
     @Transactional
     public CurrencyRates create(@RequestBody CurrencyRates currencyRates) {
-        return currencyRatesService.create(currencyRates);
+        return currencyRatesService.save(currencyRates);
     }
 
     @RequestMapping(value = "/currency/rates/id/{id}", method = RequestMethod.DELETE,

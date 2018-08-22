@@ -8,6 +8,7 @@ import smartBot.bean.CurrencyRates;
 import smartBot.bean.Scope;
 import smartBot.bussines.listeners.ScopeListener;
 import smartBot.bussines.service.cache.ServerCache;
+import smartBot.connection.netty.server.common.HostPort;
 
 @Component
 public class SimpleProcessScopeRemoveListener implements ScopeListener {
@@ -34,7 +35,7 @@ public class SimpleProcessScopeRemoveListener implements ScopeListener {
     }
 
     @Override
-    public void onScopeTouchZones(Scope scope, CurrencyRates currencyRate) {
+    public void onScopeCheckAndProcess(Scope scope, CurrencyRates currencyRate, HostPort hostPort) {
         return;
     }
 }

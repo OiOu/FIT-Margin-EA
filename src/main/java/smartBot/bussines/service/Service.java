@@ -21,7 +21,7 @@ public interface Service<T> {
      * @param bean
      * @return T
      */
-    T create(T bean);
+    T save(T bean);
 
     /**
      * Delete the given entity from the database

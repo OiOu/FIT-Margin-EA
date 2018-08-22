@@ -36,11 +36,29 @@ public class ZoneEntity implements Serializable {
     @Column(name="price_calc_shift")
     private Double priceCalcShift;
 
+    @Column(name="price_calc_order_detection_zone")
+    private Double priceCalcOrderDetectionZone;
+
+    @Column(name="price_stop_loss")
+    private Double priceStopLoss;
+
+    @Column(name="price_take_profit")
+    private Double priceTakeProfit;
+
+    @Column(name="price_break_even_profit")
+    private Double priceBreakEvenProfit;
+
+    @Column(name="price_trail_profit")
+    private Double priceTrailProfit;
+
     @Column(name="trade_count")
     private Integer tradeCount;
 
     @Column(name="activated")
     private Boolean activated;
+
+    @Column(name="touched")
+    private Boolean touched;
 
     @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name="scope_id", nullable=false)
@@ -125,6 +143,30 @@ public class ZoneEntity implements Serializable {
         this.priceCalcShift = DoubleUtils.round(priceCalcShift, 5);
     }
 
+    public Double getPriceCalcOrderDetectionZone() {
+        return priceCalcOrderDetectionZone;
+    }
+
+    public void setPriceCalcOrderDetectionZone(Double priceCalcOrderDetectionZone) {
+        this.priceCalcOrderDetectionZone = priceCalcOrderDetectionZone;
+    }
+
+    public Double getPriceStopLoss() {
+        return priceStopLoss;
+    }
+
+    public void setPriceStopLoss(Double priceStopLoss) {
+        this.priceStopLoss = priceStopLoss;
+    }
+
+    public Double getPriceTakeProfit() {
+        return priceTakeProfit;
+    }
+
+    public void setPriceTakeProfit(Double priceTakeProfit) {
+        this.priceTakeProfit = priceTakeProfit;
+    }
+
     public Integer getTradeCount() {
         return tradeCount;
     }
@@ -133,11 +175,35 @@ public class ZoneEntity implements Serializable {
         this.tradeCount = tradeCount;
     }
 
+    public Double getPriceBreakEvenProfit() {
+        return priceBreakEvenProfit;
+    }
+
+    public void setPriceBreakEvenProfit(Double priceBreakEvenProfit) {
+        this.priceBreakEvenProfit = priceBreakEvenProfit;
+    }
+
+    public Double getPriceTrailProfit() {
+        return priceTrailProfit;
+    }
+
+    public void setPriceTrailProfit(Double priceTrailProfit) {
+        this.priceTrailProfit = priceTrailProfit;
+    }
+
     public Boolean getActivated() {
         return activated;
     }
 
     public void setActivated(Boolean activated) {
         this.activated = activated;
+    }
+
+    public Boolean getTouched() {
+        return touched;
+    }
+
+    public void setTouched(Boolean touched) {
+        this.touched = touched;
     }
 }

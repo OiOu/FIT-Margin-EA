@@ -10,6 +10,10 @@ public interface OrderListener {
    void onOrderClose(Order order, HostPort hostPort);
 
    void onOrderModify(Order order, HostPort hostPort);
+
+   void onActivate(Order order, HostPort hostPort);
+
+   void onOrderCloseAll(Integer currencyId, Integer operation, HostPort hostPort);
 }
 
 

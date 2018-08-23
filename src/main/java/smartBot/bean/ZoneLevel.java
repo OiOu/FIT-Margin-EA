@@ -33,6 +33,8 @@ public class ZoneLevel implements Serializable, Comparable {
 
     private Integer orderAssignmentShift;
 
+    private Double takeProfitPercent;
+
     private boolean enable;
 
     public Integer getId() {
@@ -105,6 +107,14 @@ public class ZoneLevel implements Serializable, Comparable {
 
     public void setOrderAssignmentShift(Integer orderAssignmentShift) {
         this.orderAssignmentShift = orderAssignmentShift;
+    }
+
+    public Double getTakeProfitPercent() {
+        return takeProfitPercent;
+    }
+
+    public void setTakeProfitPercent(Double takeProfitPercent) {
+        this.takeProfitPercent = takeProfitPercent;
     }
 
     public boolean isEnable() {

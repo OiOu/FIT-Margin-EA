@@ -144,29 +144,25 @@ public class ZoneServiceImpl implements ZoneService {
                 for (Zone z : zones) {
                     // filter zones which has priceCalcShift with risk/profit >= 1:N
                     if (zone.getLevel().isEnable()) {
-                        // TODO Calculate distance to next (profit) zone and determine stop loss size like (distance / riskProfitRounded)
+                        // Calculate distance to next (profit) zone and determine stop loss size like (distance / riskProfitRounded)
                         Double distanceInPoints = (z.getPriceCalcShift() - zone.getPriceCalcShift()) * scope.getType() / currencyRate.getPointPrice() / currencyRate.getPointPips();
                         Integer stopLossInPoint = distanceInPoints.intValue() / (orderSettings.getRiskProfitMin() != null ? orderSettings.getRiskProfitMin() : 2);
 
                         // to avoid useless orders (open price is very close to TP)
-                        if (distanceInPoints > 50) {
-//                            if (!z.getTouched()) {
-                                // SL Should not be > fixed size but it can be less
-                                if (stopLossInPoint > orderSettings.getSlSize()) {
-                                    stopLossInPoint = orderSettings.getSlSize();
-                                }
+                        if (!z.getTouched() && distanceInPoints > 50 && z.getLevel().getTakeProfitPercent() > 0.0 ) {
+                            // SL Should not be > fixed size but it can be less
+                            if (stopLossInPoint > orderSettings.getSlSize()) {
+                                stopLossInPoint = orderSettings.getSlSize();
+                            }
 
-                                zone.setPriceStopLoss(zone.getPriceCalcShift() - stopLossInPoint * heightK * currencyRate.getPointPips() * currencyRate.getPointPrice() * scope.getType());
-                                zone.setPriceTakeProfit(z.getPriceCalcShift());
+                            zone.setPriceStopLoss(zone.getPriceCalcShift() - stopLossInPoint * heightK * currencyRate.getPointPips() * currencyRate.getPointPrice() * scope.getType());
+                            zone.setPriceTakeProfit(z.getPriceCalcShift());
 
-                                if (orderSettings.getBreakEven() > 0) {
-                                    zone.setPriceBreakEvenProfit(zone.getPriceCalcShift() + orderSettings.getBreakEven() * heightK * currencyRate.getPointPips() * currencyRate.getPointPrice() * scope.getType());
-                                    zone.setPriceTrailProfit(zone.getPriceCalcShift() + orderSettings.getTrail() * heightK * currencyRate.getPointPips() * currencyRate.getPointPrice() * scope.getType());
-                                }
-                                break;
-//                            } else {
-//                                continue;
-//                            }
+                            if (orderSettings.getBreakEven() > 0) {
+                                zone.setPriceBreakEvenProfit(zone.getPriceCalcShift() + orderSettings.getBreakEven() * heightK * currencyRate.getPointPips() * currencyRate.getPointPrice() * scope.getType());
+                                zone.setPriceTrailProfit(zone.getPriceCalcShift() + orderSettings.getTrail() * heightK * currencyRate.getPointPips() * currencyRate.getPointPrice() * scope.getType());
+                            }
+                            break;
                         }
                     }
                 }

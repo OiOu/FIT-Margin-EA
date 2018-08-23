@@ -43,6 +43,10 @@ public class OrderEntity implements Serializable {
     @Type(type="org.jadira.usertype.dateandtime.joda.PersistentDateTime")
     private DateTime openTimestamp;
 
+    @Column(name="close_timestamp")
+    @Type(type="org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+    private DateTime closeTimestamp;
+
     @Column(name="price")
     private Double price;
 
@@ -63,6 +67,12 @@ public class OrderEntity implements Serializable {
 
     @Column(name="break_even_activated")
     private Boolean breakEvenActivated;
+
+    @Column(name = "points")
+    private Integer points;
+
+    @Column(name="activated")
+    private Boolean activated;
 
     //----------------------------------------------------------------------
     // CONSTRUCTOR(S)
@@ -139,6 +149,14 @@ public class OrderEntity implements Serializable {
         this.openTimestamp = openTimestamp;
     }
 
+    public DateTime getCloseTimestamp() {
+        return closeTimestamp;
+    }
+
+    public void setCloseTimestamp(DateTime closeTimestamp) {
+        this.closeTimestamp = closeTimestamp;
+    }
+
     public Double getPrice() {
         return price;
     }
@@ -193,5 +211,21 @@ public class OrderEntity implements Serializable {
 
     public void setBreakEvenActivated(Boolean breakEvenActivated) {
         this.breakEvenActivated = breakEvenActivated;
+    }
+
+    public Integer getPoints() {
+        return points;
+    }
+
+    public void setPoints(Integer points) {
+        this.points = points;
+    }
+
+    public Boolean getActivated() {
+        return activated;
+    }
+
+    public void setActivated(Boolean activated) {
+        this.activated = activated;
     }
 }

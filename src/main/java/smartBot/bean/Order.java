@@ -33,6 +33,8 @@ public class Order implements Serializable {
     @NotNull
     private DateTime openTimestamp;
 
+    private DateTime closeTimestamp;
+
     @NotNull
     private Double price;
 
@@ -50,6 +52,9 @@ public class Order implements Serializable {
 
     private Boolean breakEvenActivated;
 
+    private Integer points;
+
+    private Boolean activated;
     //----------------------------------------------------------------------
     // CONSTRUCTOR(S)
     //----------------------------------------------------------------------
@@ -125,6 +130,14 @@ public class Order implements Serializable {
         this.openTimestamp = openTimestamp;
     }
 
+    public DateTime getCloseTimestamp() {
+        return closeTimestamp;
+    }
+
+    public void setCloseTimestamp(DateTime closeTimestamp) {
+        this.closeTimestamp = closeTimestamp;
+    }
+
     public Double getPrice() {
         return price;
     }
@@ -179,5 +192,21 @@ public class Order implements Serializable {
 
     public void setBreakEvenActivated(Boolean breakEvenActivated) {
         this.breakEvenActivated = breakEvenActivated;
+    }
+
+    public Integer getPoints() {
+        return points;
+    }
+
+    public void setPoints(Integer points) {
+        this.points = points;
+    }
+
+    public Boolean getActivated() {
+        return activated;
+    }
+
+    public void setActivated(Boolean activated) {
+        this.activated = activated;
     }
 }

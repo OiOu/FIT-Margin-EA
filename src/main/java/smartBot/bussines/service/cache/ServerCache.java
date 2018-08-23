@@ -266,7 +266,7 @@ public class ServerCache {
             List<Order> orders = orderCache.get(order.getCurrency().getId());
 
             if (orders != null) {
-                orders.remove(order);
+                orders.removeIf(o -> o.getName().equalsIgnoreCase(order.getName()));
             } else {
                 orders = new ArrayList();
             }
@@ -286,8 +286,8 @@ public class ServerCache {
     public void removeOrderFromCache(Order order) {
         if (orderCache != null) {
             List<Order> orders = orderCache.get(order.getCurrency().getId());
-            if (orders != null && !orders.isEmpty()) {
-                orders.remove(order);
+            if (orders != null) {
+                orders.removeIf(o -> o.getName().equalsIgnoreCase(order.getName()));
             }
         }
         return;

@@ -7,13 +7,13 @@ import smartBot.bussines.service.OrderService;
 import smartBot.bussines.service.cache.ServerCache;
 import smartBot.connection.netty.server.common.HostPort;
 import smartBot.connection.netty.server.gateway.NettyBuildingMessageGateway;
-import smartBot.defines.RequestsSocket;
-import smartBot.defines.Strings;
 
 import javax.annotation.Resource;
 
 @Component
-public class OrderModifyListener implements OrderListener {
+public class OrderActivateListener implements OrderListener {
+
+    private NettyBuildingMessageGateway gateway;
 
     @Resource
     private OrderService orderService;
@@ -21,12 +21,10 @@ public class OrderModifyListener implements OrderListener {
     @Resource
     private ServerCache serverCache;
 
-    private NettyBuildingMessageGateway gateway;
-
     @Override
     @Deprecated
     public void onOrderOpen(Order order, HostPort hostPort) {
-        return;
+       return;
     }
 
     @Override
@@ -37,27 +35,20 @@ public class OrderModifyListener implements OrderListener {
 
     @Override
     @Deprecated
-    public void onOrderCloseAll(Integer currencyId, Integer operation, HostPort hostPort) {
+    public void onOrderModify(Order order, HostPort hostPort) {
         return;
     }
 
     @Override
     @Deprecated
-    public void onActivate(Order order, HostPort hostPort) {
+    public void onOrderCloseAll(Integer currencyId, Integer operation, HostPort hostPort) {
         return;
     }
 
     @Override
-    public void onOrderModify(Order order, HostPort hostPort) {
-
-        // Prepare message
-        StringBuffer sb = new StringBuffer();
-        sb.append(order.getName()).append(Strings.COMMA)
-            .append(order.getPriceBreakEvenProfit()).append(Strings.COMMA);
-
-        gateway.sendMessage(RequestsSocket.MODIFY_ORDER, sb.toString(), hostPort);
-
-        serverCache.setOrderToCache(order);
+    public void onActivate(Order order, HostPort hostPort) {
+        Order o = orderService.save(order);
+        serverCache.setOrderToCache(o);
     }
 
     public void setGateway(NettyBuildingMessageGateway gateway) {

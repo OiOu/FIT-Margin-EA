@@ -24,6 +24,12 @@ public class OrderOpenListener implements OrderListener {
     private ServerCache serverCache;
 
     @Override
+    @Deprecated
+    public void onActivate(Order order, HostPort hostPort) {
+        return;
+    }
+
+    @Override
     public void onOrderOpen(Order order, HostPort hostPort) {
         // Prepare message
         StringBuffer sb = new StringBuffer();
@@ -38,6 +44,12 @@ public class OrderOpenListener implements OrderListener {
         order = orderService.save(order);
 
         serverCache.setOrderToCache(order);
+    }
+
+    @Override
+    @Deprecated
+    public void onOrderCloseAll(Integer currencyId, Integer operation, HostPort hostPort) {
+        return;
     }
 
     @Override

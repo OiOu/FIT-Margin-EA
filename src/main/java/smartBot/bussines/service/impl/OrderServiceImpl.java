@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import smartBot.bean.Order;
 import smartBot.bean.jpa.OrderEntity;
 import smartBot.bussines.service.OrderService;
+import smartBot.bussines.service.cache.ServerCache;
 import smartBot.bussines.service.mapping.OrderServiceMapper;
 import smartBot.data.repository.jpa.OrderJpaRepository;
 
@@ -25,6 +26,10 @@ public class OrderServiceImpl implements OrderService {
     @Resource
     private OrderServiceMapper orderServiceMapper;
 
+    @Resource
+    private ServerCache serverCache;
+
+
     @Override
     public Order findById(Integer id) {
         return null;
@@ -32,7 +37,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<Order> findAll() {
-        return null;
+        List<OrderEntity> orderEntities = orderJpaRepository.findAllActivated();
+        return orderServiceMapper.mapEntitiesToBeans(orderEntities);
     }
 
     @Override
@@ -56,6 +62,8 @@ public class OrderServiceImpl implements OrderService {
             // We should save order in DB and remove it from cache
             // TODO Trigger will remove if reason will be not null
             orderJpaRepository.save(orderEntity);
+
+            serverCache.removeOrderFromCache(order);
         }
         return;
     }
@@ -63,6 +71,18 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void delete(Integer id) {
 
+    }
+
+    @Override
+    public List<Order> deleteAllNotActivated(Integer currencyId, Integer subType) {
+
+        List<OrderEntity> orderEntities = orderJpaRepository.findAllNotActivated(currencyId, subType);
+        orderJpaRepository.deleteAllNotActivated(currencyId, subType);
+        List<Order> orders = orderServiceMapper.mapEntitiesToBeans(orderEntities);
+
+        orders.forEach(order -> serverCache.removeOrderFromCache(order));
+
+        return orders;
     }
 
     @Override

@@ -46,8 +46,11 @@ public class ZoneLevelEntity implements Serializable {
 
     @Column(name="enable")
     private boolean enable; // true - order can be opened on this level; false - can't be
-
     //----------------------------------------------------------------------
+
+    @Column(name="take_profit_percent")
+    private Double takeProfitPercent;
+
     // CONSTRUCTOR(S)
     //----------------------------------------------------------------------
     public ZoneLevelEntity() {
@@ -144,5 +147,13 @@ public class ZoneLevelEntity implements Serializable {
 
     public void setEnable(boolean enable) {
         this.enable = enable;
+    }
+
+    public Double getTakeProfitPercent() {
+        return takeProfitPercent;
+    }
+
+    public void setTakeProfitPercent(Double takeProfitPercent) {
+        this.takeProfitPercent = takeProfitPercent;
     }
 }

@@ -64,6 +64,7 @@ public class OrderProcess {
         }
 
         order.setBreakEvenActivated(false);
+        order.setActivated(false);
 
         // Notify the list of registered listeners
         this.notifyOpenOrderListeners(order, hostPort);
@@ -89,8 +90,22 @@ public class OrderProcess {
         this.listeners.forEach(listener -> listener.onOrderClose(order, hostPort));
     }
 
+    protected void notifyCloseAllBuyOrderListeners(Integer currencyId, Integer subType, HostPort hostPort) {
+        // Notify each of the listeners in the list of registered listeners
+        this.listeners.forEach(listener -> listener.onOrderCloseAll(currencyId, subType, hostPort));
+    }
+
     protected void notifyModifyOrderListeners(Order order, HostPort hostPort) {
         // Notify each of the listeners in the list of registered listeners
         this.listeners.forEach(listener -> listener.onOrderModify(order, hostPort));
     }
+
+    public void activate(Order order, HostPort hostPort) {
+        this.listeners.forEach(listener -> listener.onActivate(order, hostPort));
+    }
+
+    public void closeAllNotActivated(Integer currencyId, Integer subType, HostPort hostPort) {
+        notifyCloseAllBuyOrderListeners(currencyId, subType, hostPort);
+    }
+
 }

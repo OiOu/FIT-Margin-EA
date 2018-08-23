@@ -10,6 +10,7 @@ CREATE TABLE public.zone_level (
 	trade_allowed bool NULL DEFAULT false, -- Can we open order on this level?
 	order_assignment_shift int4 NULL DEFAULT 0, -- Shift in Point from main zone border
 	"enable" bool NULL DEFAULT true, -- Do we use this level in process?
+	take_profit_percent float4 NULL, -- Do we use this level in process?
 	boost bool NULL DEFAULT false, -- Allow to open boost order from this zone
 	CONSTRAINT zone_level_pk PRIMARY KEY (id)
 )
@@ -26,6 +27,7 @@ COMMENT ON COLUMN public.zone_level.priority_distance IS 'Distance from outer bo
 COMMENT ON COLUMN public.zone_level.trade_allowed IS 'Can we open order on this level?' ;
 COMMENT ON COLUMN public.zone_level.order_assignment_shift IS 'Shift in Point from main zone border ' ;
 COMMENT ON COLUMN public.zone_level."enable" IS 'Do we use this level in process?' ;
+COMMENT ON COLUMN public.zone_level.take_profit_percent IS 'What part of order (in percent) we should close on this level' ;
 COMMENT ON COLUMN public.zone_level.boost IS 'Allow to open boost order from this zone' ;
 
 -- Permissions

@@ -86,6 +86,9 @@ public class NettyBuildingMessageListener implements NettyMessageListener {
     private OrderOpenListener orderOpenListener;
 
     @Resource
+    private OrderActivateListener orderActivateListener;
+
+    @Resource
     private OrderModifyListener orderModifyListener;
 
     @Resource
@@ -177,9 +180,11 @@ public class NettyBuildingMessageListener implements NettyMessageListener {
 
                     if (orderProcess.getListeners().isEmpty()) {
                         orderProcess.registerListener(orderOpenListener);
+                        orderProcess.registerListener(orderActivateListener);
                         orderProcess.registerListener(orderModifyListener);
                         orderProcess.registerListener(orderCloseListener);
                         orderOpenListener.setGateway(gateway);
+                        orderActivateListener.setGateway(gateway);
                         orderModifyListener.setGateway(gateway);
                         orderCloseListener.setGateway(gateway);
                     }
@@ -203,6 +208,15 @@ public class NettyBuildingMessageListener implements NettyMessageListener {
                     if ( serverCache.isForceUpdateZoneNeeded() ) {
                         isNewCalculationFromHighNeeded = true;
                         isNewCalculationFromLowNeeded = true;
+                    }
+
+                    // Remove order if it was not activated
+                    if (isNewCalculationFromLowNeeded) {
+                        orderProcess.closeAllNotActivated(currencyId, OrderSubType.OP_SELL_LIMIT, hostPort);
+
+                    }
+                    if (isNewCalculationFromHighNeeded) {
+                        orderProcess.closeAllNotActivated(currencyId, OrderSubType.OP_BUY_LIMIT, hostPort);
                     }
 
                     // Get last scope for currency
@@ -339,9 +353,41 @@ public class NettyBuildingMessageListener implements NettyMessageListener {
                     for (Scope scope : scopes) {
                         currencyRateProcess.checkAndProcessOrders(scope, currentCurrencyRate, hostPort);
                     }
+
+                    // if history process was finished then draw orders
+                    if (!currencyRatesJson.isHistory()) {
+                        response = prepareOrdersMessageResponse();
+
+                        if (StringUtils.isNotEmpty(response)) {
+                            gateway.sendMessage(
+                                    RequestsSocket.DRAW_ORDERS,
+                                    response,
+                                    hostPort
+                            );
+                        }
+                    }
                 }
             }
         }
+    }
+
+    private String prepareOrdersMessageResponse() {
+        StringBuilder sb = new StringBuilder();
+        DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy.MM.dd HH:mm");
+        List<Order> orders = orderService.findAll();
+
+        orders.forEach(order ->
+                sb.append("order_" + order.getName()).append(Strings.COMMA)
+                        .append(dtf.print(order.getOpenTimestamp())).append(Strings.COMMA)
+                        .append(dtf.print(order.getCloseTimestamp())).append(Strings.COMMA)
+                        .append(order.getPrice()).append(Strings.COMMA)
+                        .append(order.getPriceTakeProfit()).append(Strings.COMMA)
+                        .append(order.getPriceStopLoss()).append(Strings.COMMA)
+                        .append(order.getPriceBreakEvenProfit()).append(Strings.COMMA)
+                        .append(order.getCloseReason())
+                        .append(Strings.VERTICAL_BAR_PIPE)
+        );
+        return sb.toString();
     }
 
     private String prepareZonesMessageResponse(List<Scope> scopes) {

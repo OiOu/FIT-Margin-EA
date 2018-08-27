@@ -19,11 +19,9 @@ public class ServerCache {
     private static Map<Integer, List<Scope>> scopeCache = Collections.synchronizedMap(new ConcurrentHashMap<>());
     private static Map<Integer, Priority> priorityCache = Collections.synchronizedMap(new ConcurrentHashMap<>());
     private static Map<Integer, List<Order>> orderCache = Collections.synchronizedMap(new ConcurrentHashMap<>());
-    private static Map<Integer, OrderSettings> orderSettingsCache = Collections.synchronizedMap(new ConcurrentHashMap<>());
     private static List<ZoneLevel> zoneLevelCache = Collections.synchronizedList(new ArrayList<>());
     private static List<PriorityType> priorityTypeCache = Collections.synchronizedList(new ArrayList<>());
     private static List<PrioritySubType> prioritySubTypeCache = Collections.synchronizedList(new ArrayList<>());
-    private OrderSettings orderSettingsToCache;
 
     public boolean isForceUpdateZoneNeeded() {
         return isForceUpdateZoneNeeded;
@@ -243,22 +241,6 @@ public class ServerCache {
             return priorityCache.get(currencyId);
         }
         return null;
-    }
-
-    public OrderSettings getOrderSettingsFromCache(Integer currencyId) {
-        if (orderSettingsCache != null && orderSettingsCache.containsKey(currencyId)) {
-            return orderSettingsCache.get(currencyId);
-        }
-        return null;
-    }
-
-    public void setOrderSettingsToCache(Integer currencyId, OrderSettings orderSettingsToCache) {
-        if (orderSettingsCache != null) {
-            if (orderSettingsCache.containsKey(currencyId)) {
-                orderSettingsCache.remove(currencyId);
-            }
-            orderSettingsCache.put(currencyId, orderSettingsToCache);
-        }
     }
 
     public void setOrderToCache(Order order) {

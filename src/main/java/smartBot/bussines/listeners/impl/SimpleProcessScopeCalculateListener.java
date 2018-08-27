@@ -85,19 +85,18 @@ public class SimpleProcessScopeCalculateListener implements ScopeListener {
             for (Zone zone : scope.getZones()) {
                 // Price has enter pre-zone range
                 if (priority != null && !zone.getActivated() && scope.getType() == priority.getType().getType()) {
-                    if ((scope.getType().intValue() == Scope.BUILD_FROM_HIGH && currencyRate.getLow() <= zone.getPriceCalcOrderDetectionZone() && currencyRate.getLow() >= zone.getPriceCalc())
-                            || (scope.getType().intValue() == Scope.BUILD_FROM_LOW && currencyRate.getHigh() >= zone.getPriceCalcOrderDetectionZone() && currencyRate.getLow() <= zone.getPriceCalc())) {
+                    if ((scope.getType().intValue() == Scope.BUILD_FROM_HIGH && currencyRate.getLow() <= zone.getPriceCalcOrderDetectionZone())
+                            || (scope.getType().intValue() == Scope.BUILD_FROM_LOW && currencyRate.getHigh() >= zone.getPriceCalcOrderDetectionZone())) {
 
                         // Set flag that zone was touched
                         zone.setActivated(true);
 
-                        // Update zone
-                        zone = zoneService.save(zone);
-
-                        if (zone.getLevel().isTradeAllowed()) {
+                        if (zone.getLevel().getTradeAllowed() && zone.getPriceTakeProfit() != null && zone.getPriceStopLoss() != null) {
                             // Create and save into DB new order (only for actual CurrencyRate). For history we will only save in DB
                             orderProcess.openOrder(currencyRate, priority, zone, hostPort);
                         }
+                        // Update zone
+                        zone = zoneService.save(zone);
                     }
                 }
 

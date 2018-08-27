@@ -39,14 +39,28 @@ public class ZoneLevelEntity implements Serializable {
     private Integer prioritySubType; // 1 - Local; 2 - Global
 
     @Column(name="trade_allowed")
-    private boolean tradeAllowed; // true - order can be opened on this level; false - can't be
+    private Boolean tradeAllowed; // true - order can be opened on this level; false - can't be
 
     @Column(name="order_assignment_shift")
     private Integer orderAssignmentShift;
 
     @Column(name="enable")
-    private boolean enable; // true - order can be opened on this level; false - can't be
-    //----------------------------------------------------------------------
+    private Boolean enable; // true - order can be opened on this level; false - can't be
+
+    @Column(name="stop_loss_size")
+    private Integer stopLossSize;
+
+    @Column(name="dynamic_stop_loss")
+    private Boolean dynamicStopLoss;
+
+    @Column(name="risk_profit_min")
+    private Integer riskProfitMin;
+
+    @Column(name="trail")
+    private Integer trail;
+
+    @Column(name="break_even")
+    private Integer breakEven;
 
     @Column(name="take_profit_percent")
     private Double takeProfitPercent;
@@ -125,11 +139,11 @@ public class ZoneLevelEntity implements Serializable {
         this.prioritySubType = prioritySubType;
     }
 
-    public boolean isTradeAllowed() {
+    public Boolean getTradeAllowed() {
         return tradeAllowed;
     }
 
-    public void setTradeAllowed(boolean tradeAllowed) {
+    public void setTradeAllowed(Boolean tradeAllowed) {
         this.tradeAllowed = tradeAllowed;
     }
 
@@ -141,11 +155,11 @@ public class ZoneLevelEntity implements Serializable {
         this.orderAssignmentShift = orderAssignmentShift;
     }
 
-    public boolean isEnable() {
+    public Boolean getEnable() {
         return enable;
     }
 
-    public void setEnable(boolean enable) {
+    public void setEnable(Boolean enable) {
         this.enable = enable;
     }
 
@@ -155,5 +169,45 @@ public class ZoneLevelEntity implements Serializable {
 
     public void setTakeProfitPercent(Double takeProfitPercent) {
         this.takeProfitPercent = takeProfitPercent;
+    }
+
+    public Boolean getDynamicStopLoss() {
+        return dynamicStopLoss;
+    }
+
+    public void setDynamicStopLoss(Boolean dynamicStopLoss) {
+        this.dynamicStopLoss = dynamicStopLoss;
+    }
+
+    public Integer getStopLossSize() {
+        return stopLossSize;
+    }
+
+    public void setStopLossSize(Integer stopLossSize) {
+        this.stopLossSize = stopLossSize;
+    }
+
+    public Integer getRiskProfitMin() {
+        return riskProfitMin;
+    }
+
+    public void setRiskProfitMin(Integer riskProfitMin) {
+        this.riskProfitMin = riskProfitMin;
+    }
+
+    public Integer getTrail() {
+        return trail;
+    }
+
+    public void setTrail(Integer trail) {
+        this.trail = trail;
+    }
+
+    public Integer getBreakEven() {
+        return breakEven;
+    }
+
+    public void setBreakEven(Integer breakEven) {
+        this.breakEven = breakEven;
     }
 }

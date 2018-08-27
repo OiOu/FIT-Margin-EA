@@ -60,10 +60,13 @@ public class OrderProcess {
         // Optional values
         if (zone.getPriceBreakEvenProfit() != null) {
             order.setPriceBreakEvenProfit(zone.getPriceBreakEvenProfit());
+        }
+        if (zone.getPriceTrailProfit() != null) {
             order.setPriceTrailProfit(zone.getPriceTrailProfit());
         }
 
         order.setBreakEvenActivated(false);
+        order.setTrailStopActivated(false);
         order.setActivated(false);
 
         // Notify the list of registered listeners

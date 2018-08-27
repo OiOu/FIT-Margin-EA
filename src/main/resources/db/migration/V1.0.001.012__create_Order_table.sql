@@ -17,6 +17,7 @@ CREATE TABLE public."order" (
 	break_even_activated bool NULL DEFAULT false,
 	points int4 NULL DEFAULT 0,
 	activated bool NULL DEFAULT false,
+	trail_stop_activated bool NULL DEFAULT false,
 	CONSTRAINT order_pk PRIMARY KEY (id),
 	CONSTRAINT order_zone_level_fk FOREIGN KEY (level_id) REFERENCES public.zone_level(id) ON DELETE CASCADE ON UPDATE CASCADE,
 	CONSTRAINT order_currency_fk FOREIGN KEY (currency_id) REFERENCES public.currency(id) ON DELETE CASCADE ON UPDATE CASCADE
@@ -38,3 +39,4 @@ COMMENT ON COLUMN public."order".break_even_activated IS 'Shows if order was mov
 COMMENT ON COLUMN public."order".ticket IS 'Ticked number of oper order';
 COMMENT ON COLUMN public."order".points IS 'Amount of points that was get by order. Can be negative for orders that were closed by SL';
 COMMENT ON COLUMN public."order".activated IS 'Activate order (shows if order was really open)';
+COMMENT ON COLUMN public."order".trail_stop_activated IS 'Trail was triggered';

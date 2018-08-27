@@ -42,10 +42,7 @@ public class ZoneServiceImpl implements ZoneService {
     @Resource
     private ZoneLevelService zoneLevelService;
 
-    @Resource
-    private OrderSettingsService orderSettingsService;
-
-    @Resource
+            @Resource
     private ServerCache serverCache;
 
     /*
@@ -68,7 +65,7 @@ public class ZoneServiceImpl implements ZoneService {
 
         if (zones == null || zones.isEmpty()) {
             for (ZoneLevel level : zoneLevels){
-                if (!level.isEnable()) { continue; }
+                if (!level.getEnable()) { continue; }
 
                 Zone zone = new Zone();
                 zone.setLevel(level);
@@ -91,7 +88,7 @@ public class ZoneServiceImpl implements ZoneService {
         List<Zone> newZones = new ArrayList<>();
         for (int i = 0; i < zones.size(); i++) {
             Zone zone = zones.get(i);
-            if (!zone.getLevel().isEnable()) { continue; }
+            if (!zone.getLevel().getEnable()) { continue; }
 
             if (scope.getType() == Scope.BUILD_FROM_HIGH) {
                 zone.setPrice(currencyRate.getHigh());
@@ -115,6 +112,8 @@ public class ZoneServiceImpl implements ZoneService {
 
     private Zone calculate(Scope scope, Zone zone, Currency currency, CurrencyRates currencyRate, MarginRates marginRate) {
 
+        if (!zone.getLevel().getEnable()) return null;
+
         Double futurePoint = marginRate.getFuturePoint();
         if (futurePoint == null) futurePoint = currencyRate.getPointPips() *currencyRate.getPointPrice();
 
@@ -133,37 +132,43 @@ public class ZoneServiceImpl implements ZoneService {
         Integer scopeTypeForTakeProfit = scope.getType() == Scope.BUILD_FROM_HIGH? Scope.BUILD_FROM_LOW : Scope.BUILD_FROM_HIGH;
         Scope scopeForTakeProfit = scopeService.findByCurrencyIdAndScopeType(currency.getId(), scopeTypeForTakeProfit);
 
-        // Getting Order settings
-        OrderSettings orderSettings = orderSettingsService.getByCurrencyId(currency.getId());
-        if (orderSettings != null) {
-            // If smth will happen later we will have StopLoss anyway
-            zone.setPriceStopLoss(zone.getPriceCalc() - orderSettings.getSlSize() * heightK * currencyRate.getPointPips() * currencyRate.getPointPrice() * scope.getType());
+        // If something will happen later - we will have SL and TP anyway
+        zone.setPriceStopLoss(zone.getPriceCalc() - zone.getLevel().getStopLossSize() * heightK * currencyRate.getPointPips() * currencyRate.getPointPrice() * scope.getType());
+        zone.setPriceTakeProfit(zone.getPrice());
 
-            if (scopeForTakeProfit != null && scopeForTakeProfit.getZones() != null) {
-                List<Zone> zones = scopeForTakeProfit.getZones();
-                for (Zone z : zones) {
-                    // filter zones which has priceCalcShift with risk/profit >= 1:N
-                    if (zone.getLevel().isEnable()) {
-                        // Calculate distance to next (profit) zone and determine stop loss size like (distance / riskProfitRounded)
-                        Double distanceInPoints = (z.getPriceCalcShift() - zone.getPriceCalcShift()) * scope.getType() / currencyRate.getPointPrice() / currencyRate.getPointPips();
-                        Integer stopLossInPoint = distanceInPoints.intValue() / (orderSettings.getRiskProfitMin() != null ? orderSettings.getRiskProfitMin() : 2);
+        // if getBreakEven is not null and > 0 we will move SL to getBreakEven shift price
+        if (zone.getLevel().getBreakEven() != null) {
+            zone.setPriceBreakEvenProfit(zone.getPriceCalc() + zone.getLevel().getBreakEven() * heightK * currencyRate.getPointPips() * currencyRate.getPointPrice() * scope.getType());
+        }
 
-                        // to avoid useless orders (open price is very close to TP)
-                        if (!z.getTouched() && distanceInPoints > 50 && z.getLevel().getTakeProfitPercent() > 0.0 ) {
-                            // SL Should not be > fixed size but it can be less
-                            if (stopLossInPoint > orderSettings.getSlSize()) {
-                                stopLossInPoint = orderSettings.getSlSize();
-                            }
+        if (zone.getLevel().getTrail() != null) {
+            zone.setPriceTrailProfit(zone.getPriceCalc() + zone.getLevel().getTrail() * heightK * currencyRate.getPointPips() * currencyRate.getPointPrice() * scope.getType());
+        }
 
-                            zone.setPriceStopLoss(zone.getPriceCalcShift() - stopLossInPoint * heightK * currencyRate.getPointPips() * currencyRate.getPointPrice() * scope.getType());
-                            zone.setPriceTakeProfit(z.getPriceCalcShift());
+        if (scopeForTakeProfit != null && scopeForTakeProfit.getZones() != null) {
+            List<Zone> zones = scopeForTakeProfit.getZones();
+            for (Zone zoneTakeProfit : zones) {
+                // filter zones which has priceCalcShift with risk/profit >= 1:N
+                if (zoneTakeProfit.getLevel().getEnable()) {
+                    // Calculate distance to next (profit) zone and determine stop loss size like (distance / riskProfitRounded)
+                    Double distanceInPoints = (zoneTakeProfit.getPriceCalc() - zone.getPriceCalc()) * scope.getType() / currencyRate.getPointPrice() / currencyRate.getPointPips()
+                            - zone.getLevel().getOrderAssignmentShift() * scope.getType();
 
-                            if (orderSettings.getBreakEven() > 0) {
-                                zone.setPriceBreakEvenProfit(zone.getPriceCalcShift() + orderSettings.getBreakEven() * heightK * currencyRate.getPointPips() * currencyRate.getPointPrice() * scope.getType());
-                                zone.setPriceTrailProfit(zone.getPriceCalcShift() + orderSettings.getTrail() * heightK * currencyRate.getPointPips() * currencyRate.getPointPrice() * scope.getType());
-                            }
-                            break;
+                    // Use fixed or dynamic SL
+                    Integer stopLossInPoint = zone.getLevel().getStopLossSize();
+                    if (stopLossInPoint > zone.getLevel().getStopLossSize()) {
+                        stopLossInPoint = zone.getLevel().getStopLossSize();
+
+                        if (zoneTakeProfit.getLevel().getDynamicStopLoss()) {
+                            stopLossInPoint = distanceInPoints.intValue() / (zone.getLevel().getRiskProfitMin() != null ? zone.getLevel().getRiskProfitMin() : 2);
                         }
+                    }
+                    zone.setPriceStopLoss(zone.getPriceCalc() - stopLossInPoint * heightK * currencyRate.getPointPips() * currencyRate.getPointPrice() * scope.getType());
+
+                    // to avoid useless orders (open price is very close to TP)
+                    if (!zoneTakeProfit.getTouched() && distanceInPoints > 50) { // TODO distanceInPoints from DB
+                        zone.setPriceTakeProfit(zoneTakeProfit.getPriceCalcShift());
+                        break;
                     }
                 }
             }

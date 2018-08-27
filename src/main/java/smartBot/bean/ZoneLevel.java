@@ -25,17 +25,27 @@ public class ZoneLevel implements Serializable, Comparable {
     @Size( max = 255 )
     private String name;
 
-    private Integer priorityType;
+    private Integer priorityType; // 1 - Buy; -1 - Sell
 
-    private Integer prioritySubType;
+    private Integer prioritySubType; // 1 - Local; 2 - Global
 
-    private boolean tradeAllowed;
+    private Boolean tradeAllowed; // true - order can be opened on this level; false - can't be
 
     private Integer orderAssignmentShift;
 
-    private Double takeProfitPercent;
+    private Boolean enable; // true - order can be opened on this level; false - can't be
 
-    private boolean enable;
+    private Integer stopLossSize;
+
+    private Boolean dynamicStopLoss;
+
+    private Integer riskProfitMin;
+
+    private Integer trail;
+
+    private Integer breakEven;
+
+    private Double takeProfitPercent;
 
     public Integer getId() {
         return id;
@@ -93,11 +103,11 @@ public class ZoneLevel implements Serializable, Comparable {
         this.prioritySubType = prioritySubType;
     }
 
-    public boolean isTradeAllowed() {
+    public Boolean getTradeAllowed() {
         return tradeAllowed;
     }
 
-    public void setTradeAllowed(boolean tradeAllowed) {
+    public void setTradeAllowed(Boolean tradeAllowed) {
         this.tradeAllowed = tradeAllowed;
     }
 
@@ -117,12 +127,52 @@ public class ZoneLevel implements Serializable, Comparable {
         this.takeProfitPercent = takeProfitPercent;
     }
 
-    public boolean isEnable() {
+    public Boolean getEnable() {
         return enable;
     }
 
-    public void setEnable(boolean enable) {
+    public void setEnable(Boolean enable) {
         this.enable = enable;
+    }
+
+    public Boolean getDynamicStopLoss() {
+        return dynamicStopLoss;
+    }
+
+    public void setDynamicStopLoss(Boolean dynamicStopLoss) {
+        this.dynamicStopLoss = dynamicStopLoss;
+    }
+
+    public Integer getStopLossSize() {
+        return stopLossSize;
+    }
+
+    public void setStopLossSize(Integer stopLossSize) {
+        this.stopLossSize = stopLossSize;
+    }
+
+    public Integer getRiskProfitMin() {
+        return riskProfitMin;
+    }
+
+    public void setRiskProfitMin(Integer riskProfitMin) {
+        this.riskProfitMin = riskProfitMin;
+    }
+
+    public Integer getTrail() {
+        return trail;
+    }
+
+    public void setTrail(Integer trail) {
+        this.trail = trail;
+    }
+
+    public Integer getBreakEven() {
+        return breakEven;
+    }
+
+    public void setBreakEven(Integer breakEven) {
+        this.breakEven = breakEven;
     }
 
     @Override

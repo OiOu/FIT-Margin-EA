@@ -351,7 +351,7 @@ public class NettyBuildingMessageListener implements NettyMessageListener {
 
                     // TODO Process open orders
                     for (Scope scope : scopes) {
-                        currencyRateProcess.checkAndProcessOrders(scope, currentCurrencyRate, hostPort);
+                        currencyRateProcess.checkAndProcessOrders(currentCurrencyRate, hostPort);
                     }
 
                     // if history process was finished then draw orders

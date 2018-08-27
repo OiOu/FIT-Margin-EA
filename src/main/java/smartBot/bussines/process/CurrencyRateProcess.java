@@ -4,16 +4,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import smartBot.bean.CurrencyRates;
-import smartBot.bean.Order;
-import smartBot.bean.OrderSubType;
-import smartBot.bean.Scope;
+import smartBot.bean.*;
 import smartBot.bussines.service.cache.ServerCache;
 import smartBot.connection.netty.server.common.HostPort;
 import smartBot.defines.OrderConstants;
 
 import javax.annotation.Resource;
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.List;
 
 @Transactional
@@ -46,68 +43,123 @@ public class CurrencyRateProcess {
         // TODO implement logic as for orders
     }
 
-    public void checkAndProcessOrders(Scope scope, CurrencyRates currentCurrencyRate, HostPort hostPort) {
-        List<Order> orderList = serverCache.getOrderFromCache(scope.getCurrency().getId());
-        if (orderList != null) {
-            for (Iterator<Order> it = orderList.iterator(); it.hasNext();){
-                Order order = it.next();
+    public void checkAndProcessOrders(CurrencyRates currentCurrencyRate, HostPort hostPort) {
+        List<Order> orderList = serverCache.getOrderFromCache(currentCurrencyRate.getCurrency().getId());
+        List<Order> orderToRemove = new ArrayList<>();
+        List<Order> orderToSave = new ArrayList<>();
 
+        BarCandle barCandle = new BarCandle(currentCurrencyRate);
+
+        if (orderList != null) {
+            for (Order order : orderList) {
                 // Activate order (shows if order was really open)
                 if (!order.getActivated()
-                        && ((order.getSubtype() == OrderSubType.OP_BUY_LIMIT && order.getPrice() >= currentCurrencyRate.getLow())
-                        || (order.getSubtype() == OrderSubType.OP_SELL_LIMIT && order.getPrice() <= currentCurrencyRate.getHigh()))) {
+                        && ((order.getSubtype() == OrderSubType.OP_BUY_LIMIT && order.getPrice() >= barCandle.getLow())
+                        || (order.getSubtype() == OrderSubType.OP_SELL_LIMIT && order.getPrice() <= barCandle.getHigh()))) {
 
                     order.setActivated(true);
-                    order.setOpenTimestamp(currentCurrencyRate.getTimestamp());
+                    order.setOpenTimestamp(barCandle.getOpenTimestamp());
                     orderProcess.activate(order, hostPort);
-                }
-
-                // Close order by Break even
-                if (order.getActivated() && order.getBreakEvenActivated() && order.getCloseReason() == null
-                        && ((order.getSubtype() == OrderSubType.OP_BUY_LIMIT && order.getPriceStopLoss() >= currentCurrencyRate.getLow())
-                            || (order.getSubtype() == OrderSubType.OP_SELL_LIMIT && order.getPriceStopLoss() <= currentCurrencyRate.getHigh()))) {
-
-                    order.setCloseReason(OrderConstants.CLOSE_BREAK_EVEN);
-                    order.setCloseTimestamp(currentCurrencyRate.getTimestamp());
-                    order.setPoints(new Double(Math.abs(order.getPriceBreakEvenProfit() - order.getPrice() ) / currentCurrencyRate.getPointPips() / currentCurrencyRate.getPointPrice()).intValue());
-                    orderProcess.closeOrder(order, hostPort);
-                    it.remove();
+                    orderToSave.add(order);
                 }
 
                 // Close order by SL
                 if (order.getActivated() && order.getCloseReason() == null
-                        && ((order.getSubtype() == OrderSubType.OP_BUY_LIMIT && order.getPriceStopLoss() >= currentCurrencyRate.getLow())
-                            || (order.getSubtype() == OrderSubType.OP_SELL_LIMIT && order.getPriceStopLoss() <= currentCurrencyRate.getHigh()))) {
+                        && ((order.getSubtype() == OrderSubType.OP_BUY_LIMIT && order.getPriceStopLoss() >= barCandle.getLow())
+                        || (order.getSubtype() == OrderSubType.OP_SELL_LIMIT && order.getPriceStopLoss() <= barCandle.getHigh()))) {
 
                     order.setCloseReason(OrderConstants.CLOSE_STOP_LOSS);
-                    order.setCloseTimestamp(currentCurrencyRate.getTimestamp());
-                    order.setPoints((-1) * new Double(Math.ceil(Math.abs(order.getPrice() - order.getPriceStopLoss()) / currentCurrencyRate.getPointPips() / currentCurrencyRate.getPointPrice())).intValue());
+                    if (order.getBreakEvenActivated()) {
+                        order.setCloseReason(OrderConstants.CLOSE_BREAK_EVEN);
+                    }
+
+                    order.setCloseTimestamp(barCandle.getOpenTimestamp());
+                    Double points = order.getPriceStopLoss() - order.getPrice();
+                    if (order.getSubtype() == OrderSubType.OP_SELL_LIMIT ) {
+                        points = order.getPrice() - order.getPriceStopLoss();
+                    }
+
+                    order.setPoints(((Double) (points / currentCurrencyRate.getPointPips() / currentCurrencyRate.getPointPrice())).intValue());
                     orderProcess.closeOrder(order, hostPort);
-                    it.remove();
+                    orderToRemove.add(order);
+
+                    continue;
+                }
+
+                // Modify order - break even when zone price will be triggered
+                if (order.getActivated() && !order.getBreakEvenActivated() && order.getPriceBreakEvenProfit() != null
+                    && ((order.getSubtype() == OrderSubType.OP_BUY_LIMIT
+                        && ((barCandle.getType() == null && order.getPriceBreakEvenProfit() <= barCandle.getHigh())
+                            || (barCandle.getType() != null && (barCandle.getType() == BarCandle.UP && order.getPriceBreakEvenProfit() <= barCandle.getHigh()))))
+
+                    || (order.getSubtype() == OrderSubType.OP_SELL_LIMIT
+                        && ((barCandle.getType() == null && order.getPriceBreakEvenProfit() >= barCandle.getLow() )
+                            || (barCandle.getType() != null && (barCandle.getType() == BarCandle.DOWN && order.getPriceBreakEvenProfit() >= barCandle.getLow()))))
+                    )
+                ) {
+
+                    // TODO 11 - get from DB
+                    order.setPriceStopLoss(order.getPrice() + 11 * currentCurrencyRate.getPointPips() * currentCurrencyRate.getPointPrice());
+                    if (order.getSubtype() == OrderSubType.OP_SELL_LIMIT ) {
+                        order.setPriceStopLoss(order.getPrice() - 11 * currentCurrencyRate.getPointPips() * currentCurrencyRate.getPointPrice());
+                    }
+
+                    order.setBreakEvenActivated(true);
+                    orderProcess.modifyOrder(order, hostPort);
+                    orderToSave.add(order);
+
+                }
+
+                // Modify order - Trail stop
+                if (order.getActivated() && order.getPriceTrailProfit() != null && !order.getTrailStopActivated()
+                        && ((order.getSubtype() == OrderSubType.OP_BUY_LIMIT
+                        && ((barCandle.getType() == null && order.getPriceTrailProfit() <= barCandle.getHigh() )
+                            || (barCandle.getType() != null && (barCandle.getType() == BarCandle.UP && order.getPriceTrailProfit() <= barCandle.getHigh()))))
+
+                        || (order.getSubtype() == OrderSubType.OP_SELL_LIMIT
+                        && ((barCandle.getType() == null && order.getPriceTrailProfit() >= barCandle.getLow())
+                            || (barCandle.getType() != null && (barCandle.getType() == BarCandle.DOWN && order.getPriceTrailProfit() >= barCandle.getLow()))))
+                )) {
+                    if (order.getPriceBreakEvenProfit() == null) {
+                        order.setPriceStopLoss(order.getPriceTrailProfit());
+                    } else {
+                        order.setPriceStopLoss(order.getPriceBreakEvenProfit());
+                    }
+
+                    order.setTrailStopActivated(true);
+                    orderProcess.modifyOrder(order, hostPort);
+                    orderToSave.add(order);
+
                 }
 
                 // Close order by TP
                 if (order.getActivated() && order.getCloseReason() == null
-                        && ((order.getSubtype() == OrderSubType.OP_BUY_LIMIT && order.getPriceTakeProfit() <= currentCurrencyRate.getHigh())
-                            || (order.getSubtype() == OrderSubType.OP_SELL_LIMIT && order.getPriceTakeProfit() >= currentCurrencyRate.getLow()))) {
+                        && ((order.getSubtype() == OrderSubType.OP_BUY_LIMIT
+                            && ((barCandle.getType() == null && order.getPriceTakeProfit() <= barCandle.getHigh())
+                                || (barCandle.getType() != null && (barCandle.getType() == BarCandle.UP && order.getPriceTakeProfit() <= barCandle.getHigh()))))
+
+                        || (order.getSubtype() == OrderSubType.OP_SELL_LIMIT
+                            && ((barCandle.getType() == null && order.getPriceTakeProfit() >= barCandle.getLow())
+                                || (barCandle.getType() != null && (barCandle.getType() == BarCandle.DOWN && order.getPriceTakeProfit() >= barCandle.getLow()))))
+                )) {
 
                     order.setCloseReason(OrderConstants.CLOSE_TAKE_PROFIT);
                     order.setCloseTimestamp(currentCurrencyRate.getTimestamp());
                     order.setPoints(new Double(Math.ceil(Math.abs(order.getPrice() - order.getPriceTakeProfit()) / currentCurrencyRate.getPointPips() / currentCurrencyRate.getPointPrice())).intValue());
                     orderProcess.closeOrder(order, hostPort);
-                    it.remove();
-                }
+                    orderToRemove.add(order);
 
-                // Modify order - break even
-                if (order.getActivated() && !order.getBreakEvenActivated() && order.getPriceBreakEvenProfit() != null
-                    && ((order.getSubtype() == OrderSubType.OP_BUY_LIMIT && order.getPriceBreakEvenProfit() <= currentCurrencyRate.getHigh())
-                        || (order.getSubtype() == OrderSubType.OP_SELL_LIMIT && order.getPriceBreakEvenProfit() >= currentCurrencyRate.getLow()))) {
-
-                    order.setPriceStopLoss(order.getPrice() + 10 * currentCurrencyRate.getPointPips() * currentCurrencyRate.getPointPrice() * scope.getType());
-                    order.setBreakEvenActivated(true);
-                    //order.setCloseTimestamp(currentCurrencyRate.getTimestamp());
-                    orderProcess.modifyOrder(order, hostPort);
+                    continue;
                 }
+            }
+
+
+            if (orderToRemove.size() > 0) {
+                orderToRemove.forEach(order -> serverCache.removeOrderFromCache(order));
+            }
+
+            if (orderToSave.size() > 0) {
+                orderToSave.forEach(order -> serverCache.setOrderToCache(order));
             }
         }
     }

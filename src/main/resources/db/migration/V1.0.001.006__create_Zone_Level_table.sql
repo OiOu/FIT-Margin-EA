@@ -7,16 +7,22 @@ CREATE TABLE public.zone_level (
 	priority_type_id int4 NULL, -- SELL or BUY
 	priority_subtype_id int4 NULL, -- LOCAL or GLOBAL
 	priority_distance int4 NULL, -- Distance from outer border of zone where priority should be changed
-	trade_allowed bool NULL DEFAULT false, -- Can we open order on this level?
-	order_assignment_shift int4 NULL DEFAULT 0, -- Shift in Point from main zone border
 	"enable" bool NULL DEFAULT true, -- Do we use this level in process?
-	take_profit_percent float4 NULL, -- Do we use this level in process?
+	trade_allowed bool NULL DEFAULT false, -- Can we open order on this level?
+    dynamic_stop_loss bool NULL DEFAULT false, -- Should we use fixed or dynamic SL
+	risk_profit_min int4 NULL DEFAULT 3,
+    stop_loss_size int4 NULL DEFAULT 30,
+	break_even int4 NULL,
+	trail int4 NULL,
+	order_assignment_shift int4 NULL DEFAULT 0, -- Shift in Point from main zone border
+	take_profit_percent float4 NULL, -- How much we can close on this zone?
 	boost bool NULL DEFAULT false, -- Allow to open boost order from this zone
 	CONSTRAINT zone_level_pk PRIMARY KEY (id)
 )
 WITH (
 	OIDS=FALSE
 ) ;
+ALTER TABLE public."zone_level" ALTER COLUMN "k" TYPE numeric(2, 4) USING ("k"::numeric(2, 4));
 
 -- Column comments
 
@@ -29,6 +35,7 @@ COMMENT ON COLUMN public.zone_level.order_assignment_shift IS 'Shift in Point fr
 COMMENT ON COLUMN public.zone_level."enable" IS 'Do we use this level in process?' ;
 COMMENT ON COLUMN public.zone_level.take_profit_percent IS 'What part of order (in percent) we should close on this level' ;
 COMMENT ON COLUMN public.zone_level.boost IS 'Allow to open boost order from this zone' ;
+COMMENT ON COLUMN public.order_settings.dynamic_stop_loss IS 'Should we use fixed or dynamic SL';
 
 -- Permissions
 ALTER TABLE public.zone_level OWNER TO smartbot;
@@ -84,3 +91,91 @@ INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable")
 INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('9.75', 5, 9.75, null, false);
 INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('10.0', 20, 10.0, null, true);
 
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('10.25', 5, 10.25, null, false);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('10.5', 10, 10.5, null, true);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('10.75', 5, 10.75, null, false);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('11.0', 20, 11.0, null, true);
+
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('11.25', 5, 11.25, null, false);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('11.5', 10, 11.5, null, true);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('11.75', 5, 11.75, null, false);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('12.0', 20, 12.0, null, true);
+
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('12.25', 5, 12.25, null, false);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('12.5', 10, 12.5, null, true);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('12.75', 5, 12.75, null, false);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('13.0', 20, 13.0, null, true);
+
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('13.25', 5, 13.25, null, false);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('13.5', 10, 13.5, null, true);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('13.75', 5, 13.75, null, false);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('14.0', 20, 14.0, null, true);
+
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('14.25', 5, 14.25, null, false);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('14.5', 10, 14.5, null, true);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('14.75', 5, 14.75, null, false);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('15.0', 20, 15.0, null, true);
+
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('15.25', 5, 15.25, null, false);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('15.5', 10, 15.5, null, true);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('15.75', 5, 15.75, null, false);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('16.0', 20, 16.0, null, true);
+
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('16.25', 5, 16.25, null, false);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('16.5', 10, 16.5, null, true);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('16.75', 5, 16.75, null, false);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('17.0', 20, 17.0, null, true);
+
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('17.25', 5, 17.25, null, false);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('17.5', 10, 17.5, null, true);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('17.75', 5, 17.75, null, false);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('18.0', 20, 18.0, null, true);
+
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('18.25', 5, 18.25, null, false);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('18.5', 10, 18.5, null, true);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('18.75', 5, 18.75, null, false);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('19.0', 20, 19.0, null, true);
+
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('19.25', 5, 19.25, null, false);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('19.5', 10, 19.5, null, true);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('19.75', 5, 19.75, null, false);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('20.0', 20, 20.0, null, true);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('12.25', 5, 12.25, null, false);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('12.5', 10, 12.5, null, true);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('12.75', 5, 12.75, null, false);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('13.0', 20, 13.0, null, true);
+
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('13.25', 5, 13.25, null, false);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('13.5', 10, 13.5, null, true);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('13.75', 5, 13.75, null, false);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('14.0', 20, 14.0, null, true);
+
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('14.25', 5, 14.25, null, false);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('14.5', 10, 14.5, null, true);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('14.75', 5, 14.75, null, false);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('15.0', 20, 15.0, null, true);
+
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('15.25', 5, 15.25, null, false);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('15.5', 10, 15.5, null, true);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('15.75', 5, 15.75, null, false);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('16.0', 20, 16.0, null, true);
+
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('16.25', 5, 16.25, null, false);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('16.5', 10, 16.5, null, true);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('16.75', 5, 16.75, null, false);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('17.0', 20, 17.0, null, true);
+
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('17.25', 5, 17.25, null, false);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('17.5', 10, 17.5, null, true);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('17.75', 5, 17.75, null, false);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('18.0', 20, 18.0, null, true);
+
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('18.25', 5, 18.25, null, false);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('18.5', 10, 18.5, null, true);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('18.75', 5, 18.75, null, false);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('19.0', 20, 19.0, null, true);
+
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('19.25', 5, 19.25, null, false);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('19.5', 10, 19.5, null, true);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('19.75', 5, 19.75, null, false);
+INSERT INTO public.zone_level ("name", height, k, priority_subtype_id, "enable") VALUES('20.0', 20, 20.0, null, true);

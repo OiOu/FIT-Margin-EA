@@ -39,6 +39,8 @@ public class OrderCloseListener implements OrderListener {
     @Override
     public void onOrderClose(Order order, HostPort hostPort) {
 
+        orderService.save(order);
+
         // Prepare message
         StringBuffer sb = new StringBuffer();
         sb.append(order.getName()).append(Strings.COMMA);
@@ -46,7 +48,6 @@ public class OrderCloseListener implements OrderListener {
         // TODO add list support for closing by one request
         gateway.sendMessage(RequestsSocket.CLOSE_ORDER, sb.toString(), hostPort);
 
-        orderService.save(order);
     }
 
     @Override

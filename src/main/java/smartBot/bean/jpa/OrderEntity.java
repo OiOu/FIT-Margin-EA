@@ -74,6 +74,9 @@ public class OrderEntity implements Serializable {
     @Column(name="activated")
     private Boolean activated;
 
+    @Column(name="trail_stop_activated")
+    private Boolean trailStopActivated;
+
     //----------------------------------------------------------------------
     // CONSTRUCTOR(S)
     //----------------------------------------------------------------------
@@ -227,5 +230,13 @@ public class OrderEntity implements Serializable {
 
     public void setActivated(Boolean activated) {
         this.activated = activated;
+    }
+
+    public Boolean getTrailStopActivated() {
+        return trailStopActivated;
+    }
+
+    public void setTrailStopActivated(Boolean trailStopActivated) {
+        this.trailStopActivated = trailStopActivated;
     }
 }

@@ -47,8 +47,7 @@ public class OrderActivateListener implements OrderListener {
 
     @Override
     public void onActivate(Order order, HostPort hostPort) {
-        Order o = orderService.save(order);
-        serverCache.setOrderToCache(o);
+        orderService.save(order);
     }
 
     public void setGateway(NettyBuildingMessageGateway gateway) {

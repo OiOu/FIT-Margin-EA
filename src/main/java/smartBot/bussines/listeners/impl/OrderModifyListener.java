@@ -56,8 +56,6 @@ public class OrderModifyListener implements OrderListener {
             .append(order.getPriceBreakEvenProfit()).append(Strings.COMMA);
 
         gateway.sendMessage(RequestsSocket.MODIFY_ORDER, sb.toString(), hostPort);
-
-        serverCache.setOrderToCache(order);
     }
 
     public void setGateway(NettyBuildingMessageGateway gateway) {

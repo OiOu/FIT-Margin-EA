@@ -55,6 +55,8 @@ public class Order implements Serializable {
     private Integer points;
 
     private Boolean activated;
+    private Boolean trailStopActivated;
+
     //----------------------------------------------------------------------
     // CONSTRUCTOR(S)
     //----------------------------------------------------------------------
@@ -208,5 +210,13 @@ public class Order implements Serializable {
 
     public void setActivated(Boolean activated) {
         this.activated = activated;
+    }
+
+    public Boolean getTrailStopActivated() {
+        return trailStopActivated;
+    }
+
+    public void setTrailStopActivated(Boolean trailStopActivated) {
+        this.trailStopActivated = trailStopActivated;
     }
 }

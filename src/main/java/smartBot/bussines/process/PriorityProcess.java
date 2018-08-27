@@ -46,7 +46,7 @@ public class PriorityProcess {
 
                 for (Scope scope : scopes) {
                     for (Zone zone : scope.getZones()) {
-                        if (!zone.getLevel().isEnable()) { continue; }
+                        if (!zone.getLevel().getEnable()) { continue; }
 
                         if (zone.getLevel().getPrioritySubType() == PriorityConstants.LOCAL) {
                             if (scope.getType().intValue() == Scope.BUILD_FROM_HIGH

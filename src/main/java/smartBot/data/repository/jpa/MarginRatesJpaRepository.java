@@ -26,7 +26,7 @@ public interface MarginRatesJpaRepository extends CrudRepository<MarginRatesEnti
     @Query("SELECT mre FROM MarginRatesEntity AS mre JOIN mre.currency c WHERE c.shortName IN (?1) AND ?2 >= mre.startDate")
     List<MarginRatesEntity> getByShortNameOnDate(String shortName, DateTime onDate);
 
-    @Query("SELECT mre FROM MarginRatesEntity AS mre JOIN mre.currency c WHERE c.id IN (?1) AND (mre.endDate != null AND ?2 <= mre.endDate OR mre.endDate = null AND ?2 >= mre.startDate)")
+    @Query("SELECT mre FROM MarginRatesEntity AS mre JOIN mre.currency c WHERE c.id IN (?1) AND (mre.endDate != null AND ?2 BETWEEN mre.startDate AND mre.endDate OR mre.endDate = null AND ?2 >= mre.startDate)") //(mre.endDate != null AND ?2 <= mre.endDate OR mre.endDate = null AND ?2 >= mre.startDate)
     List<MarginRatesEntity> getByCurrencyIdOnDate(Integer currencyId, DateTime onDate);
 
     @Query("SELECT mre FROM MarginRatesEntity AS mre WHERE mre.clearingCode = ?1 AND mre.startPeriod <= ?2")

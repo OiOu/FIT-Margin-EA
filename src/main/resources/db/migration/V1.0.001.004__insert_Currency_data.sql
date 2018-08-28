@@ -1,80 +1,96 @@
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (1,'Австралийский доллар/Канадский доллар','AUDCAD','AC','ACD',false, null, 20);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (2,'Австралийский доллар/Швейцарский франк','AUDCHF','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (4,'Австралийский доллар/Новозеландский доллар','AUDNZD','AN','ANE',false, null, 20);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (3,'Австралийский доллар/Японская Йена','AUDJPY','AJ','AJY',false, null, 2000);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (5,'Австралийский доллар/Доллар США','AUDUSD','AD','6A',false, null, 10);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (6,'Канадский доллар/Швейцарский франк','CADCHF','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (7,'Канадский доллар/Японская Йена','CADJPY','CY','CJY',false, null, 2000);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (8,'Швейцарский франк/Болгарский лев','CHFBGN','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (9,'Швейцарский франк/Японская Йена','CHFJPY','SJ','SJY',false, null, 1250);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (10,'Швейцарский франк/Новый лей','CHFRON','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (11,'Швейцарский франк/Турецкая лира','CHFTRY','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (12,'Евро/Австралийский доллар','EURAUD','CA','EAD',false, null, 12.5);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (13,'Евро/Канадский доллар','EURCAD','CC','ECD',false, null, 12.5);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (14,'Евро/Швейцарский франк','EURCHF','RF','RF',false, null, 12.5);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (15,'Евро/Чешская крона','EURCZK','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (16,'Евро/Датская крона','EURDKK','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (17,'Евро/Британский фунт стерлингов','EURGBP','RP','RP',false, null, 12.5);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (18,'Евро/Гонконгский доллар','EURHKD','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (19,'Евро/Венгерский форинт','EURHUF','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (20,'Евро/Новый израильский шекель','EURILS','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (21,'Евро/Японская Йена','EURJPY','RY','RY',false, null, 1250);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (22,'Евро/Мексиканское песо','EURMXN','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (23,'Евро/Норвежская крона','EURNOK','CN','ENK',false, null, 125);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (24,'Евро/Новозеландский доллар','EURNZD','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (25,'Евро/Польский Злотый','EURPLN','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (26,'Евро/Новый лей','EURRON','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (27,'Евро/Российский рубль','EURRUB','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (28,'Евро/Шведская крона','EURSEK','KE','ESK',false, null, 62.5);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (29,'Евро/Сингапурский доллар','EURSGD','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (30,'Евро/Турецкая лира','EURTRY','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (31,'Евро/Доллар США','EURUSD','EC','6E',false, null, 12.5);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (32,'Евро/Рэнд','EURZAR','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (33,'Британский фунт стерлингов/Австралийский доллар','GBPAUD','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (34,'Британский фунт стерлингов/Болгарский лев','GBPBGN','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (35,'Британский фунт стерлингов/Канадский доллар','GBPCAD','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (36,'Британский фунт стерлингов/Швейцарский франк','GBPCHF','BF','PSF',false, null, 12.5);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (37,'Британский фунт стерлингов/Чешская крона','GBPCZK','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (38,'Британский фунт стерлингов/Датская крона','GBPDKK','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (39,'Британский фунт стерлингов/Гонконгский доллар','GBPHKD','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (40,'Британский фунт стерлингов/Доллар США','GBPUSD','BP','6B',false, null, 6.25);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (41,'Британский фунт стерлингов/Венгерский форинт','GBPHUF','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (42,'Британский фунт стерлингов/Японская Йена','GBPJPY','BY','PJY',false, null, 1250);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (43,'Британский фунт стерлингов/Норвежская крона','GBPNOK','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (44,'Британский фунт стерлингов/Новозеландский доллар','GBPNZD','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (45,'Британский фунт стерлингов/Польский Злотый','GBPPLN','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (46,'Британский фунт стерлингов/Новый лей','GBPRON','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (47,'Британский фунт стерлингов/Шведская крона','GBPSEK','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (48,'Британский фунт стерлингов/Турецкая лира','GBPTRY','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (50,'Британский фунт стерлингов/Рэнд','GBPZAR','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (51,'Гонконгский доллар/Японская Йена','HKDJPY','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (52,'Мексиканское песо/Японская Йена','MXNJPY','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (53,'Новозеландский доллар/Канадский доллар','NZDCAD','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (54,'Новозеландский доллар/Швейцарский франк','NZDCHF','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (55,'Новозеландский доллар/Японская Йена','NZDJPY','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (56,'Новозеландский доллар/Доллар США','NZDUSD','NE','6N',false, null, 10);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (57,'Сингапурский доллар/Гонконгский доллар','SGDHKD','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (58,'Сингапурский доллар/Японская Йена','SGDJPY','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (59,'Турецкая лира/Болгарский лев','TRYBGN','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (60,'Турецкая лира/Японская Йена','TRYJPY','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (61,'Турецкая лира/Новый лей','TRYRON','none','none',false, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (62,'Доллар США/Канадский доллар','USDCAD','C1','6C',true, 0.0001, 10);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (63,'Доллар США/Швейцарский франк','USDCHF','E1','6S',true, 0.0001, 12.5);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (64,'Доллар США/Чешская крона','USDCZK','none','none',true, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (65,'Доллар США/Датская крона','USDDKK','none','none',true, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (66,'Доллар США/Гонконгский доллар','USDHKD','none','none',true, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (67,'Доллар США/Венгерский форинт','USDHUF','none','none',true, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (68,'Доллар США/Новый израильский шекель','USDILS','none','none',true, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (69,'Доллар США/Японская йена','USDJPY','J1','6J',true, 0.00001, 12.5);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (70,'Доллар США/Мексиканское песо','USDMXN','MP','6M',true, 0.0001, 5);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (71,'Доллар США/Норвежская крона','USDNOK','UN','NOK',true, 0.0001, 20);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (72,'Доллар США/Польский Злотый','USDPLN','none','none',true, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (73,'Доллар США/Новый лей','USDRON','none','none',true, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (74,'Доллар США/Российский рубль','USDRUB','RU','6R',true, 0.0001, 25);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (75,'Доллар США/Шведская крона','USDSEK','SE','SEK',true, 0.0001, 20);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (76,'Доллар США/Сингапурский доллар','USDSGD','none','none',true, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (77,'Доллар США/Турецкая лира','USDTRY','none','none',true, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (78,'Доллар США/Рэнд','USDZAR','none','none',true, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (79,'Болгарский лев/Новый лей','BGNRON','none','none',true, null, null);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract, k) VALUES (80,'Золото/Доллар США','XAUUSD','GC','none',false, null, 1, 10);
-INSERT INTO public.currency (id, name, short_name, clearing_code, futures_code, inverted, future_point, price_per_contract) VALUES (81,'Серебро/Доллар США','XAGUSD','SI','none',false, null, 50);
+INSERT INTO currency ("name",short_name,clearing_code,futures_code,inverted,future_point,price_per_contract,k) VALUES
+('Австралийский доллар/Канадский доллар','AUDCAD','AC','ACD',false,NULL,20,NULL)
+,('Австралийский доллар/Швейцарский франк','AUDCHF','none','none',false,NULL,NULL,NULL)
+,('Австралийский доллар/Новозеландский доллар','AUDNZD','AN','ANE',false,NULL,20,NULL)
+,('Австралийский доллар/Японская Йена','AUDJPY','AJ','AJY',false,NULL,2000,NULL)
+,('Австралийский доллар/Доллар США','AUDUSD','AD','6A',false,NULL,10,NULL)
+,('Канадский доллар/Швейцарский франк','CADCHF','none','none',false,NULL,NULL,NULL)
+,('Канадский доллар/Японская Йена','CADJPY','CY','CJY',false,NULL,2000,NULL)
+,('Швейцарский франк/Болгарский лев','CHFBGN','none','none',false,NULL,NULL,NULL)
+,('Швейцарский франк/Японская Йена','CHFJPY','SJ','SJY',false,NULL,1250,NULL)
+,('Швейцарский франк/Новый лей','CHFRON','none','none',false,NULL,NULL,NULL)
+;
+INSERT INTO currency ("name",short_name,clearing_code,futures_code,inverted,future_point,price_per_contract,k) VALUES
+('Швейцарский франк/Турецкая лира','CHFTRY','none','none',false,NULL,NULL,NULL)
+,('Евро/Австралийский доллар','EURAUD','CA','EAD',false,NULL,12.5,NULL)
+,('Евро/Канадский доллар','EURCAD','CC','ECD',false,NULL,12.5,NULL)
+,('Евро/Швейцарский франк','EURCHF','RF','RF',false,NULL,12.5,NULL)
+,('Евро/Чешская крона','EURCZK','none','none',false,NULL,NULL,NULL)
+,('Евро/Датская крона','EURDKK','none','none',false,NULL,NULL,NULL)
+,('Евро/Британский фунт стерлингов','EURGBP','RP','RP',false,NULL,12.5,NULL)
+,('Евро/Гонконгский доллар','EURHKD','none','none',false,NULL,NULL,NULL)
+,('Евро/Венгерский форинт','EURHUF','none','none',false,NULL,NULL,NULL)
+,('Евро/Новый израильский шекель','EURILS','none','none',false,NULL,NULL,NULL)
+;
+INSERT INTO currency ("name",short_name,clearing_code,futures_code,inverted,future_point,price_per_contract,k) VALUES
+('Евро/Японская Йена','EURJPY','RY','RY',false,NULL,1250,NULL)
+,('Евро/Мексиканское песо','EURMXN','none','none',false,NULL,NULL,NULL)
+,('Евро/Норвежская крона','EURNOK','CN','ENK',false,NULL,125,NULL)
+,('Евро/Новозеландский доллар','EURNZD','none','none',false,NULL,NULL,NULL)
+,('Евро/Польский Злотый','EURPLN','none','none',false,NULL,NULL,NULL)
+,('Евро/Новый лей','EURRON','none','none',false,NULL,NULL,NULL)
+,('Евро/Российский рубль','EURRUB','none','none',false,NULL,NULL,NULL)
+,('Евро/Шведская крона','EURSEK','KE','ESK',false,NULL,62.5,NULL)
+,('Евро/Сингапурский доллар','EURSGD','none','none',false,NULL,NULL,NULL)
+,('Евро/Турецкая лира','EURTRY','none','none',false,NULL,NULL,NULL)
+;
+INSERT INTO currency ("name",short_name,clearing_code,futures_code,inverted,future_point,price_per_contract,k) VALUES
+('Евро/Доллар США','EURUSD','EC','6E',false,NULL,12.5,NULL)
+,('Евро/Рэнд','EURZAR','none','none',false,NULL,NULL,NULL)
+,('Британский фунт стерлингов/Австралийский доллар','GBPAUD','none','none',false,NULL,NULL,NULL)
+,('Британский фунт стерлингов/Болгарский лев','GBPBGN','none','none',false,NULL,NULL,NULL)
+,('Британский фунт стерлингов/Канадский доллар','GBPCAD','none','none',false,NULL,NULL,NULL)
+,('Британский фунт стерлингов/Швейцарский франк','GBPCHF','BF','PSF',false,NULL,12.5,NULL)
+,('Британский фунт стерлингов/Чешская крона','GBPCZK','none','none',false,NULL,NULL,NULL)
+,('Британский фунт стерлингов/Датская крона','GBPDKK','none','none',false,NULL,NULL,NULL)
+,('Британский фунт стерлингов/Гонконгский доллар','GBPHKD','none','none',false,NULL,NULL,NULL)
+,('Британский фунт стерлингов/Доллар США','GBPUSD','BP','6B',false,NULL,6.25,NULL)
+;
+INSERT INTO currency ("name",short_name,clearing_code,futures_code,inverted,future_point,price_per_contract,k) VALUES
+('Британский фунт стерлингов/Венгерский форинт','GBPHUF','none','none',false,NULL,NULL,NULL)
+,('Британский фунт стерлингов/Японская Йена','GBPJPY','BY','PJY',false,NULL,1250,NULL)
+,('Британский фунт стерлингов/Норвежская крона','GBPNOK','none','none',false,NULL,NULL,NULL)
+,('Британский фунт стерлингов/Новозеландский доллар','GBPNZD','none','none',false,NULL,NULL,NULL)
+,('Британский фунт стерлингов/Польский Злотый','GBPPLN','none','none',false,NULL,NULL,NULL)
+,('Британский фунт стерлингов/Новый лей','GBPRON','none','none',false,NULL,NULL,NULL)
+,('Британский фунт стерлингов/Шведская крона','GBPSEK','none','none',false,NULL,NULL,NULL)
+,('Британский фунт стерлингов/Турецкая лира','GBPTRY','none','none',false,NULL,NULL,NULL)
+,('Британский фунт стерлингов/Рэнд','GBPZAR','none','none',false,NULL,NULL,NULL)
+,('Гонконгский доллар/Японская Йена','HKDJPY','none','none',false,NULL,NULL,NULL)
+;
+INSERT INTO currency ("name",short_name,clearing_code,futures_code,inverted,future_point,price_per_contract,k) VALUES
+('Мексиканское песо/Японская Йена','MXNJPY','none','none',false,NULL,NULL,NULL)
+,('Новозеландский доллар/Канадский доллар','NZDCAD','none','none',false,NULL,NULL,NULL)
+,('Новозеландский доллар/Швейцарский франк','NZDCHF','none','none',false,NULL,NULL,NULL)
+,('Новозеландский доллар/Японская Йена','NZDJPY','none','none',false,NULL,NULL,NULL)
+,('Новозеландский доллар/Доллар США','NZDUSD','NE','6N',false,NULL,10,NULL)
+,('Сингапурский доллар/Гонконгский доллар','SGDHKD','none','none',false,NULL,NULL,NULL)
+,('Сингапурский доллар/Японская Йена','SGDJPY','none','none',false,NULL,NULL,NULL)
+,('Турецкая лира/Болгарский лев','TRYBGN','none','none',false,NULL,NULL,NULL)
+,('Турецкая лира/Японская Йена','TRYJPY','none','none',false,NULL,NULL,NULL)
+,('Турецкая лира/Новый лей','TRYRON','none','none',false,NULL,NULL,NULL)
+;
+INSERT INTO currency ("name",short_name,clearing_code,futures_code,inverted,future_point,price_per_contract,k) VALUES
+('Доллар США/Чешская крона','USDCZK','none','none',true,NULL,NULL,NULL)
+,('Доллар США/Датская крона','USDDKK','none','none',true,NULL,NULL,NULL)
+,('Доллар США/Гонконгский доллар','USDHKD','none','none',true,NULL,NULL,NULL)
+,('Доллар США/Венгерский форинт','USDHUF','none','none',true,NULL,NULL,NULL)
+,('Доллар США/Канадский доллар','USDCAD','C1','6C',true,0.0000999999975,10,NULL)
+,('Доллар США/Новый израильский шекель','USDILS','none','none',true,NULL,NULL,NULL)
+,('Доллар США/Мексиканское песо','USDMXN','MP','6M',true,0.0000999999975,5,NULL)
+,('Доллар США/Польский Злотый','USDPLN','none','none',true,NULL,NULL,NULL)
+,('Доллар США/Новый лей','USDRON','none','none',true,NULL,NULL,NULL)
+,('Доллар США/Российский рубль','USDRUB','RU','6R',true,0.0000999999975,25,NULL)
+;
+INSERT INTO currency ("name",short_name,clearing_code,futures_code,inverted,future_point,price_per_contract,k) VALUES
+('Доллар США/Шведская крона','USDSEK','SE','SEK',true,0.0000999999975,20,NULL)
+,('Доллар США/Сингапурский доллар','USDSGD','none','none',true,NULL,NULL,NULL)
+,('Доллар США/Турецкая лира','USDTRY','none','none',true,NULL,NULL,NULL)
+,('Доллар США/Рэнд','USDZAR','none','none',true,NULL,NULL,NULL)
+,('Болгарский лев/Новый лей','BGNRON','none','none',true,NULL,NULL,NULL)
+,('Серебро/Доллар США','XAGUSD','SI','none',false,NULL,50,NULL)
+,('Золото/Доллар США','XAUUSD','GC','none',false,NULL,1,10)
+,('Доллар США/Японская йена','USDJPY','J1','6J',true,0.00000999999975,12.5,NULL)
+,('Доллар США/Швейцарский франк','USDCHF','E1','6S',true,0.0000999999975,12.5,NULL)
+,('Доллар США/Норвежская крона','USDNOK','UN','NOK',true,0.00000999999975,20,NULL)
+;

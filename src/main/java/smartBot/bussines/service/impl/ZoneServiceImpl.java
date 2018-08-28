@@ -151,18 +151,19 @@ public class ZoneServiceImpl implements ZoneService {
                 // filter zones which has priceCalcShift with risk/profit >= 1:N
                 if (zoneTakeProfit.getLevel().getEnable()) {
                     // Calculate distance to next (profit) zone and determine stop loss size like (distance / riskProfitRounded)
-                    Double distanceInPoints = (zoneTakeProfit.getPriceCalc() - zone.getPriceCalc()) * scope.getType() / currencyRate.getPointPrice() / currencyRate.getPointPips()
+                    Double distanceInPoints = (zoneTakeProfit.getPriceCalcShift() - zone.getPriceCalc()) * scope.getType() / currencyRate.getPointPrice() / currencyRate.getPointPips()
                             - zone.getLevel().getOrderAssignmentShift() * scope.getType();
 
                     // Use fixed or dynamic SL
-                    Integer stopLossInPoint = zone.getLevel().getStopLossSize();
-                    if (stopLossInPoint > zone.getLevel().getStopLossSize()) {
-                        stopLossInPoint = zone.getLevel().getStopLossSize();
+                    Integer stopLossInPoint = zoneTakeProfit.getLevel().getStopLossSize();
+                    if (stopLossInPoint > zoneTakeProfit.getLevel().getStopLossSize()) {
+                        stopLossInPoint = zoneTakeProfit.getLevel().getStopLossSize();
 
                         if (zoneTakeProfit.getLevel().getDynamicStopLoss()) {
-                            stopLossInPoint = distanceInPoints.intValue() / (zone.getLevel().getRiskProfitMin() != null ? zone.getLevel().getRiskProfitMin() : 2);
+                            stopLossInPoint = distanceInPoints.intValue() / (zoneTakeProfit.getLevel().getRiskProfitMin() != null ? zoneTakeProfit.getLevel().getRiskProfitMin() : 2);
                         }
                     }
+
                     zone.setPriceStopLoss(zone.getPriceCalc() - stopLossInPoint * heightK * currencyRate.getPointPips() * currencyRate.getPointPrice() * scope.getType());
 
                     // to avoid useless orders (open price is very close to TP)

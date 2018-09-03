@@ -32,6 +32,8 @@ public class Zone implements Serializable, Comparable {
 
     private Double priceCalcOrderDetectionZone;
 
+    private Double priceOrder;
+
     private Double priceStopLoss;
 
     private Double priceTakeProfit;
@@ -45,6 +47,8 @@ public class Zone implements Serializable, Comparable {
     private Boolean activated;
 
     private Boolean touched;
+
+    private Integer floor;
 
     public Integer getId() {
         return id;
@@ -118,6 +122,14 @@ public class Zone implements Serializable, Comparable {
         this.priceCalcOrderDetectionZone = priceCalcOrderDetectionZone;
     }
 
+    public Double getPriceOrder() {
+        return priceOrder;
+    }
+
+    public void setPriceOrder(Double priceOrder) {
+        this.priceOrder = priceOrder;
+    }
+
     public Double getPriceStopLoss() {
         return priceStopLoss;
     }
@@ -178,12 +190,21 @@ public class Zone implements Serializable, Comparable {
     public String toString() {
         return "Zone{" +
                 " scope=" + scope +
-                ", level=" + level +
-                '}';
+                " level=" + level +
+                " floor=" + floor +
+                "}";
     }
 
     @Override
     public int compareTo(Object o) {
         return this.level.getK().compareTo(((Zone)o).getLevel().getK());
+    }
+
+    public void setFloor(Integer floor) {
+        this.floor = floor;
+    }
+
+    public Integer getFloor() {
+        return floor;
     }
 }

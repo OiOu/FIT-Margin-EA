@@ -95,10 +95,15 @@ public class MarginRatesServiceImpl implements MarginRatesService {
         // Try to get marginRate from cache to avoid additional DB query
         MarginRates marginRate = serverCache.getMarginRateFromCache(currencyId);
         if (marginRate == null
-                || marginRate.getEndDate() != null && (marginRate.getEndDate().isBefore(onDate) ||  marginRate.getEndDate().isEqual(onDate))) {
+                || marginRate.getEndDate() != null && (marginRate.getEndDate().isBefore(onDate) || marginRate.getEndDate().isEqual(onDate))) {
 
             List<MarginRatesEntity> marginRateEntityList = marginRatesJpaRepository.getByCurrencyIdOnDate(currencyId, onDate);
             if (marginRateEntityList != null && !marginRateEntityList.isEmpty()) {
+
+                if (marginRate != null) {
+                    // Set force update flag for recalculation (only when it was not the first margin from DB
+                    serverCache.setIsForceUpdateZoneNeeded(true);
+                }
 
                 List<MarginRates> marginRateList = marginRatesServiceMapper.mapEntitiesToBeans(marginRateEntityList);
                 Collections.sort(marginRateList);
@@ -106,13 +111,10 @@ public class MarginRatesServiceImpl implements MarginRatesService {
                 marginRate = marginRateList.get(0);
                 serverCache.setMarginRateToCache(currencyId, marginRate);
 
-                // Set force update flag for recalculation
-                serverCache.setIsForceUpdateZoneNeeded(true);
             } else {
                 logger.error("Margin Rate for currencyId: " + currencyId + " was not found on date: " +onDate);
             }
         }
-
         return marginRate;
     }
 

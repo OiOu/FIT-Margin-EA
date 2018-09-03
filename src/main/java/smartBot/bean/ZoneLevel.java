@@ -183,8 +183,6 @@ public class ZoneLevel implements Serializable, Comparable {
 
     @Override
     public String toString() {
-        return "ZoneLevel{" +
-                k+
-                '}';
+        return "ZoneLevel{" + k + "}";
     }
 }

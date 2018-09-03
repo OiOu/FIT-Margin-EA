@@ -10,10 +10,10 @@ spring:
       favicon:
         enabled: false
     datasource:
-      url: jdbc:postgresql://localhost:5433/smartbot
+      url: jdbc:postgresql://localhost:5434/smartbot
       databaseName: smartbot
       username: smartbot
-      password: root
+      password: smartbot
     jpa:
       properties:
         hibernate:

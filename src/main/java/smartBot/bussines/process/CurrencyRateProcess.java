@@ -99,10 +99,10 @@ public class CurrencyRateProcess {
                     )
                 ) {
 
-                    // TODO 11 - get from DB
-                    order.setPriceStopLoss(order.getPrice() + 11 * heightK * currentCurrencyRate.getPointPips() * currentCurrencyRate.getPointPrice());
+                    // TODO 6 - get from DB
+                    order.setPriceStopLoss(order.getPrice() + 6 * heightK * currentCurrencyRate.getPointPips() * currentCurrencyRate.getPointPrice());
                     if (order.getSubtype() == OrderSubType.OP_SELL_LIMIT ) {
-                        order.setPriceStopLoss(order.getPrice() - 11 * heightK * currentCurrencyRate.getPointPips() * currentCurrencyRate.getPointPrice());
+                        order.setPriceStopLoss(order.getPrice() - 6 * heightK * currentCurrencyRate.getPointPips() * currentCurrencyRate.getPointPrice());
                     }
 
                     order.setBreakEvenActivated(true);

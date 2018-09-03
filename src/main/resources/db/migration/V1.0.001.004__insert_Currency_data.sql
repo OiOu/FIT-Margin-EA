@@ -89,8 +89,8 @@ INSERT INTO currency ("name",short_name,clearing_code,futures_code,inverted,futu
 ,('Доллар США/Рэнд','USDZAR','none','none',true,NULL,NULL,NULL)
 ,('Болгарский лев/Новый лей','BGNRON','none','none',true,NULL,NULL,NULL)
 ,('Серебро/Доллар США','XAGUSD','SI','none',false,NULL,50,NULL)
-,('Золото/Доллар США','XAUUSD','GC','none',false,NULL,1,10)
 ,('Доллар США/Японская йена','USDJPY','J1','6J',true,0.00000999999975,12.5,NULL)
 ,('Доллар США/Швейцарский франк','USDCHF','E1','6S',true,0.0000999999975,12.5,NULL)
 ,('Доллар США/Норвежская крона','USDNOK','UN','NOK',true,0.00000999999975,20,NULL)
+,('Золото/Доллар США','XAUUSD','GC','none',false,NULL,1,10)
 ;

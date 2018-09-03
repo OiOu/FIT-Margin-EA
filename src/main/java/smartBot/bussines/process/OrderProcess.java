@@ -51,9 +51,7 @@ public class OrderProcess {
             order.setSubtype(OrderSubType.OP_BUY_LIMIT);
         }
 
-        Integer heightK = (currencyRate.getCurrency().getK() != null ? currencyRate.getCurrency().getK() : 1);
-        order.setPrice(zone.getPriceCalc() + zone.getLevel().getOrderAssignmentShift() * heightK * currencyRate.getPointPips() * currencyRate.getPointPrice() * zone.getScope().getType());
-
+        order.setPrice(zone.getPriceOrder());
         order.setPriceStopLoss(zone.getPriceStopLoss());
         order.setPriceTakeProfit(zone.getPriceTakeProfit());
 

@@ -16,4 +16,7 @@ public interface ZoneLevelJpaRepository extends CrudRepository<ZoneLevelEntity, 
 
     @Query("SELECT zle FROM ZoneLevelEntity zle WHERE zle.k = ?1")
     ZoneLevelEntity getByK(Integer k);
+
+    @Query("SELECT zle FROM ZoneLevelEntity zle WHERE zle.enable = true")
+    List<ZoneLevelEntity> findAllEnabled();
 }

@@ -39,6 +39,9 @@ public class ZoneEntity implements Serializable {
     @Column(name="price_calc_order_detection_zone")
     private Double priceCalcOrderDetectionZone;
 
+    @Column(name="price_order")
+    private Double priceOrder;
+
     @Column(name="price_stop_loss")
     private Double priceStopLoss;
 
@@ -68,6 +71,8 @@ public class ZoneEntity implements Serializable {
     @JoinColumn(name="level_id", nullable=false)
     private ZoneLevelEntity level;
 
+    @Column(name="floor")
+    private Integer floor;
     //----------------------------------------------------------------------
     // CONSTRUCTOR(S)
     //----------------------------------------------------------------------
@@ -151,6 +156,14 @@ public class ZoneEntity implements Serializable {
         this.priceCalcOrderDetectionZone = priceCalcOrderDetectionZone;
     }
 
+    public Double getPriceOrder() {
+        return priceOrder;
+    }
+
+    public void setPriceOrder(Double priceOrder) {
+        this.priceOrder = priceOrder;
+    }
+
     public Double getPriceStopLoss() {
         return priceStopLoss;
     }
@@ -205,5 +218,13 @@ public class ZoneEntity implements Serializable {
 
     public void setTouched(Boolean touched) {
         this.touched = touched;
+    }
+
+    public Integer getFloor() {
+        return floor;
+    }
+
+    public void setFloor(Integer floor) {
+        this.floor = floor;
     }
 }

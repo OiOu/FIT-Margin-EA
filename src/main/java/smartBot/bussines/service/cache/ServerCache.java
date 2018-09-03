@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 @Component
 public class ServerCache {
 
+    // TODO isForceUpdateZoneNeeded for currency
     private static boolean isForceUpdateZoneNeeded = false;
     private static Map<Integer, Map<Integer, CurrencyRates>> currencyRateCache = Collections.synchronizedMap(new ConcurrentHashMap<>());
     private static Map<Integer, Currency> currencyCache = Collections.synchronizedMap(new ConcurrentHashMap<>());

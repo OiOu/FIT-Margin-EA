@@ -10,6 +10,7 @@ import smartBot.bussines.service.*;
 import smartBot.bussines.service.cache.ServerCache;
 import smartBot.bussines.service.mapping.ZoneServiceMapper;
 import smartBot.data.repository.jpa.ZoneJpaRepository;
+import smartBot.defines.PriorityConstants;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -42,7 +43,10 @@ public class ZoneServiceImpl implements ZoneService {
     @Resource
     private ZoneLevelService zoneLevelService;
 
-            @Resource
+    @Resource
+    private PriorityService priorityService;
+
+    @Resource
     private ServerCache serverCache;
 
     /*
@@ -62,50 +66,74 @@ public class ZoneServiceImpl implements ZoneService {
         Collections.sort(zoneLevels);
 
         List<Zone> zones = scope.getZones();
-
         if (zones == null || zones.isEmpty()) {
-            for (ZoneLevel level : zoneLevels){
-                if (!level.getEnable()) { continue; }
+            for (int k = 1; k <= 10; k++) {
+                for (ZoneLevel level : zoneLevels) {
+                    if (!level.getEnable()) {
+                        continue;
+                    }
 
-                Zone zone = new Zone();
-                zone.setLevel(level);
-                if (scope.getType() == Scope.BUILD_FROM_HIGH) {
-                    zone.setPrice(currencyRate.getHigh());
-                } else {
-                    zone.setPrice(currencyRate.getLow());
+                    Zone zone = new Zone();
+                    zone.setLevel(level);
+                    zone.setFloor(k);
+                    zone.setActivated(false);
+                    zone.setTouched(false);
+                    zone.setScope(scope);
+                    zone.setTimestamp(currencyRate.getTimestamp());
+                    zone.setName(zone.toString());
+                    zones.add(zone);
                 }
-                zone.setActivated(false);
-                zone.setTouched(false);
-                zone.setScope(scope);
-                zone.setTimestamp(currencyRate.getTimestamp());
-                zone.setName(zone.toString());
-                zones.add(zone);
-
             }
         }
 
-        // if scope has zones then recalculate it. for new list calculate too
+        // if scope has zones then recalculate it
         List<Zone> newZones = new ArrayList<>();
+        Double distance = new Double(0);
+        Integer heightK = (currencyRate.getCurrency().getK() != null? currencyRate.getCurrency().getK() : 1);
+        Zone zoneLastOnFloor = null;
+
+        Priority priority = priorityService.findByCurrencyIdAndPrioritySubType(currency.getId(), PriorityConstants.LOCAL);
+
         for (int i = 0; i < zones.size(); i++) {
             Zone zone = zones.get(i);
-            if (!zone.getLevel().getEnable()) { continue; }
 
-            if (scope.getType() == Scope.BUILD_FROM_HIGH) {
-                zone.setPrice(currencyRate.getHigh());
+            // Check if zone price is the same - means that margin rate was changed not high or low extremum
+            // Skip calculation if zone was touched. Its needed for case when margin rate was changed - we should build new zones from prev touched
+            //todo check distance value because we have a shift for floors 3+
+            if (!zone.getTouched() || (zone.getTouched() && priority.getType().getType() == scope.getType())) {
+                if (zone.getFloor() == 1) {
+                    if (scope.getType() == Scope.BUILD_FROM_HIGH) {
+                        zone.setPrice(currencyRate.getHigh());
+                    } else {
+                        zone.setPrice(currencyRate.getLow());
+                    }
+                } else {
+                    zone.setPrice(zoneLastOnFloor.getPriceCalc() - distance * currencyRate.getPointPrice() * currencyRate.getPointPips() * heightK * scope.getType());
+                }
+
+                zone.setTimestamp(currencyRate.getTimestamp());
+                zone.setActivated(false);
+                if (!serverCache.isForceUpdateZoneNeeded()) {
+                    zone.setTouched(false);
+                }
+
+                Zone newZonAfterCalculation = calculate(scope, zone, currency, currencyRate, marginRate);
+                newZones.add(newZonAfterCalculation);
+                if (i > 0 && (i + 1) % zoneLevels.size() == 0) {
+                    zoneLastOnFloor = newZonAfterCalculation;
+                }
             } else {
-                zone.setPrice(currencyRate.getLow());
+                newZones.add(zone);
+
+                if (i > 0 && (i + 1) % zoneLevels.size() == 0) {
+                    zoneLastOnFloor = zone;
+                }
             }
-            zone.setTimestamp(currencyRate.getTimestamp());
-            zone.setActivated(false);
-            zone.setTouched(false);
-            newZones.add(calculate(scope, zone, currency, currencyRate, marginRate));
         }
 
         Iterable<ZoneEntity> zoneListEntities = zoneServiceMapper.mapBeansToEntities(newZones);
         zoneListEntities = zoneJpaRepository.saveAll(zoneListEntities);
         zones = zoneServiceMapper.mapEntitiesToBeans((List<ZoneEntity>) zoneListEntities);
-
-        scope.setZones(zones);
 
         return zones;
     }
@@ -113,6 +141,7 @@ public class ZoneServiceImpl implements ZoneService {
     private Zone calculate(Scope scope, Zone zone, Currency currency, CurrencyRates currencyRate, MarginRates marginRate) {
 
         if (!zone.getLevel().getEnable()) return null;
+        if (zone.getTouched()) return zone;
 
         Double futurePoint = marginRate.getFuturePoint();
         if (futurePoint == null) futurePoint = currencyRate.getPointPips() *currencyRate.getPointPrice();
@@ -127,22 +156,23 @@ public class ZoneServiceImpl implements ZoneService {
         }
         zone.setPriceCalcShift(zone.getPriceCalc() + zone.getLevel().getHeight() * heightK * currencyRate.getPointPips() * currencyRate.getPointPrice() * scope.getType());
         zone.setPriceCalcOrderDetectionZone(zone.getPriceCalc() + zone.getLevel().getHeight() * 2 * heightK * currencyRate.getPointPips() * currencyRate.getPointPrice() * scope.getType());
+        zone.setPriceOrder(zone.getPriceCalc() + zone.getLevel().getOrderAssignmentShift() * heightK * currencyRate.getPointPips() * currencyRate.getPointPrice() * scope.getType());
 
         // Get inverse scope for determining take profit price
         Integer scopeTypeForTakeProfit = scope.getType() == Scope.BUILD_FROM_HIGH? Scope.BUILD_FROM_LOW : Scope.BUILD_FROM_HIGH;
         Scope scopeForTakeProfit = scopeService.findByCurrencyIdAndScopeType(currency.getId(), scopeTypeForTakeProfit);
 
         // If something will happen later - we will have SL and TP anyway
-        zone.setPriceStopLoss(zone.getPriceCalc() - zone.getLevel().getStopLossSize() * heightK * currencyRate.getPointPips() * currencyRate.getPointPrice() * scope.getType());
-        zone.setPriceTakeProfit(zone.getPrice());
+        zone.setPriceStopLoss(zone.getPriceOrder() - zone.getLevel().getStopLossSize() * heightK * currencyRate.getPointPips() * currencyRate.getPointPrice() * scope.getType());
+        zone.setPriceTakeProfit(zone.getPriceOrder() - zone.getLevel().getStopLossSize() * zone.getLevel().getRiskProfitMin() * heightK * currencyRate.getPointPips() * currencyRate.getPointPrice() * scope.getType());
 
         // if getBreakEven is not null and > 0 we will move SL to getBreakEven shift price
         if (zone.getLevel().getBreakEven() != null) {
-            zone.setPriceBreakEvenProfit(zone.getPriceCalc() + zone.getLevel().getBreakEven() * heightK * currencyRate.getPointPips() * currencyRate.getPointPrice() * scope.getType());
+            zone.setPriceBreakEvenProfit(zone.getPriceOrder() + zone.getLevel().getBreakEven() * heightK * currencyRate.getPointPips() * currencyRate.getPointPrice() * scope.getType());
         }
 
         if (zone.getLevel().getTrail() != null) {
-            zone.setPriceTrailProfit(zone.getPriceCalc() + zone.getLevel().getTrail() * heightK * currencyRate.getPointPips() * currencyRate.getPointPrice() * scope.getType());
+            zone.setPriceTrailProfit(zone.getPriceOrder() + zone.getLevel().getTrail() * heightK * currencyRate.getPointPips() * currencyRate.getPointPrice() * scope.getType());
         }
 
         if (scopeForTakeProfit != null && scopeForTakeProfit.getZones() != null) {
@@ -151,7 +181,7 @@ public class ZoneServiceImpl implements ZoneService {
                 // filter zones which has priceCalcShift with risk/profit >= 1:N
                 if (zoneTakeProfit.getLevel().getEnable()) {
                     // Calculate distance to next (profit) zone and determine stop loss size like (distance / riskProfitRounded)
-                    Double distanceInPoints = (zoneTakeProfit.getPriceCalcShift() - zone.getPriceCalc()) * scope.getType() / currencyRate.getPointPrice() / currencyRate.getPointPips()
+                    Double distanceInPoints = (zoneTakeProfit.getPriceCalcShift() - zone.getPriceOrder()) * scope.getType() / currencyRate.getPointPrice() / currencyRate.getPointPips()
                             - zone.getLevel().getOrderAssignmentShift() * scope.getType();
 
                     // Use fixed or dynamic SL
@@ -164,7 +194,7 @@ public class ZoneServiceImpl implements ZoneService {
                         }
                     }
 
-                    zone.setPriceStopLoss(zone.getPriceCalc() - stopLossInPoint * heightK * currencyRate.getPointPips() * currencyRate.getPointPrice() * scope.getType());
+                    zone.setPriceStopLoss(zone.getPriceOrder() - stopLossInPoint * heightK * currencyRate.getPointPips() * currencyRate.getPointPrice() * scope.getType());
 
                     // to avoid useless orders (open price is very close to TP)
                     if (!zoneTakeProfit.getTouched() && distanceInPoints > 50) { // TODO distanceInPoints from DB

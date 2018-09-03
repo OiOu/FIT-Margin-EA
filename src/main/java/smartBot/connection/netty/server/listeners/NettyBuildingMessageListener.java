@@ -395,7 +395,7 @@ public class NettyBuildingMessageListener implements NettyMessageListener {
         DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy.MM.dd HH:mm");
 
         scopes.forEach(scope -> scope.getZones().stream().forEach(zone ->
-                sb.append("zone_" + zone.getLevel().getK()+ "_" + scope.getType()).append(Strings.COMMA)
+                sb.append(zone.getName()).append(Strings.COMMA)
                     .append(dtf.print(zone.getTimestamp())).append(Strings.COMMA)
                     .append(zone.getPrice()).append(Strings.COMMA)
                     .append(zone.getPriceCalc()).append(Strings.COMMA)

@@ -112,8 +112,8 @@ public class Scope implements Serializable, Comparable {
     public String toString() {
         return "Scope{" +
                 currency.getShortName() +
-                ", " + type +
-                '}';
+                " "+ type +
+                "}";
     }
 
     @Override

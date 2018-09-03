@@ -1,30 +1,31 @@
+-- Drop table
+
+-- DROP TABLE public."order"
+
 CREATE TABLE public."order" (
 	id serial NOT NULL,
 	"name" varchar NOT NULL,
-	ticket int4 NULL,
 	"type" int4 NOT NULL,
-	"subtype" int4 NOT NULL,
+	subtype int4 NOT NULL,
 	currency_id int4 NOT NULL,
 	level_id int4 NOT NULL,
 	open_timestamp timestamp NOT NULL,
-	close_timestamp timestamp NULL,
-	price float4 NOT NULL,
-	price_stop_loss float4 NOT NULL,
-	price_take_profit float4 NOT NULL,
-	price_break_even_profit float4 NOT NULL,
-	price_trail_profit float4 NOT NULL,
+	price numeric(10,5) NOT NULL,
+	price_stop_loss numeric(10,5) NOT NULL,
+	price_take_profit numeric(10,5) NOT NULL,
 	close_reason int4 NULL,
+	price_break_even_profit numeric(10,5) NULL,
+	price_trail_profit numeric(10,5) NULL,
 	break_even_activated bool NULL DEFAULT false,
-	points int4 NULL DEFAULT 0,
+	ticket int4 NULL,
+	points int4 NULL,
 	activated bool NULL DEFAULT false,
+	close_timestamp timestamp NULL,
 	trail_stop_activated bool NULL DEFAULT false,
 	CONSTRAINT order_pk PRIMARY KEY (id),
-	CONSTRAINT order_zone_level_fk FOREIGN KEY (level_id) REFERENCES public.zone_level(id) ON DELETE CASCADE ON UPDATE CASCADE,
-	CONSTRAINT order_currency_fk FOREIGN KEY (currency_id) REFERENCES public.currency(id) ON DELETE CASCADE ON UPDATE CASCADE
-)
-WITH (
-	OIDS=FALSE
-) ;
+	CONSTRAINT order_currency_fk FOREIGN KEY (currency_id) REFERENCES currency(id) ON UPDATE CASCADE ON DELETE CASCADE,
+	CONSTRAINT order_zone_level_fk FOREIGN KEY (level_id) REFERENCES zone_level(id) ON UPDATE CASCADE ON DELETE CASCADE
+);
 
 -- Permissions
 ALTER TABLE public."order" OWNER TO smartbot;

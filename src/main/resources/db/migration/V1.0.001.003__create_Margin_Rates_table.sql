@@ -1,5 +1,9 @@
+-- Drop table
+
+-- DROP TABLE public.margin_rates
+
 CREATE TABLE public.margin_rates (
-    id serial not null,
+	id serial NOT NULL,
 	exchange varchar(255) NULL,
 	sector varchar(255) NULL,
 	"name" varchar(255) NULL,
@@ -13,16 +17,13 @@ CREATE TABLE public.margin_rates (
 	vol_scan_maintenance_rate varchar(255) NULL,
 	currency_id int4 NOT NULL,
 	start_date timestamp NOT NULL DEFAULT date(now()),
-	end_date timestamp NULL,
 	future_point float4 NULL,
 	price_per_contract float4 NULL,
-	CONSTRAINT margin_rates_pk PRIMARY KEY (id)
-)
-WITH (
-	OIDS=FALSE
-) ;
-
-CREATE INDEX margin_rates_currency_id_idx ON public.margin_rates USING btree (currency_id, start_date) ;
+	end_date timestamp NULL,
+	CONSTRAINT margin_rates_pk PRIMARY KEY (id),
+	CONSTRAINT margin_rates_currency_fk FOREIGN KEY (currency_id) REFERENCES currency(id)
+);
+CREATE INDEX margin_rates_currency_id_idx ON public.margin_rates USING btree (currency_id, start_date);
 
 -- Permissions
 ALTER TABLE public.margin_rates OWNER TO smartbot;

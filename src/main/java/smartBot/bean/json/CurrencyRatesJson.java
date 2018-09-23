@@ -36,6 +36,10 @@ public class CurrencyRatesJson implements Serializable {
 
     private Double pointPips;
 
+    private Double atrPriceFromMonthLow;
+
+    private Double atrPriceFromMonthHigh;
+
     private boolean isHistory;
 
     public Integer getPeriod() {
@@ -124,6 +128,22 @@ public class CurrencyRatesJson implements Serializable {
 
     public void setPointPrice(Double pointPrice) {
         this.pointPrice = pointPrice;
+    }
+
+    public Double getAtrPriceFromMonthLow() {
+        return atrPriceFromMonthLow;
+    }
+
+    public void setAtrPriceFromMonthLow(Double atrPriceFromMonthLow) {
+        this.atrPriceFromMonthLow = atrPriceFromMonthLow;
+    }
+
+    public Double getAtrPriceFromMonthHigh() {
+        return atrPriceFromMonthHigh;
+    }
+
+    public void setAtrPriceFromMonthHigh(Double atrPriceFromMonthHigh) {
+        this.atrPriceFromMonthHigh = atrPriceFromMonthHigh;
     }
 
     public boolean isHistory() {

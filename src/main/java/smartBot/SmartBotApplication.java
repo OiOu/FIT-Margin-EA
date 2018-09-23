@@ -1,8 +1,8 @@
 package smartBot;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTimeZone;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -13,16 +13,16 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 import javax.annotation.PostConstruct;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.TimeZone;
 
 @ComponentScan({"smartBot"})
 @SpringBootApplication
 @EnableScheduling
 public class SmartBotApplication {
-	private static final Logger log = LoggerFactory.getLogger(SmartBotApplication.class);
 
-	public static void main(String[] args) throws UnknownHostException {
+	private final static Logger logger = LogManager.getLogger(SmartBotApplication.class);
+
+	public static void main(String[] args) throws Exception {
 		ConfigurableApplicationContext context = SpringApplication.run(SmartBotApplication.class, args);
 
 		ConfigurableEnvironment env = context.getEnvironment();
@@ -30,7 +30,7 @@ public class SmartBotApplication {
 		if (env.getProperty("server.ssl.key-store") != null) {
 			protocol = "https";
 		}
-		log.info("\n----------------------------------------------------------\n\t"
+		logger.info("\n----------------------------------------------------------\n\t"
 						+ "Application '{}' is running! Access URLs:\n\t" + "Local: \t\t{}://localhost:{}{}\n\t"
 						+ "External: \t{}://{}:{}{}\n----------------------------------------------------------",
 				env.getProperty("spring.application.name"), protocol, env.getProperty("server.port"),
@@ -38,7 +38,7 @@ public class SmartBotApplication {
 				InetAddress.getLocalHost().getHostAddress(), env.getProperty("server.port"),
 				env.getProperty("server.contextPath"));
 		String configServerStatus = env.getProperty("configserver.status");
-		log.info("\n----------------------------------------------------------\n\t"
+		logger.info("\n----------------------------------------------------------\n\t"
 						+ "Config Server: \t{}\n----------------------------------------------------------",
 				configServerStatus == null ?
 						"Not found or not setup for this application" :
@@ -53,8 +53,8 @@ public class SmartBotApplication {
 
 	private static void printArg(String strArgumentName, Environment env){
 		String strArgumentValue = env.getProperty(strArgumentName);
-		if(strArgumentValue!=null)
-			log.info(strArgumentName+"="+strArgumentValue);
+		if (strArgumentValue != null)
+			logger.info(strArgumentName + "=" + strArgumentValue);
 	}
 
 	private static String checkHttp(Environment env) {
@@ -62,7 +62,7 @@ public class SmartBotApplication {
 		String strRequireSsl = env.getProperty("security.require-ssl");
 		String strSslKeystore = env.getProperty("server.sss.key-store");
 		boolean requireSsl = Boolean.valueOf(strRequireSsl);
-		if(requireSsl)
+		if (requireSsl)
 			http = "https";
 		if(strSslKeystore!=null)
 			http = "https";

@@ -42,6 +42,8 @@ public class Zone implements Serializable, Comparable {
 
     private Double priceTrailProfit;
 
+    private Double priceATR;
+
     private Integer tradeCount;
 
     private Boolean activated;
@@ -160,6 +162,14 @@ public class Zone implements Serializable, Comparable {
 
     public void setPriceTrailProfit(Double priceTrailProfit) {
         this.priceTrailProfit = priceTrailProfit;
+    }
+
+    public Double getPriceATR() {
+        return priceATR;
+    }
+
+    public void setPriceATR(Double priceATR) {
+        this.priceATR = priceATR;
     }
 
     public Integer getTradeCount() {

@@ -112,6 +112,8 @@ public class CurrencyRatesServiceMapper extends AbstractServiceMapper {
         currencyRates.setPointPips(currencyRatesJson.getPointPips());
         currencyRates.setPointPrice(currencyRatesJson.getPointPrice());
         currencyRates.setHistory(currencyRatesJson.isHistory());
+        currencyRates.setAtrPriceFromMonthHigh(currencyRatesJson.getAtrPriceFromMonthHigh());
+        currencyRates.setAtrPriceFromMonthLow(currencyRatesJson.getAtrPriceFromMonthLow());
 
         return currencyRates;
     }

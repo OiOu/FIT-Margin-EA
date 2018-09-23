@@ -21,6 +21,7 @@ CREATE TABLE public."zone" (
 	price_trail_profit numeric(10,5) NULL,
 	floor int4 NULL,
 	price_order numeric(10,5) NULL,
+	price_atr numeric(10,5) NULL,
 	CONSTRAINT zone_info_pk PRIMARY KEY (id),
 	CONSTRAINT zone_scope_fk FOREIGN KEY (scope_id) REFERENCES scope(id) ON UPDATE CASCADE ON DELETE CASCADE,
 	CONSTRAINT zone_zone_level_fk FOREIGN KEY (level_id) REFERENCES zone_level(id) ON UPDATE CASCADE ON DELETE CASCADE
@@ -40,3 +41,4 @@ ALTER TABLE public."zone" ALTER COLUMN "price_take_profit" TYPE numeric(10, 5) U
 ALTER TABLE public."zone" ALTER COLUMN "price_break_even_profit" TYPE numeric(10, 5) USING ("price_break_even_profit"::numeric(10, 5));
 ALTER TABLE public."zone" ALTER COLUMN "price_trail_profit" TYPE numeric(10, 5) USING ("price_trail_profit"::numeric(10, 5));
 ALTER TABLE public."zone" ALTER COLUMN "price_order" TYPE numeric(10, 5) USING ("price_order"::numeric(10, 5));
+ALTER TABLE public."zone" ALTER COLUMN "price_atr" TYPE numeric(10, 5) USING ("price_atr"::numeric(10, 5));

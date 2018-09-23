@@ -93,14 +93,13 @@ public class ZoneServiceImpl implements ZoneService {
         Zone zoneLastOnFloor = null;
 
         Priority priority = priorityService.findByCurrencyIdAndPrioritySubType(currency.getId(), PriorityConstants.LOCAL);
-
         for (int i = 0; i < zones.size(); i++) {
             Zone zone = zones.get(i);
 
             // Check if zone price is the same - means that margin rate was changed not high or low extremum
             // Skip calculation if zone was touched. Its needed for case when margin rate was changed - we should build new zones from prev touched
             //todo check distance value because we have a shift for floors 3+
-            if (!zone.getTouched() || (zone.getTouched() && priority.getType().getType() == scope.getType())) {
+            if (!zone.getTouched() || (zone.getTouched() && priority != null && priority.getType().getType() == scope.getType())) {
                 if (zone.getFloor() == 1) {
                     if (scope.getType() == Scope.BUILD_FROM_HIGH) {
                         zone.setPrice(currencyRate.getHigh());
@@ -173,6 +172,13 @@ public class ZoneServiceImpl implements ZoneService {
 
         if (zone.getLevel().getTrail() != null) {
             zone.setPriceTrailProfit(zone.getPriceOrder() + zone.getLevel().getTrail() * heightK * currencyRate.getPointPips() * currencyRate.getPointPrice() * scope.getType());
+        }
+
+        if (scope.getType() == Scope.BUILD_FROM_LOW && currencyRate.getAtrPriceFromMonthHigh() != null) {
+            zone.setPriceATR(currencyRate.getAtrPriceFromMonthHigh());
+        }
+        if (scope.getType() == Scope.BUILD_FROM_HIGH && currencyRate.getAtrPriceFromMonthLow() != null) {
+            zone.setPriceATR(currencyRate.getAtrPriceFromMonthLow());
         }
 
         if (scopeForTakeProfit != null && scopeForTakeProfit.getZones() != null) {

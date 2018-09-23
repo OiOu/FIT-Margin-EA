@@ -106,6 +106,8 @@ public class CurrencyRatesServiceImpl implements CurrencyRatesService {
         lastCurrencyRate.setPointPips(currentCurrencyRate.getPointPips());
         lastCurrencyRate.setScope(currentCurrencyRate.getScope());
         lastCurrencyRate.setCurrency(currentCurrencyRate.getCurrency());
+        lastCurrencyRate.setAtrPriceFromMonthHigh(currentCurrencyRate.getAtrPriceFromMonthHigh());
+        lastCurrencyRate.setAtrPriceFromMonthLow(currentCurrencyRate.getAtrPriceFromMonthLow());
     }
 
     @Override

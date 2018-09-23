@@ -54,6 +54,9 @@ public class ZoneEntity implements Serializable {
     @Column(name="price_trail_profit")
     private Double priceTrailProfit;
 
+    @Column(name="price_atr")
+    private Double priceATR;
+
     @Column(name="trade_count")
     private Integer tradeCount;
 
@@ -226,5 +229,13 @@ public class ZoneEntity implements Serializable {
 
     public void setFloor(Integer floor) {
         this.floor = floor;
+    }
+
+    public Double getPriceATR() {
+        return priceATR;
+    }
+
+    public void setPriceATR(Double priceATR) {
+        this.priceATR = priceATR;
     }
 }

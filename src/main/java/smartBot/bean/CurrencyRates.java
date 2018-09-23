@@ -32,6 +32,10 @@ public class CurrencyRates implements Serializable {
 
     private Double pointPrice;
 
+    private Double atrPriceFromMonthLow;
+
+    private Double atrPriceFromMonthHigh;
+
     private boolean isHistory;
 
     @NotNull
@@ -121,6 +125,22 @@ public class CurrencyRates implements Serializable {
 
     public void setPointPrice(Double pointPrice) {
         this.pointPrice = pointPrice;
+    }
+
+    public Double getAtrPriceFromMonthLow() {
+        return atrPriceFromMonthLow;
+    }
+
+    public void setAtrPriceFromMonthLow(Double atrPriceFromMonthMin) {
+        this.atrPriceFromMonthLow = atrPriceFromMonthMin;
+    }
+
+    public Double getAtrPriceFromMonthHigh() {
+        return atrPriceFromMonthHigh;
+    }
+
+    public void setAtrPriceFromMonthHigh(Double atrPriceFromMonthMax) {
+        this.atrPriceFromMonthHigh = atrPriceFromMonthMax;
     }
 
     public boolean isHistory() {

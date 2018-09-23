@@ -24,12 +24,21 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 apply from: 'gradle/profile.gradle'
 
-group = 'smartBot'
-version = '0.0.1-SNAPSHOT'
+defaultTasks 'bootRun'
+
+def applicationName='smartBot'
+def version = '0.0.1-SNAPSHOT'
+
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-defaultTasks 'bootRun'
+bootJar {
+	archiveName = applicationName + "-" + version + ".jar"
+}
+
+tasks.withType(JavaCompile) {
+	options.encoding = 'UTF-8'
+}
 
 springBoot {
 	mainClassName = 'smartBot.SmartBotApplication'
@@ -56,6 +65,7 @@ dependencies {
 	compile "org.springframework.boot:spring-boot-starter-data-jpa"
 	compile "org.springframework.boot:spring-boot-starter-quartz"
 	compile group: 'org.springframework', name: 'spring-context-support', version: '4.0.0.RELEASE'
+
 	// COMMONS
 	compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
 	compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.7'

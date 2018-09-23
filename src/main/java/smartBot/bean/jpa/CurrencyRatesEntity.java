@@ -45,6 +45,12 @@ public class CurrencyRatesEntity implements Serializable {
     @Type(type="org.jadira.usertype.dateandtime.joda.PersistentDateTime")
     private DateTime timestamp;
 
+    @Column(name="atr_price_from_month_high")
+    private Double atrPriceFromMonthHigh;
+
+    @Column(name="atr_price_from_month_low")
+    private Double atrPriceFromMonthLow;
+
     @ManyToOne
     @JoinColumn(name="currency_id", nullable=false)
     private CurrencyEntity currency;
@@ -149,5 +155,21 @@ public class CurrencyRatesEntity implements Serializable {
 
     public void setScope(ScopeEntity scope) {
         this.scope = scope;
+    }
+
+    public Double getAtrPriceFromMonthHigh() {
+        return atrPriceFromMonthHigh;
+    }
+
+    public void setAtrPriceFromMonthHigh(Double atrPriceFromMonthHigh) {
+        this.atrPriceFromMonthHigh = atrPriceFromMonthHigh;
+    }
+
+    public Double getAtrPriceFromMonthLow() {
+        return atrPriceFromMonthLow;
+    }
+
+    public void setAtrPriceFromMonthLow(Double atrPriceFromMonthLow) {
+        this.atrPriceFromMonthLow = atrPriceFromMonthLow;
     }
 }

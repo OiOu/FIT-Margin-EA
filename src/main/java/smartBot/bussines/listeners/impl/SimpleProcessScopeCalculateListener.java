@@ -91,12 +91,16 @@ public class SimpleProcessScopeCalculateListener implements ScopeListener {
                         // Set flag that zone was touched
                         zone.setActivated(true);
 
-                        if (zone.getLevel().getTradeAllowed() && zone.getPriceTakeProfit() != null && zone.getPriceStopLoss() != null) {
-                            // Create and save into DB new order (only for actual CurrencyRate). For history we will only save in DB
-                            orderProcess.openOrder(currencyRate, priority, zone, hostPort);
+                        // Do not open order if price from zone was build is out of Month ATR distance
+                        if (scope.getType() == Scope.BUILD_FROM_HIGH && zone.getPrice() <= zone.getPriceATR() ||
+                            scope.getType() == Scope.BUILD_FROM_LOW && zone.getPrice() >= zone.getPriceATR()) {
+                            if (zone.getLevel().getTradeAllowed() && zone.getPriceTakeProfit() != null && zone.getPriceStopLoss() != null) {
+                                // Create and save into DB new order (only for actual CurrencyRate). For history we will only save in DB
+                                orderProcess.openOrder(currencyRate, priority, zone, hostPort);
+                            }
+                            // Update zone
+                            zone = zoneService.save(zone);
                         }
-                        // Update zone
-                        zone = zoneService.save(zone);
                     }
                 }
 

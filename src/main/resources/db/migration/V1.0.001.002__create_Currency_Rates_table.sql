@@ -1,7 +1,6 @@
 -- Drop table
 
 -- DROP TABLE public.currency_rates
-
 CREATE TABLE public.currency_rates (
 	id serial NOT NULL,
 	high numeric(10,5) NOT NULL,
@@ -14,6 +13,8 @@ CREATE TABLE public.currency_rates (
 	scope_id int4 NULL,
 	point_pips float4 NULL,
 	point_price float4 NULL,
+	atr_price_from_month_high float4 NULL,
+	atr_price_from_month_low float4 NULL,
 	CONSTRAINT currency_rates_currency_fk FOREIGN KEY (currency_id) REFERENCES currency(id),
 	CONSTRAINT currency_rates_scope_fk FOREIGN KEY (scope_id) REFERENCES scope(id) ON UPDATE CASCADE ON DELETE CASCADE
 );
@@ -26,3 +27,5 @@ ALTER TABLE public.currency_rates ALTER COLUMN high TYPE numeric(10, 5) USING (h
 ALTER TABLE public.currency_rates ALTER COLUMN low TYPE numeric(10, 5) USING (low::numeric(10, 5));
 ALTER TABLE public.currency_rates ALTER COLUMN "open" TYPE numeric(10, 5) USING ("open"::numeric(10, 5));
 ALTER TABLE public.currency_rates ALTER COLUMN "close" TYPE numeric(10, 5) USING ("close"::numeric(10, 5));
+ALTER TABLE public.currency_rates ALTER COLUMN "atr_price_from_month_low" TYPE numeric(10, 5) USING ("atr_price_from_month_low"::numeric(10, 5));
+ALTER TABLE public.currency_rates ALTER COLUMN "atr_price_from_month_low" TYPE numeric(10, 5) USING ("atr_price_from_month_low"::numeric(10, 5));

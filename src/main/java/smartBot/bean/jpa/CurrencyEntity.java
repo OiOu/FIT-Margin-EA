@@ -40,6 +40,9 @@ public class CurrencyEntity implements Serializable {
     @Column(name="k")
     private Integer k;
 
+    @Column(name="zone_level_k")
+    private Integer zoneLevelK;
+
     @OneToMany(mappedBy="currency", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<CurrencyRatesEntity> rates;
 
@@ -164,5 +167,13 @@ public class CurrencyEntity implements Serializable {
 
     public void setPriorities(List<PriorityEntity> priorities) {
         this.priorities = priorities;
+    }
+
+    public Integer getZoneLevelK() {
+        return zoneLevelK;
+    }
+
+    public void setZoneLevelK(Integer zoneLevelK) {
+        this.zoneLevelK = zoneLevelK;
     }
 }

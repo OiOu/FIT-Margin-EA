@@ -47,6 +47,8 @@ public class ZoneLevel implements Serializable, Comparable {
 
     private Double takeProfitPercent;
 
+    private Boolean buildFromInternalBorder;
+
     public Integer getId() {
         return id;
     }
@@ -173,6 +175,14 @@ public class ZoneLevel implements Serializable, Comparable {
 
     public void setBreakEven(Integer breakEven) {
         this.breakEven = breakEven;
+    }
+
+    public Boolean getBuildFromInternalBorder() {
+        return buildFromInternalBorder;
+    }
+
+    public void setBuildFromInternalBorder(Boolean buildFromInternalBorder) {
+        this.buildFromInternalBorder = buildFromInternalBorder;
     }
 
     @Override

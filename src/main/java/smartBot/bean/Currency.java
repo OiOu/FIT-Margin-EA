@@ -38,6 +38,8 @@ public class Currency implements Serializable {
 
     private Integer k;
 
+    private Integer zoneLevelK;
+
     public Integer getId() {
         return id;
     }
@@ -108,5 +110,13 @@ public class Currency implements Serializable {
 
     public void setK(Integer k) {
         this.k = k;
+    }
+
+    public Integer getZoneLevelK() {
+        return zoneLevelK;
+    }
+
+    public void setZoneLevelK(Integer zoneLevelK) {
+        this.zoneLevelK = zoneLevelK;
     }
 }

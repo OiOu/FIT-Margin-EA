@@ -22,6 +22,7 @@ CREATE TABLE public."zone" (
 	floor int4 NULL,
 	price_order numeric(10,5) NULL,
 	price_atr numeric(10,5) NULL,
+	build_from_internal_border bool NULL DEFAULT false,
 	CONSTRAINT zone_info_pk PRIMARY KEY (id),
 	CONSTRAINT zone_scope_fk FOREIGN KEY (scope_id) REFERENCES scope(id) ON UPDATE CASCADE ON DELETE CASCADE,
 	CONSTRAINT zone_zone_level_fk FOREIGN KEY (level_id) REFERENCES zone_level(id) ON UPDATE CASCADE ON DELETE CASCADE

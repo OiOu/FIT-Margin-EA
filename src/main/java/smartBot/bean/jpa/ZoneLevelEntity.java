@@ -65,6 +65,9 @@ public class ZoneLevelEntity implements Serializable {
     @Column(name="take_profit_percent")
     private Double takeProfitPercent;
 
+    @Column(name="build_from_internal_border")
+    private Boolean buildFromInternalBorder;
+
     // CONSTRUCTOR(S)
     //----------------------------------------------------------------------
     public ZoneLevelEntity() {
@@ -209,5 +212,13 @@ public class ZoneLevelEntity implements Serializable {
 
     public void setBreakEven(Integer breakEven) {
         this.breakEven = breakEven;
+    }
+
+    public Boolean getBuildFromInternalBorder() {
+        return buildFromInternalBorder;
+    }
+
+    public void setBuildFromInternalBorder(Boolean buildFromInternalBorder) {
+        this.buildFromInternalBorder = buildFromInternalBorder;
     }
 }

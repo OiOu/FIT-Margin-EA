@@ -37,6 +37,7 @@ COMMENT ON COLUMN public.zone_level."enable" IS 'Do we use this level in process
 COMMENT ON COLUMN public.zone_level.take_profit_percent IS 'What part of order (in percent) we should close on this level' ;
 COMMENT ON COLUMN public.zone_level.boost IS 'Allow to open boost order from this zone' ;
 COMMENT ON COLUMN public.order_settings.dynamic_stop_loss IS 'Should we use fixed or dynamic SL';
+
 -- NEW VERSION
 INSERT INTO zone_level ("name",height,k,priority_type_id,priority_subtype_id,priority_distance,trade_allowed,order_assignment_shift,"enable",boost,dynamic_stop_loss,risk_profit_min,stop_loss_size,break_even,trail,take_profit_percent) VALUES
 ('0.5',20,0.50,1,1,2,true,15,true,false,true,3,40,200,250,100)

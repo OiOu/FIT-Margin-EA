@@ -49,7 +49,7 @@ public class CurrencyRateProcess {
         List<Order> orderToSave = new ArrayList<>();
 
         BarCandle barCandle = new BarCandle(currentCurrencyRate);
-        Integer heightK = (currentCurrencyRate.getCurrency().getK() != null? currentCurrencyRate.getCurrency().getK() : 1);
+        Integer pointK = (currentCurrencyRate.getCurrency().getK() != null? currentCurrencyRate.getCurrency().getK() : 1);
 
         if (orderList != null) {
             for (Order order : orderList) {
@@ -80,7 +80,7 @@ public class CurrencyRateProcess {
                         points = order.getPrice() - order.getPriceStopLoss();
                     }
 
-                    order.setPoints(((Double) (points / heightK / currentCurrencyRate.getPointPips() / currentCurrencyRate.getPointPrice())).intValue());
+                    order.setPoints(((Double) (points / pointK / currentCurrencyRate.getPointPips() / currentCurrencyRate.getPointPrice())).intValue());
                     orderProcess.closeOrder(order, hostPort);
                     orderToRemove.add(order);
 
@@ -100,9 +100,9 @@ public class CurrencyRateProcess {
                 ) {
 
                     // TODO 6 - get from DB
-                    order.setPriceStopLoss(order.getPrice() + 6 * heightK * currentCurrencyRate.getPointPips() * currentCurrencyRate.getPointPrice());
+                    order.setPriceStopLoss(order.getPrice() + 6 * pointK * currentCurrencyRate.getPointPips() * currentCurrencyRate.getPointPrice());
                     if (order.getSubtype() == OrderSubType.OP_SELL_LIMIT ) {
-                        order.setPriceStopLoss(order.getPrice() - 6 * heightK * currentCurrencyRate.getPointPips() * currentCurrencyRate.getPointPrice());
+                        order.setPriceStopLoss(order.getPrice() - 6 * pointK * currentCurrencyRate.getPointPips() * currentCurrencyRate.getPointPrice());
                     }
 
                     order.setBreakEvenActivated(true);
@@ -146,7 +146,7 @@ public class CurrencyRateProcess {
 
                     order.setCloseReason(OrderConstants.CLOSE_TAKE_PROFIT);
                     order.setCloseTimestamp(currentCurrencyRate.getTimestamp());
-                    order.setPoints(new Double(Math.ceil(Math.abs(order.getPrice() - order.getPriceTakeProfit()) / heightK / currentCurrencyRate.getPointPips() / currentCurrencyRate.getPointPrice())).intValue());
+                    order.setPoints(new Double(Math.ceil(Math.abs(order.getPrice() - order.getPriceTakeProfit()) / pointK / currentCurrencyRate.getPointPips() / currentCurrencyRate.getPointPrice())).intValue());
                     orderProcess.closeOrder(order, hostPort);
                     orderToRemove.add(order);
 
